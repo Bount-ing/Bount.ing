@@ -1,0 +1,6 @@
+[submodule "OpenBounties-API"]
+	path = OpenBounties-API
+	url = git@github.com:Wild-Wild-Bugs/BountAPI.git
+[submodule "OpenBounties-WebUI"]
+	path = OpenBounties-WebUI
+	url = git@github.com:Wild-Wild-Bugs/WebUI.git
