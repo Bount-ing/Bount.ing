@@ -1,15 +1,15 @@
 version: '3.7'
 
 services:
-  webui:
-    restart: always
-    depends_on:
-      - api
-    build:
-      context: ./OpenBounties-WebUI
-      dockerfile: Dockerfile
-    ports:
-      - "8082:8082"
+#  webui:
+#    restart: always
+#    depends_on:
+#      - api
+#    build:
+#      context: ./OpenBounties-WebUI
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8082:8082"
 
   api:
     restart: always
@@ -23,8 +23,6 @@ services:
 
   db:
     restart: always
-    env_file:
-      - .env
     image: postgres    
     ports:
       - "5432:5432"
