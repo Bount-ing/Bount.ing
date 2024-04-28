@@ -9,13 +9,13 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
   backend:
-    build: ./backend
+    build: ./api
     ports:
       - "8080:8080"
     depends_on:
       - db
   frontend:
-    build: ./frontend
+    build: ./front
     ports:
       - "80:80"
     depends_on:
