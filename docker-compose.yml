@@ -14,10 +14,10 @@ services:
       - "8080:8080"
     depends_on:
       - db
-  frontend:
-    build: ./front
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
+        #  frontend:
+        #    build: ./front
+        #    ports:
+        #      - "80:80"
+        #    depends_on:
+        #      - backend
 

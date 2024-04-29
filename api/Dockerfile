@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -o bounty-backend .
+RUN go build -o open-bounties-api .
 
 # Start a new stage from scratch
 FROM alpine:latest  
@@ -22,11 +22,11 @@ FROM alpine:latest
 WORKDIR /root/
 
 # Copy the Pre-built binary file from the previous stage
-COPY --from=builder /app/bounty-backend .
+COPY --from=builder /app/open-bounties-api .
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
 
 # Command to run the executable
-CMD ["./bounty-backend"]
+CMD ["./open-bounties-api"]
 
