@@ -2,37 +2,34 @@ package services
 
 import (
     "open-bounties-api/models"
-    "errors"
     "gorm.io/gorm"
 )
 
 type IssueService struct {
-    db *gorm.DB // Assuming you are using GORM for database operations
+    db *gorm.DB
 }
 
 func NewIssueService(db *gorm.DB) *IssueService {
     return &IssueService{db: db}
 }
 
-func (s *IssueService) GetIssueByID(id uint) (*models.Issue, error) {
-    var issue models.Issue
-    result := s.db.First(&issue, id)
-    if result.Error != nil {
-        return nil, result.Error
-    }
-    return &issue, nil
+// FetchAllIssues returns all issues from the database
+func (s *IssueService) FetchAllIssues() ([]models.Issue, error) {
+    var issues []models.Issue
+    result := s.db.Find(&issues)
+    return issues, result.Error
 }
 
+// FetchIssueByID retrieves an issue by its ID from the database
+func (s *IssueService) FetchIssueByID(id uint) (*models.Issue, error) {
+    var issue models.Issue
+    result := s.db.First(&issue, id)
+    return &issue, result.Error
+}
+
+// CreateIssue creates a new issue in the database
 func (s *IssueService) CreateIssue(issue models.Issue) (*models.Issue, error) {
-    if issue.Title == "" {
-        return nil, errors.New("issue title cannot be empty")
-    }
-
     result := s.db.Create(&issue)
-    if result.Error != nil {
-        return nil, result.Error
-    }
-
-    return &issue, nil
+    return &issue, result.Error
 }
 

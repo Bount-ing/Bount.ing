@@ -3,46 +3,68 @@ package controllers
 import (
     "github.com/gin-gonic/gin"
     "net/http"
-    // Assume "github-bounties/models" and other necessary imports
+    "open-bounties-api/models"
+    "strconv"
 )
 
-func GetUser(c *gin.Context) {
-    // logic to fetch a user
-    c.JSON(http.StatusOK, gin.H{"message": "User fetched successfully"})
-}
+// Assuming UserController and userService are defined as shown previously
 
-func CreateUser(c *gin.Context) {
-    // logic to create a user
-    c.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
-}
-
-func UpdateUser(c *gin.Context) {
-    userID := c.Param("id")
-    var userUpdates models.User
-    if err := c.ShouldBindJSON(&userUpdates); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data provided"})
+func (uc *UserController) RegisterUser(c *gin.Context) {
+    var newUser models.User
+    if err := c.ShouldBindJSON(&newUser); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
         return
     }
 
-    updatedUser, err := services.UpdateUser(userID, userUpdates)
+    registeredUser, err := uc.userService.CreateUser(newUser)
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user", "details": err.Error()})
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{"message": "User updated", "user": updatedUser})
+    c.JSON(http.StatusCreated, registeredUser)
 }
 
-func DeleteUser(c *gin.Context) {
-    userID := c.Param("id")
+func (uc *UserController) GetUser(c *gin.Context) {
+    userIdStr := c.Param("id")
+    userId, err := strconv.ParseUint(userIdStr, 10, 64) // Convert to uint64
 
-    err := services.DeleteUser(userID)
+    user, err := uc.userService.FindUserById(uint(userId))
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found", "details": err.Error()})
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{"message": "User deleted"})
+    c.JSON(http.StatusOK, user)
 }
 
+func (uc *UserController) UpdateUser(c *gin.Context) {
+    userIdStr := c.Param("id")
+    userId, err := strconv.ParseUint(userIdStr, 10, 64) // Convert to uint64
+    var updateUser models.User
+    if err := c.ShouldBindJSON(&updateUser); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+        return
+    }
+
+    updatedUser, err := uc.userService.UpdateUser(uint(userId), updateUser)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user", "details": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, updatedUser)
+}
+
+func (uc *UserController) DeleteUser(c *gin.Context) {
+    userIdStr := c.Param("id")
+    userId, err := strconv.ParseUint(userIdStr, 10, 64) // Convert to uint64
+    err = uc.userService.DeleteUser(uint(userId))
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user", "details": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+}
 

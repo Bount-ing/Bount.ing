@@ -2,74 +2,26 @@ package controllers
 
 import (
     "github.com/gin-gonic/gin"
-    "net/http"
-    "open-bounties-api/models"
     "open-bounties-api/services"
+    "net/http"
 )
 
-func GetAllIssues(c *gin.Context) {
-    issues, err := services.FetchAllIssues()
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve issues"})
-        return
-    }
-
-    c.JSON(http.StatusOK, gin.H{"issues": issues})
+type IssueController struct {
+    issueService *services.IssueService
 }
 
-func CreateIssue(c *gin.Context) {
-    var newIssue models.Issue
-    if err := c.ShouldBindJSON(&newIssue); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid issue data"})
-        return
+func NewIssueController(issueService *services.IssueService) *IssueController {
+    return &IssueController{
+        issueService: issueService,
     }
-
-    issue, err := services.CreateIssue(newIssue)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create issue"})
-        return
-    }
-
-    c.JSON(http.StatusCreated, gin.H{"issue": issue})
 }
 
-func GetIssue(c *gin.Context) {
-    issueID := c.Param("id")
-    issue, err := services.FetchIssueByID(issueID)
+func (ctl *IssueController) GetAllIssues(c *gin.Context) {
+    issues, err := ctl.issueService.FetchAllIssues()
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Issue not found"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
-
-    c.JSON(http.StatusOK, gin.H{"issue": issue})
-}
-
-func UpdateIssue(c *gin.Context) {
-    issueID := c.Param("id")
-    var issueUpdates models.Issue
-    if err := c.ShouldBindJSON(&issueUpdates); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data provided"})
-        return
-    }
-
-    updatedIssue, err := services.UpdateIssue(issueID, issueUpdates)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update issue"})
-        return
-    }
-
-    c.JSON(http.StatusOK, gin.H{"issue": updatedIssue})
-}
-
-
-func DeleteIssue(c *gin.Context) {
-    issueID := c.Param("id")
-    err := services.DeleteIssue(issueID)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete issue"})
-        return
-    }
-
-    c.JSON(http.StatusOK, gin.H{"message": "Issue deleted"})
+    c.JSON(http.StatusOK, issues)
 }
 

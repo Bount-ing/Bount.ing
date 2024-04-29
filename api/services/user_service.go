@@ -2,58 +2,72 @@ package services
 
 import (
     "open-bounties-api/models"
-        "gorm.io/gorm"
+    "gorm.io/gorm"
     "errors"
-    // Assume a package that handles database operations, for example, GORM
 )
 
-// UserService handles business logic related to users.
 type UserService struct {
-    // db represents the database client which can be injected or set up here.
     db *gorm.DB
 }
 
-// NewUserService creates a new instance of UserService.
 func NewUserService(db *gorm.DB) *UserService {
-    return &UserService{
-        db: db,
-    }
+    return &UserService{db: db}
 }
 
-// CreateUser creates a new user in the database.
-func (s *UserService) CreateUser(user models.User) (*models.User, error) {
-    if result := s.db.Create(&user); result.Error != nil {
-        return nil, result.Error
-    }
-    return &user, nil
+// FetchAllUsers returns all users from the database
+func (s *UserService) FetchAllUsers() ([]models.User, error) {
+    var users []models.User
+    result := s.db.Find(&users)
+    return users, result.Error
 }
 
-// GetUserByID fetches a user by their ID.
-func (s *UserService) GetUserByID(id uint) (*models.User, error) {
+// FetchUserByID retrieves an user by its ID from the database
+func (s *UserService) FindUserById(id uint) (*models.User, error) {
     var user models.User
-    if result := s.db.First(&user, id); result.Error != nil {
-        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-            return nil, errors.New("user not found")
-        }
+    result := s.db.First(&user, id)
+    return &user, result.Error
+}
+
+// CreateUser creates a new user in the database
+func (s *UserService) CreateUser(user models.User) (*models.User, error) {
+    result := s.db.Create(&user)
+    return &user, result.Error
+}
+
+
+func (s *UserService) AuthenticateUser(username, password string) (*models.User, error) {
+    // Example logic for user authentication
+    // This should actually check a user repository for a user that matches the credentials
+    if username == "admin" && password == "pass" {
+        return &models.User{Username: username}, nil
+    }
+    return nil, errors.New("invalid credentials")
+}
+
+
+func (s *UserService) UpdateUser(id uint, updatedData models.User) (*models.User, error) {
+    var user models.User
+    result := s.db.First(&user, id)
+    if result.Error != nil {
         return nil, result.Error
+    }
+
+    user.Email = updatedData.Email // Example update field
+    user.Username = updatedData.Username   // Update other fields as necessary
+
+    saveResult := s.db.Save(&user)
+    if saveResult.Error != nil {
+        return nil, saveResult.Error
     }
     return &user, nil
 }
 
-// UpdateUser updates an existing user's details in the database.
-func (s *UserService) UpdateUser(user models.User) (*models.User, error) {
-    if result := s.db.Save(&user); result.Error != nil {
-        return nil, result.Error
-    }
-    return &user, nil
-}
-
-// DeleteUser removes a user from the database.
 func (s *UserService) DeleteUser(id uint) error {
     var user models.User
-    if result := s.db.Delete(&user, id); result.Error != nil {
+    result := s.db.First(&user, id)
+    if result.Error != nil {
         return result.Error
     }
-    return nil
+    deleteResult := s.db.Delete(&user)
+    return deleteResult.Error
 }
-

@@ -1,25 +1,36 @@
 package controllers
 
 import (
+    "open-bounties-api/services"
+    "open-bounties-api/models"
     "github.com/gin-gonic/gin"
     "net/http"
-    "open-bounties-api/models"
-    "open-bounties-api/services"
 )
 
-func Login(c *gin.Context) {
-    var loginParams models.LoginRequest
-    if err := c.ShouldBindJSON(&loginParams); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request parameters"})
+type LoginController struct {
+    userService *services.UserService
+}
+
+func NewLoginController(userService *services.UserService) *LoginController {
+    return &LoginController{
+        userService: userService,
+    }
+}
+
+// Login function to authenticate a user
+func (ctl *LoginController) Login(c *gin.Context) {
+    var loginReq models.LoginRequest
+    if err := c.ShouldBindJSON(&loginReq); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
         return
     }
 
-    user, token, err := services.AuthenticateUser(loginParams)
+    user, err := ctl.userService.AuthenticateUser(loginReq.Username, loginReq.Password)
     if err != nil {
         c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{"message": "Login successful", "user": user, "token": token})
+    c.JSON(http.StatusOK, gin.H{"message": "Login successful", "user": user})
 }
 

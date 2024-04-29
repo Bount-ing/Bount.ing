@@ -9,6 +9,7 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
   backend:
+    restart: always
     build: ./api
     ports:
       - "8080:8080"

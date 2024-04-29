@@ -4,6 +4,10 @@ import (
     "github.com/gin-gonic/gin"
     "open-bounties-api/controllers"
     "open-bounties-api/middleware"
+    "open-bounties-api/services"
+    "gorm.io/gorm"
+    "gorm.io/driver/postgres"
+    "log"
 )
 
 func SetupRouter() *gin.Engine {
@@ -13,14 +17,26 @@ func SetupRouter() *gin.Engine {
     r.Use(gin.Logger())
     r.Use(gin.Recovery())
 
+    dsn := "host=db user=user password=password dbname=bountydb port=5432 sslmode=disable TimeZone=Europe/Paris"
+    db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+    if err != nil {
+        log.Fatal("Failed to connect to database:", err)
+    }
+
+    // Initialize UserService with the database connection
+    userService := services.NewUserService(db)
+
+    userController := controllers.NewUserController(userService)
+    loginController := controllers.NewLoginController(userService)
+
     // Versioning API
     v1 := r.Group("/api/v1")
     {
         // Public routes
         public := v1.Group("/")
         {
-            public.POST("/login", controllers.Login)
-            public.POST("/register", controllers.RegisterUser)
+            public.POST("/login", loginController.Login)
+            public.POST("/register", userController.RegisterUser)
         }
 
         // Routes that require authentication
@@ -30,11 +46,11 @@ func SetupRouter() *gin.Engine {
             // User routes
             userRoutes := authorized.Group("/users")
             {
-                userRoutes.GET("/:id", controllers.GetUser)
-                userRoutes.PUT("/:id", controllers.UpdateUser)
-                userRoutes.DELETE("/:id", controllers.DeleteUser)
+                userRoutes.GET("/:id", userController.GetUser)
+                userRoutes.PUT("/:id", userController.UpdateUser)
+                userRoutes.DELETE("/:id", userController.DeleteUser)
             }
-
+/*
             // Issue routes
             issueRoutes := authorized.Group("/issues")
             {
@@ -74,6 +90,7 @@ func SetupRouter() *gin.Engine {
                 orgRoutes.PUT("/:id", controllers.UpdateOrganization)
                 orgRoutes.DELETE("/:id", controllers.DeleteOrganization)
             }
+	    */
         }
     }
 
