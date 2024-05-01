@@ -5,6 +5,7 @@ import (
     "open-bounties-api/controllers"
     "open-bounties-api/middleware"
     "open-bounties-api/services"
+    "open-bounties-api/models"
     "gorm.io/gorm"
     "gorm.io/driver/postgres"
     "log"
@@ -19,6 +20,7 @@ func SetupRouter() *gin.Engine {
 
     dsn := "host=db user=user password=password dbname=bountydb port=5432 sslmode=disable TimeZone=Europe/Paris"
     db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+    db.AutoMigrate(&models.User{})
     if err != nil {
         log.Fatal("Failed to connect to database:", err)
     }

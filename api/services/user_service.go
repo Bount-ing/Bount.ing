@@ -4,6 +4,8 @@ import (
     "open-bounties-api/models"
     "gorm.io/gorm"
     "errors"
+    "golang.org/x/crypto/bcrypt"
+    "log"
 )
 
 type UserService struct {
@@ -30,18 +32,32 @@ func (s *UserService) FindUserById(id uint) (*models.User, error) {
 
 // CreateUser creates a new user in the database
 func (s *UserService) CreateUser(user models.User) (*models.User, error) {
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+    if err != nil {
+        return nil, err
+    }
+    user.PasswordHash = string(hashedPassword)
     result := s.db.Create(&user)
     return &user, result.Error
 }
 
-
 func (s *UserService) AuthenticateUser(username, password string) (*models.User, error) {
-    // Example logic for user authentication
-    // This should actually check a user repository for a user that matches the credentials
-    if username == "admin" && password == "pass" {
-        return &models.User{Username: username}, nil
+    var user models.User
+    result := s.db.Where("username = ?", username).First(&user)
+    if result.Error != nil {
+        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+            return nil, errors.New("invalid username or password")
+        }
+        return nil, result.Error
     }
-    return nil, errors.New("invalid credentials")
+
+    err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+    if err != nil {
+        log.Printf("bcrypt comparison error: %v", err) // Log only on error
+        return nil, errors.New("invalid username or password")
+    }
+    log.Printf("Authentication successful for user: %s", username) // Confirm success only
+    return &user, nil
 }
 
 
