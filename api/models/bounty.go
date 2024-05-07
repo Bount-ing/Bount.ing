@@ -14,4 +14,3 @@ type Bounty struct {
     User        User    `gorm:"foreignKey:UserID"`
     Status      string  `json:"status" gorm:"default:'open'"` // e.g., open, claimed, cancelled
 }
-
