@@ -1,0 +1,26 @@
+# Remove '#' to select a file.
+
+# gpt-engineer can only read selected files. Including irrelevant files will degrade performance, cost additional tokens and potentially overflow token limit.
+
+[files]
+#"tailwind.config.js" = "selected"
+# "package.json" = "selected"
+# "package-lock.json" = "selected"
+# "README.md" = "selected"
+# "nuxt.config.js" = "selected"
+# "postcss.config.js" = "selected"
+#"assets/css/main.css" = "selected"
+# "static/favicon.ico" = "selected"
+# "store/github.js" = "selected"
+# "store/README.md" = "selected"
+"components/Footer.vue" = "selected"
+# "components/Tutorial.vue" = "selected"
+# "components/NuxtLogo.vue" = "selected"
+"components/NavBar.vue" = "selected"
+"pages/about.vue" = "selected"
+"pages/login.vue" = "selected"
+"pages/dashboard.vue" = "selected"
+"pages/contact.vue" = "selected"
+"pages/index.vue" = "selected"
+"pages/auth/github/callback.vue" = "selected"
+# 

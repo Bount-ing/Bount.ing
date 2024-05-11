@@ -1,0 +1,99 @@
+
+2024-05-12T00:33:49.874987
+
+
+2024-05-12T00:38:22.406255
+
+
+2024-05-12T00:40:56.814388
+
+
+2024-05-12T00:51:31.641175
+In Hunk:@@ -1,18 +1,26 @@
+ <template>
+-  <section class="container mx-auto p-6">
+-    <div v-if="$auth.loggedIn" class="bg-white shadow rounded-lg p-6">
+-      <div class="flex items-center space-x-6 mb-4">
+-        <img class="h-24 w-24 rounded-full" :src="$auth.user.avatar_url" alt="Profile image">
+-        <div>
+-          <p class="text-3xl text-gray-700 font-semibold">{{ $auth.user.name }}</p>
+-          <p class="text-gray-600">Logged in with GitHub</p>
+-          <button class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" @click="$auth.logout()">Logout</button>
+-        </div>
++  <div class="min-h-screen flex items-center justify-center bg-gray-100">
++    <section class="container mx-auto p-6 max-w-4xl bg-white shadow-lg rounded-lg">
++      <div v-if="$auth.loggedIn" class="p-6">
++        <div class="flex items-center space-x-6 mb-4">
++          <img class="h-24 w-24 rounded-full" :src="$auth.user.avatar_url" alt="Profile image">
++          <div class="flex-1">
++            <p class="text-3xl text-gray-700 font-semibold">{{ $auth.user.name }}</p>
++            <p class="text-gray-600">Logged in with GitHub</p>
++            <button class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" @click="$auth.logout()">Logout</button>
++          </div>
++        </div>
++      </div>
++      <div v-else class="text-center p-6">
++        <h1 class="text-4xl text-gray-700 font-semibold mb-4">Welcome to OpenBounties</h1>
++        <p class="text-gray-600">Please login to see your profile information.</p>
++        <button class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" @click="$auth.login()">Login with GitHub</button>
+       </div>
+-    </div>
+-    <div v-else class="text-center">
+-      <h1 class="text-4xl text-gray-700 font-semibold mb-4">Welcome to OpenBounties</h1>
+-      <p class="text-gray-600">Please login to see your profile information.</p>
+-      <button class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" @click="$auth.login()">Login with GitHub</button>
+-    </div>
++    </section>
+   </section>
+ </template>
+ 
+ <script>
+ export default {
+   name: 'IndexPage'
+ </template>
+ 
+, there was at least one mismatch.
+
+2024-05-12T01:03:38.749927
+
+
+2024-05-12T01:06:14.819354
+
+
+2024-05-12T01:15:34.931610
+
+
+2024-05-12T01:18:58.205573
+In Hunk:@@ -9,5 +10,12 @@
+ export default {
+   methods: {
+     loginWithGithub() {
+       this.$auth.loginWith('github');
++      loading: false,
++    };
++  },
++  methods: {
++    loginWithGithub() {
++      this.loading = true;
++      this.$auth.loginWith('github').catch(() => {
++        this.loading = false;
++        alert('Failed to log in. Please try again.');
+       });
+     }
+   }
+, there was at least one mismatch.
+
+2024-05-12T01:22:03.567891
+
+
+2024-05-12T01:24:45.725320
+
+
+2024-05-12T01:26:56.240293
+
+
+2024-05-12T01:29:30.424036
+
+
+2024-05-12T01:34:47.917671
+
