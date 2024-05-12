@@ -1,28 +1,88 @@
+// store/index.js
 import axios from 'axios';
 
 export const state = () => ({
-  issues: []
+  issues: [],
+  isLoading: false,
+  token: null,
+  username: null,
+  error: null
 });
 
+export const getters = {
+  getIssues: state => state.issues,
+  isLoading: state => state.isLoading,
+  error: state => state.error,
+  token: state => state.token,
+  username: state => state.username,
+};
+
 export const mutations = {
-  SET_ISSUES(state, issues) {
+  setIssues(state, issues) {
     state.issues = issues;
+  },
+  setToken(state, token) {
+    state.token = token;
+  },
+  setUsername(state, username) {
+    state.username = username;
+  },
+  setLoading(state, isLoading) {
+    state.isLoading = isLoading;
+  },
+  setError(state, error) {
+    state.error = error;
   }
 };
 
 export const actions = {
-  async fetchIssues({ commit }) {
+  async fetchUsername({ commit, state }) {
+    if (!state.token) {
+      commit('setError', 'Authentication token is missing');
+      return;
+    }
+    const headers = {
+      'Authorization': `${this.$auth.strategy.token.get()}`
+    };
     try {
-      const response = await axios.get('https://api.github.com/repos/your-username/your-repo/issues');
-      commit('SET_ISSUES', response.data);
+      const response = await axios.get('https://api.github.com/user', { headers });
+      commit('setUsername', response.data.login);  // 'login' is the field where the username is stored
     } catch (error) {
-      console.error('Error fetching issues from GitHub:', error);
+      commit('setError', error.response ? error.response.data : error.message);
+    }
+  },
+  async fetchIssues({ state, commit }, repo) {
+    if (!state.username) {
+      commit('setError', 'Username is undefined');
+      commit('setLoading', false);
+      return;
+    }
+
+    commit('setLoading', true);
+    commit('setError', null);
+
+    const headers = {
+      'Authorization': `${this.$auth.strategy.token.get()}`
+    };
+    const url = `https://api.github.com/repos/${state.username}/${repo}/issues`;
+    const params = {
+      creator: state.username
+    };
+
+    try {
+      const response = await axios.get(url, { headers, params });
+      commit('setIssues', response.data);
+    } catch (error) {
+      commit('setError', error.response ? error.response.data : error.message);
+    } finally {
+      commit('setLoading', false);
     }
   }
 };
 
-export const getters = {
-  getIssues(state) {
-    return state.issues;
-  }
+export default {
+  namespaced: true,
+  state,
+  mutations,
+  actions,
 };

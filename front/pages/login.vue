@@ -10,7 +10,9 @@
 export default {
   methods: {
     loginWithGithub() {
-      this.$auth.loginWith('github');
+      this.$auth.loginWith('github').then(() => {
+        this.$store.commit('github/setToken', this.$auth.strategy.token.get());
+      });
     }
   }
 }

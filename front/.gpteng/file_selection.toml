@@ -3,7 +3,7 @@
 # gpt-engineer can only read selected files. Including irrelevant files will degrade performance, cost additional tokens and potentially overflow token limit.
 
 [files]
-#"tailwind.config.js" = "selected"
+"tailwind.config.js" = "selected"
 # "package.json" = "selected"
 # "package-lock.json" = "selected"
 # "README.md" = "selected"
@@ -12,15 +12,18 @@
 #"assets/css/main.css" = "selected"
 # "static/favicon.ico" = "selected"
 # "store/github.js" = "selected"
+# "store/index.js" = "selected"
 # "store/README.md" = "selected"
+# "plugins/auth.js" = "selected"
+"layouts/default.vue" = "selected"
 "components/Footer.vue" = "selected"
 # "components/Tutorial.vue" = "selected"
 # "components/NuxtLogo.vue" = "selected"
 "components/NavBar.vue" = "selected"
-"pages/about.vue" = "selected"
-"pages/login.vue" = "selected"
+# "pages/about.vue" = "selected"
+# "pages/login.vue" = "selected"
 "pages/dashboard.vue" = "selected"
-"pages/contact.vue" = "selected"
-"pages/index.vue" = "selected"
-"pages/auth/github/callback.vue" = "selected"
+# "pages/contact.vue" = "selected"
+#"pages/index.vue" = "selected"
+# "pages/auth/github/callback.vue" = "selected"
 # 

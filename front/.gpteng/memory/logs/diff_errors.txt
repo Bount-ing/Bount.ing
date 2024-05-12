@@ -97,3 +97,146 @@ In Hunk:@@ -9,5 +10,12 @@
 
 2024-05-12T01:34:47.917671
 
+
+2024-05-12T01:41:20.121478
+
+
+2024-05-12T01:49:58.608929
+
+
+2024-05-12T01:52:49.933027
+In @@ -14,7 +15,7 @@
+   async fetchIssues({ commit }, { username, repository }) {
+     commit('setLoading', true);
+     commit('setError', null);
+     try {
+-      const response = await axios.get(`https://api.github.com/repos/${username}/${username}/issues?creator=${username}`);
++      const response = await axios.get(`https://api.github.com/repos/${username}/${repository}/issues?creator=${username}`);
+       commit('setIssues', response.data);
+     } catch (error) {
+       commit('setError', error);
+:The starting line of the diff @@ -14,7 +15,7 @@
+   async fetchIssues({ commit }, { username, repository }) {
+     commit('setLoading', true);
+     commit('setError', null);
+     try {
+-      const response = await axios.get(`https://api.github.com/repos/${username}/${username}/issues?creator=${username}`);
++      const response = await axios.get(`https://api.github.com/repos/${username}/${repository}/issues?creator=${username}`);
+       commit('setIssues', response.data);
+     } catch (error) {
+       commit('setError', error);
+ does not exist in the code
+
+2024-05-12T01:54:39.088541
+
+
+2024-05-12T02:02:29.930640
+In @@ -16,6 +20,22 @@
+   async fetchIssues({ commit, state }, repo) {
+     commit('setLoading', true);
+     commit('setError', null);
++    try {
++      const response = await axios.get(`https://api.github.com/repos/${state.username}/${repo}/issues`, {
++        headers: { Authorization: `token ${state.token}` }
++      });
++      commit('setIssues', response.data);
++    } catch (error) {
++      commit('setError', error);
++    } finally {
++      commit('setLoading', false);
++    }
++  },
++  async fetchUsername({ commit, state }) {
++    try {
++      const response = await axios.get('https://api.github.com/user', {
++        headers: { Authorization: `token ${state.token}` }
++      });
++      commit('setUsername', response.data.login);
++    } catch (error) {
++      commit('setError', error);
++    }
++  }
+ };
+ 
+:The starting line of the diff @@ -16,6 +20,22 @@
+   async fetchIssues({ commit, state }, repo) {
+     commit('setLoading', true);
+     commit('setError', null);
++    try {
++      const response = await axios.get(`https://api.github.com/repos/${state.username}/${repo}/issues`, {
++        headers: { Authorization: `token ${state.token}` }
++      });
++      commit('setIssues', response.data);
++    } catch (error) {
++      commit('setError', error);
++    } finally {
++      commit('setLoading', false);
++    }
++  },
++  async fetchUsername({ commit, state }) {
++    try {
++      const response = await axios.get('https://api.github.com/user', {
++        headers: { Authorization: `token ${state.token}` }
++      });
++      commit('setUsername', response.data.login);
++    } catch (error) {
++      commit('setError', error);
++    }
++  }
+ };
+ 
+ does not exist in the code
+
+2024-05-12T10:55:06.225637
+
+
+2024-05-12T10:57:25.183864
+In Hunk:@@ -3,4 +3,4 @@
+   content: ['./pages/**/*.vue', './components/**/*.vue', './layouts/**/*.vue', './plugins/**/*.vue'],
+   content: ['./pages/**/*.vue', './components/**/*.vue', './layouts/**/*.vue', './plugins/**/*.vue'],
+   theme: {
+     extend: {
+-      colors: {
++      colors: {
+         'primary': '#007aff',
+         'secondary': '#5856d6',
+         'danger': '#ff3b30',
+         'background': '#f9fafb',
+         'text': '#333333',
+       },
+       fontFamily: {
+         'sans': ['Helvetica Neue', 'Arial', 'sans-serif'],
+         'serif': ['Times New Roman', 'serif'],
+       },
+       spacing: {
+         '4': '1rem', '8': '2rem', '16': '4rem', '32': '8rem', '64': '16rem',
+       },
+     },
+   },
+-  plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
++  plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography'), require('@tailwindcss/aspect-ratio')],
+ }
+, there was at least one mismatch.
+
+In Hunk:@@ -2,3 +2,3 @@
+   <div class="px-4 sm:px-6 lg:px-8">
+-    <NavBar />
++    <NavBar class="mb-8" />
+     <Nuxt /> <!-- This tag renders the page content -->
+     <Footer />
+   </div>
+ </template>
+ 
+ <script>
+ export default {
+   // You can add JavaScript here if needed
+ }
+ </script>
+ 
+ <style>
+ /* Add some CSS if needed */
+     <Nuxt />
+, there was at least one mismatch.
+
+2024-05-12T11:18:28.908800
+

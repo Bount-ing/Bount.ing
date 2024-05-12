@@ -9,12 +9,12 @@ body, html {
   font-size: 1rem;
   background-color: #007aff;
   color: white;
-  font-weight: bold;
+  font-weight: 600;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   &:hover {
     background-color: #005ecb;
   }
-  cursor: pointer;
+  cursor: pointer; transition: transform 0.2s;
 }
 
 html {
