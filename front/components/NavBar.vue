@@ -5,7 +5,7 @@
         <div class="flex items-center">
           <a href="/" class="flex items-center">
             <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Open Bounties Logo" />
-            <span class="ml-3 text-xl font-bold tracking-tight">Open Bounties</span>
+            <span class="ml-3 text-xl text-highlight font-bold tracking-tight">Open Bounties</span>
           </a>
           <div class="hidden md:block">
   <div class="ml-10 flex items-baseline space-x-4 py-2">

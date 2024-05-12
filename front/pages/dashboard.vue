@@ -49,129 +49,123 @@ export default {
     return {
       username: '',
       issues: [],
-      userBackground: 'default-image.jpg', // Placeholder for background image
-      repoImages: {} // Object to store repository-specific images
+      userBackground: 'default-image.jpg',
+      repoImages: {}
     };
   },
+
   created() {
-    this.fetchUserData();
+    this.initializeData();
   },
+
   methods: {
-    fetchUserData() {
+    initializeData() {
       if (!this.$auth.loggedIn) return;
 
-      axios.get('https://api.github.com/user', {
-        headers: {
-          Authorization: `${this.$auth.strategy.token.get()}`
-        }
-      })
-      .then(response => {
-        this.username = response.data.login;
-        this.userBackground = response.data.avatar_url || 'default-image.jpg';
-
-        // Once user data is fetched, fetch organizations and repos
-        this.fetchOrganizationsAndRepos();
-      })
-      .catch(error => {
-        console.error('Error fetching user data:', error);
-      });
+      this.fetchUserData()
+        .then(() => this.fetchOrganizationsAndRepos())
+        .catch(error => console.error('Initialization failed:', error));
     },
+
+    async fetchUserData() {
+      const response = await axios.get('https://api.github.com/user', {
+        headers: { Authorization: this.getAuthHeader() }
+      });
+      this.username = response.data.login;
+      this.userBackground = response.data.avatar_url || 'default-image.jpg';
+    },
+
     async fetchOrganizationsAndRepos() {
-      if (!this.$auth.loggedIn) return;
-
-      try {
-        const orgsResponse = await axios.get(`https://api.github.com/users/${this.username}/orgs`, {
-          headers: {
-            Authorization: `${this.$auth.strategy.token.get()}`
-          }
-        });
-
-        // Collect repositories from user and each organization
-        const repoUrls = orgsResponse.data.map(org => `https://api.github.com/orgs/${org.login}/repos`);
-        repoUrls.push('https://api.github.com/user/repos'); // User's own repos
-
-        const repoPromises = repoUrls.map(url => axios.get(url, {
-          headers: {
-            Authorization: `${this.$auth.strategy.token.get()}`
-          }
-        }));
-
-        const reposResponses = await Promise.all(repoPromises);
-
-        // Process each repo list and fetch issues
-        for (const response of reposResponses) {
-          if (response && response.data) {
-            await this.processRepositories(response.data);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching organizations or repositories:', error);
-      }
+      const orgs = await this.fetchOrganizations();
+      const repos = await this.fetchReposIncludingUser(orgs);
+      await this.processAllRepositories(repos);
     },
-    async processRepositories(repos) {
-  const issuesPromises = repos.map(repo => {
-    if (repo) {
-      return axios.get(`https://api.github.com/repos/${repo.full_name}/issues`, {
-        headers: {
-          Authorization: `${this.$auth.strategy.token.get()}`
-        }
-      }).then(async issueResponse => {
-        let issues = [];
 
-        // Process the first page of issues
-        issues = issues.concat(issueResponse.data);
+    async fetchOrganizations() {
+      let orgs = [];
+      let url = `https://api.github.com/users/${this.username}/orgs`;
 
-        // Check if there are more pages and fetch recursively
-        let nextPageUrl = this.getNextPageUrl(issueResponse.headers);
-        while (nextPageUrl) {
-          // Fetch next page
-          const nextPageResponse = await axios.get(nextPageUrl, {
-            headers: {
-              Authorization: `${this.$auth.strategy.token.get()}`
-            }
-          });
-          issues = issues.concat(nextPageResponse.data);
-          // Update next page URL
-          nextPageUrl = this.getNextPageUrl(nextPageResponse.headers);
-        }
+      while (url) {
+        const response = await axios.get(url, { headers: { Authorization: this.getAuthHeader() } });
+        orgs = orgs.concat(response.data);
+        url = this.getNextPageUrl(response.headers);
+      }
+      return orgs;
+    },
 
-        // Filter issues where the user is involved or mentioned
-        const userIssues = issues.filter(issue => {
-          return issue.user.login === this.username || issue.body.includes(`@${this.username}`);
-        });
-        return userIssues.map(issue => ({
-          ...issue,
-          image_url: issue.user.avatar_url,
-  repo_owner: repo.owner.login,
-  repo_name: repo.name        }));
-      }).catch(error => {
-        console.error('Error fetching issues for repository:', error);
-        return [];
-      });
-    }
-  });
+    async fetchReposIncludingUser(orgs) {
+  let allRepos = [];
+  const repoUrls = orgs.map(org => `https://api.github.com/orgs/${org.login}/repos?visibility=all`); // Fetch all visibility levels
 
-  const issuesResponses = await Promise.all(issuesPromises.filter(p => p !== undefined));
-  this.issues = this.issues.concat(issuesResponses.flatMap(response => response));
-},
+  // Include user's own repositories, including private ones
+  repoUrls.push(`https://api.github.com/user/repos?visibility=all`);
 
-getNextPageUrl(headers) {
-  const linkHeader = headers['link'];
-  if (!linkHeader) return null;
-  const links = linkHeader.split(',');
-  for (const link of links) {
-    const match = link.match(/<([^>]+)>;\s*rel="next"/);
-    if (match) {
-      return match[1];
+  for (const url of repoUrls) {
+    let repoUrl = url;
+    while (repoUrl) {
+      const response = await axios.get(repoUrl, { headers: { Authorization: this.getAuthHeader() } });
+      allRepos = allRepos.concat(response.data);
+      repoUrl = this.getNextPageUrl(response.headers);
     }
   }
-  return null;
-}
 
+  return allRepos;
+},
+
+
+    async processAllRepositories(repos) {
+      const issues = await this.fetchAndProcessIssues(repos);
+      this.issues = this.issues.concat(issues);
+    },
+
+    async fetchAndProcessIssues(repos) {
+      const issuesPromises = repos.map(repo =>
+        this.fetchIssuesForRepo(repo).catch(error => {
+          console.error(`Error fetching issues for ${repo.full_name}:`, error);
+          return [];
+        })
+      );
+
+      const issuesResults = await Promise.all(issuesPromises);
+      return issuesResults.flat();
+    },
+
+    async fetchIssuesForRepo(repo) {
+      let issues = [];
+      let url = `https://api.github.com/repos/${repo.full_name}/issues`;
+
+      while (url) {
+        const response = await axios.get(url, { headers: { Authorization: this.getAuthHeader() } });
+        issues = issues.concat(response.data);
+        url = this.getNextPageUrl(response.headers);
+      }
+
+      // Filter and map as needed
+      return issues.filter(issue => issue.user.login === this.username || issue.body.includes(`@${this.username}`))
+                   .map(issue => ({ ...issue, image_url: issue.user.avatar_url, repo_owner: repo.owner.login, repo_name: repo.name }));
+    },
+
+    getAuthHeader() {
+      return `${this.$auth.strategy.token.get()}`;
+    },
+
+    getNextPageUrl(headers) {
+      const linkHeader = headers.link;
+      if (!linkHeader) return null;
+
+      const links = linkHeader.split(',');
+      for (const link of links) {
+        const match = link.match(/<([^>]+)>;\s*rel="next"/);
+        if (match) {
+          return match[1];
+        }
+      }
+      return null;
+    }
   },
 };
-
 </script>
+
 
 
 
