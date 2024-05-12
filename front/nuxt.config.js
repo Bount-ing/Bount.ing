@@ -72,7 +72,7 @@ export default {
       github: {
         clientId: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        redirectUri: 'http://localhost:3000/auth/github/callback',
+        redirectUri: 'http://0.0.0.0:3000/auth/github/callback',
 
         codeChallengeMethod: 'S256',
         responseType: 'token',
