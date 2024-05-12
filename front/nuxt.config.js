@@ -2,7 +2,7 @@ export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
   server: {
-    host: '0.0.0.0', // Default: localhost
+    host: 'localhost', // Default: localhost
     port: 3000 // You can specify the port here as well if needed
   },
 
@@ -72,7 +72,7 @@ export default {
       github: {
         clientId: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        redirectUri: 'http://0.0.0.0:3000/auth/github/callback',
+        redirectUri: process.env.GITHUB_REDIRECT_URI,
 
         codeChallengeMethod: 'S256',
         responseType: 'token',

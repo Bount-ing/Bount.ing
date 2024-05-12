@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div class="bg-soft text-sans min-h-screen flex flex-col p-8">
     <NavBar />
     <Nuxt /> <!-- This tag renders the page content -->
     <Footer />
@@ -15,4 +15,5 @@ export default {
 </script>
 
 <style>
+
 </style>

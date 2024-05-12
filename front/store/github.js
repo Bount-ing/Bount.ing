@@ -42,7 +42,7 @@ export const actions = {
       return;
     }
     const headers = {
-      'Authorization': `${this.$auth.strategy.token.get()}`
+      'Authorization': `token ${state.token}`
     };
     try {
       const response = await axios.get('https://api.github.com/user', { headers });
@@ -62,7 +62,7 @@ export const actions = {
     commit('setError', null);
 
     const headers = {
-      'Authorization': `${this.$auth.strategy.token.get()}`
+      'Authorization': `token ${state.token}`
     };
     const url = `https://api.github.com/repos/${state.username}/${repo}/issues`;
     const params = {
@@ -77,7 +77,8 @@ export const actions = {
     } finally {
       commit('setLoading', false);
     }
-  }
+  },
+
 };
 
 export default {

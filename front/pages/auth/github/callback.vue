@@ -6,7 +6,7 @@
     </div>
     <div v-else>
       <p>Authentication successful! Redirecting...</p>
-      <script>setTimeout(() => this.$router.push('/'), 2000);</script>
+      <script>setTimeout(() => this.$router.push('/dashboard'), 2000);</script>
     </div>
   </div>
 
@@ -15,5 +15,12 @@
 
 <script>
 export default {
+  async asyncData({ app, route }) {
+    if (route.query.code) {
+      await app.$auth.handleRedirectCallback().then(() => {
+        params: { code: route.query.code }
+      });
+    }
+  }
 }
 </script>

@@ -1,43 +1,45 @@
 <template>
-  <div class="pt-16 relative bg-cover bg-no-repeat bg-center h-[60vh] md:h-[90vh] lg:h-[100vh]" :style="{ backgroundImage: `url(${userBackground})` }">
-    <div class="absolute inset-0 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 opacity-90 mix-blend-multiply"></div>
-    <div class="container mx-auto px-4 py-12 flex flex-col items-center justify-center h-full">
-      <h1 class="text-6xl md:text-9xl lg:text-[10rem] font-black text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 via-red-500 to-pink-600 text-center animate__animated animate__bounceIn">
-        {{ username }}'s GitHub Playground
-      </h1>
-      <p class="text-xl md:text-3xl lg:text-4xl text-gray-100 text-center mt-6 animate__animated animate__fadeInUpBig shadow-lg">
-        Dive into a universe of code, collaboration, and boundless creativity.
-      </p>
-      <div class="flex mt-6 w-full max-w-6xl bg-white bg-opacity-30 backdrop-filter backdrop-blur-lg p-6 rounded-xl shadow-xl overflow-hidden">
-        <div class="flex-1 overflow-auto h-96 mr-4">
-          <!-- Scrollable container for repos, with fixed height to manage overflow -->
-          <ul class="space-y-4 animate__animated animate__fadeIn">
-            <li v-for="repo in repos" :key="repo.id" @click="selectRepo(repo.name)" class="cursor-pointer flex items-center justify-between p-4 bg-gradient-to-r from-gray-700 to-gray-900 rounded-lg shadow hover:shadow-lg transition duration-300 ease-in-out">
+  <div class="container mx-auto px-4 py-12 bg-soft"> <!-- Updated to use 'soft' for main background -->
+    <h1 class="text-4xl font-bold text-center mb-6 text-highlight font-serif">Welcome {{ username }} !</h1>
+    <h2 class="text-2xl font-bold text-center mb-6 text-highlight font-serif">Issues your following:</h2>
+    <div class="overflow-auto h-screen">
+      <ul class="space-y-4">
+        <li v-for="issue in issues" :key="issue.id" class="flex items-start bg-dark rounded-lg shadow-custom p-4 justify-between text-light"> <!-- Updated 'bg-dark' to 'bg-soft' and 'shadow-lg' to 'shadow-custom' -->
+          <img :src="issue.image_url" alt="Repo Image" class="w-20 h-20 rounded-full mr-4">
+          <div class="flex flex-col justify-between flex-grow">
+            <div class="flex flex-row items-center space-x-4">
+              <h4 class="text-md font-bold text-primary">{{ issue.repo_owner }}</h4>
+              <h3 class="text-xl font-bold text-highlight font-serif">{{ issue.repo_name }}</h3> <!-- 'primary' for primary info -->
+              </div>
               <div>
-                <h3 class="text-xl text-white font-bold">{{ repo.name }}</h3>
-                <p class="text-gray-300">Updated {{ repo.updated_at | formatDate }}</p>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div class="flex-1 overflow-auto h-96">
-          <!-- Scrollable container for issues of the selected repo -->
-          <ul class="space-y-4 animate__animated animate__fadeIn">
-            <li v-for="issue in issues" :key="issue.id" class="flex items-center justify-between p-4 bg-gradient-to-r from-gray-700 to-gray-900 rounded-lg shadow hover:shadow-lg transition duration-300 ease-in-out">
-              <div class="flex-1">
-                <h3 class="text-xl text-white font-bold">{{ issue.title }}</h3>
-                <p class="text-gray-300">{{ issue.body }}</p>
-              </div>
-              <a :href="issue.html_url" target="_blank" class="text-teal-300 hover:text-teal-100 transition duration-150 ease-in-out">
-                View &rarr;
+              <h5 class="text-lg font-semibold text-accent font-serif">{{ issue.title }}</h5>
+              <p class="text-info">{{ issue.body }}</p> <!-- 'accent' for less important text -->
+            </div>
+            <div class="flex flex-col">
+              <a :href="issue.html_url" target="_blank" class="text-primary hover:text-highlight font-serif"> <!-- 'highlight' for hover -->
+                View Issue on GitHub &rarr;
               </a>
-            </li>
-          </ul>
-        </div>
-      </div>
+            </div>
+          </div>
+          <div class="flex flex-col items-end space-y-2">
+            <span class="text-dark bg-warning font-semibold text-lg px-5 py-2.5 rounded-lg"> <!-- No change needed here as 'warning' and 'dark' are correctly used -->
+              {{ issue.bounty || 0 }} €
+            </span>
+            <div class="flex space-x-2">
+              <button @click="claimBounty(issue)" class="bg-info hover:bg-primary text-soft font-bold py-2 px-4 rounded-lg h-12 w-40"> <!-- Updated 'text-light' to 'text-soft' -->
+                Claim Bounty
+              </button>
+              <button @click="raiseBounty(issue)" class="bg-success hover:bg-primary text-dark font-bold py-2 px-4 rounded-lg h-12 w-40"> <!-- No change needed here as 'success' and 'primary' are correctly used -->
+                Raise Bounty
+              </button>
+            </div>
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -46,23 +48,13 @@ export default {
   data() {
     return {
       username: '',
-      repos: [],
       issues: [],
       userBackground: 'default-image.jpg', // Placeholder for background image
-      selectedRepo: ''
+      repoImages: {} // Object to store repository-specific images
     };
   },
   created() {
     this.fetchUserData();
-    this.fetchRepositories();
-  },
-  filters: {
-    formatDate(value) {
-      if (value) {
-        return new Date(value).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
-      }
-      return '';
-    }
   },
   methods: {
     fetchUserData() {
@@ -74,50 +66,114 @@ export default {
         }
       })
       .then(response => {
-        this.username = response.data.login; // 'login' is the username
+        this.username = response.data.login;
+        this.userBackground = response.data.avatar_url || 'default-image.jpg';
+
+        // Once user data is fetched, fetch organizations and repos
+        this.fetchOrganizationsAndRepos();
       })
       .catch(error => {
         console.error('Error fetching user data:', error);
       });
     },
-    fetchRepositories() {
+    async fetchOrganizationsAndRepos() {
       if (!this.$auth.loggedIn) return;
 
-      axios.get('https://api.github.com/user/repos', {
+      try {
+        const orgsResponse = await axios.get(`https://api.github.com/users/${this.username}/orgs`, {
+          headers: {
+            Authorization: `${this.$auth.strategy.token.get()}`
+          }
+        });
+
+        // Collect repositories from user and each organization
+        const repoUrls = orgsResponse.data.map(org => `https://api.github.com/orgs/${org.login}/repos`);
+        repoUrls.push('https://api.github.com/user/repos'); // User's own repos
+
+        const repoPromises = repoUrls.map(url => axios.get(url, {
+          headers: {
+            Authorization: `${this.$auth.strategy.token.get()}`
+          }
+        }));
+
+        const reposResponses = await Promise.all(repoPromises);
+
+        // Process each repo list and fetch issues
+        for (const response of reposResponses) {
+          if (response && response.data) {
+            await this.processRepositories(response.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching organizations or repositories:', error);
+      }
+    },
+    async processRepositories(repos) {
+  const issuesPromises = repos.map(repo => {
+    if (repo) {
+      return axios.get(`https://api.github.com/repos/${repo.full_name}/issues`, {
         headers: {
           Authorization: `${this.$auth.strategy.token.get()}`
         }
-      })
-      .then(response => {
-        this.repos = response.data;
-      })
-      .catch(error => {
-        console.error('Error fetching repos:', error);
-      });
-    },
-    selectRepo(repoName) {
-      this.selectedRepo = repoName;
-      this.fetchIssues(repoName);
-    },
-    fetchIssues(repoName) {
-      if (!this.$auth.loggedIn) return;
+      }).then(async issueResponse => {
+        let issues = [];
 
-      axios.get(`https://api.github.com/repos/${this.username}/${repoName}/issues`, {
-        headers: {
-          Authorization: `${this.$auth.strategy.token.get()}`
+        // Process the first page of issues
+        issues = issues.concat(issueResponse.data);
+
+        // Check if there are more pages and fetch recursively
+        let nextPageUrl = this.getNextPageUrl(issueResponse.headers);
+        while (nextPageUrl) {
+          // Fetch next page
+          const nextPageResponse = await axios.get(nextPageUrl, {
+            headers: {
+              Authorization: `${this.$auth.strategy.token.get()}`
+            }
+          });
+          issues = issues.concat(nextPageResponse.data);
+          // Update next page URL
+          nextPageUrl = this.getNextPageUrl(nextPageResponse.headers);
         }
-      })
-      .then(response => {
-        this.issues = response.data;
-      })
-      .catch(error => {
-        console.error('Error fetching issues:', error);
-        this.issues = []; // Clear issues if there's an error or none found
+
+        // Filter issues where the user is involved or mentioned
+        const userIssues = issues.filter(issue => {
+          return issue.user.login === this.username || issue.body.includes(`@${this.username}`);
+        });
+        return userIssues.map(issue => ({
+          ...issue,
+          image_url: issue.user.avatar_url,
+  repo_owner: repo.owner.login,
+  repo_name: repo.name        }));
+      }).catch(error => {
+        console.error('Error fetching issues for repository:', error);
+        return [];
       });
     }
+  });
+
+  const issuesResponses = await Promise.all(issuesPromises.filter(p => p !== undefined));
+  this.issues = this.issues.concat(issuesResponses.flatMap(response => response));
+},
+
+getNextPageUrl(headers) {
+  const linkHeader = headers['link'];
+  if (!linkHeader) return null;
+  const links = linkHeader.split(',');
+  for (const link of links) {
+    const match = link.match(/<([^>]+)>;\s*rel="next"/);
+    if (match) {
+      return match[1];
+    }
   }
+  return null;
 }
+
+  },
+};
+
 </script>
+
+
 
 <style scoped>
   .cursor-pointer {
