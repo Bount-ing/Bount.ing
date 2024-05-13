@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-12 bg-secondary"> <!-- 'soft' used for a subtle main background -->
+  <div class="container mx-auto px-4 py-12 "> <!-- 'soft' used for a subtle main background -->
     <h1 class="text-4xl font-bold text-center mb-6 text-text font-serif">Welcome {{ username }} !</h1>
     <h2 class="text-2xl font-bold text-center mb-6 text-secondary font-serif">Issues you're following:</h2>
     <div class="overflow-auto h-screen">
@@ -9,7 +9,7 @@
           <div class="flex flex-col justify-between flex-grow">
             <div class="flex flex-row items-center space-x-4">
               <h4 class="text-md font-bold text-accent">{{ issue.repo_owner }}</h4>
-              <h3 class="text-xl font-bold text-secondary font-serif">{{ issue.repo_name }}</h3> <!-- 'secondary' for secondary information to keep it consistent -->
+              <h3 class="text-xl font-bold text-accent font-serif">{{ issue.repo_name }}</h3> <!-- 'secondary' for secondary information to keep it consistent -->
               </div>
               <div>
               <h5 class="text-lg font-semibold text-accent font-serif">{{ issue.title }}</h5>
