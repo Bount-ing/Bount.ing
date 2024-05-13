@@ -1,36 +1,36 @@
 <template>
-  <div class="container mx-auto px-4 py-12 bg-soft"> <!-- Updated to use 'soft' for main background -->
-    <h1 class="text-4xl font-bold text-center mb-6 text-highlight font-serif">Welcome {{ username }} !</h1>
-    <h2 class="text-2xl font-bold text-center mb-6 text-highlight font-serif">Issues your following:</h2>
+  <div class="container mx-auto px-4 py-12 bg-secondary"> <!-- 'soft' used for a subtle main background -->
+    <h1 class="text-4xl font-bold text-center mb-6 text-text font-serif">Welcome {{ username }} !</h1>
+    <h2 class="text-2xl font-bold text-center mb-6 text-secondary font-serif">Issues you're following:</h2>
     <div class="overflow-auto h-screen">
       <ul class="space-y-4">
-        <li v-for="issue in issues" :key="issue.id" class="flex items-start bg-dark rounded-lg shadow-custom p-4 justify-between text-light"> <!-- Updated 'bg-dark' to 'bg-soft' and 'shadow-lg' to 'shadow-custom' -->
+        <li v-for="issue in issues" :key="issue.id" class="flex items-start bg-secondary rounded-lg shadow-custom p-4 justify-between text-soft"> <!-- 'soft' for text to reduce harshness -->
           <img :src="issue.image_url" alt="Repo Image" class="w-20 h-20 rounded-full mr-4">
           <div class="flex flex-col justify-between flex-grow">
             <div class="flex flex-row items-center space-x-4">
-              <h4 class="text-md font-bold text-primary">{{ issue.repo_owner }}</h4>
-              <h3 class="text-xl font-bold text-highlight font-serif">{{ issue.repo_name }}</h3> <!-- 'primary' for primary info -->
+              <h4 class="text-md font-bold text-accent">{{ issue.repo_owner }}</h4>
+              <h3 class="text-xl font-bold text-secondary font-serif">{{ issue.repo_name }}</h3> <!-- 'secondary' for secondary information to keep it consistent -->
               </div>
               <div>
               <h5 class="text-lg font-semibold text-accent font-serif">{{ issue.title }}</h5>
-              <p class="text-info">{{ issue.body }}</p> <!-- 'accent' for less important text -->
+              <p class="text-info">{{ issue.body }}</p> <!-- 'info' used here for a slightly softer contrast -->
             </div>
             <div class="flex flex-col">
-              <a :href="issue.html_url" target="_blank" class="text-primary hover:text-highlight font-serif"> <!-- 'highlight' for hover -->
+              <a :href="issue.html_url" target="_blank" class="text-text hover:text-secondary font-serif"> <!-- 'secondary' for hover to maintain elegance -->
                 View Issue on GitHub &rarr;
               </a>
             </div>
           </div>
           <div class="flex flex-col items-end space-y-2">
-            <span class="text-dark bg-warning font-semibold text-lg px-5 py-2.5 rounded-lg"> <!-- No change needed here as 'warning' and 'dark' are correctly used -->
+            <span class="bg-primary font-semibold text-lg px-5 py-2.5 rounded-lg"> <!-- 'soft' text for more readability against 'warning' background -->
               {{ issue.bounty || 0 }} €
             </span>
             <div class="flex space-x-2">
-              <button @click="claimBounty(issue)" class="bg-info hover:bg-primary text-soft font-bold py-2 px-4 rounded-lg h-12 w-40"> <!-- Updated 'text-light' to 'text-soft' -->
-                Claim Bounty
+              <button @click="claimBounty(issue)" class="bg-info hover:bg-secondary text-dark font-bold py-2 px-4 rounded-lg h-12 w-20"> <!-- 'secondary' hover for a subtle transition -->
+                Claim
               </button>
-              <button @click="raiseBounty(issue)" class="bg-success hover:bg-primary text-dark font-bold py-2 px-4 rounded-lg h-12 w-40"> <!-- No change needed here as 'success' and 'primary' are correctly used -->
-                Raise Bounty
+              <button @click="raiseBounty(issue)" class="bg-success hover:bg-accent text-dark font-bold py-2 px-4 rounded-lg h-12 w-20"> <!-- 'accent' hover for a mild emphasis -->
+                Raise
               </button>
             </div>
           </div>

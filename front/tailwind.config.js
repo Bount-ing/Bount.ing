@@ -7,21 +7,39 @@ module.exports = {
         'dark-mode': {'raw': '(prefers-color-scheme: dark)'},
       },
       colors: {
-        "primary": "#0D47A1",
-        "secondary": "#FBC02D",
-        "accent": "#C62828",
-        "highlight": "#FBC02D",
-        "dark": "#000",
-        "soft": "#111",
-        "info": "#29B6F6",
-        "success": "#2E7D32",
-        "warning": "#FFA000",
-        "error": "#D32F2F",
+        'primary': '#005f73', // Deep, elegant teal
+        'primary-dark': '#023e57', // Darker shade of teal for depth
+        'primary-light': '#72ddf7', // Bright teal for highlights
+
+        'secondary': '#adb5bd', // Neutral, sophisticated gray
+        'secondary-dark': '#6c757d', // Darker gray for contrast
+        'secondary-light': '#dee2e6', // Light gray for soft accents
+
+        'success': '#2f855a', // Dark green, reflecting precision
+        'error': '#9b2c2c', // Dark red, elegant and alerting
+        'warning': '#975a16', // Refined amber, precise and clear
+        'info': '#2c5282', // Deep blue for clarity and trust
+
+        'neutral': '#e1e1e1', // Soft, clean gray for neutral backgrounds
+        'neutral-dark': '#4a5568', // Solid, dark gray for strong contrasts
+        'neutral-light': '#f7fafc', // Very light gray, pure and clean
+
+        'background': '#ffffff', // Pure white background, clean and bright
+        'foreground': '#1a202c', // Almost black, for sharp and precise text
       },
 
       fontFamily: {
-        'sans': ['Montserrat', 'sans-serif'],
-        'serif': ['Playfair Display', 'serif'],
+        'sans': ['Roboto Condensed', 'sans-serif'], // More modern, clean lines, good for dynamic content
+        'serif': ['Merriweather', 'serif'], // Elegant but readable for longer texts
+      },
+      fontSize: {
+        'base': '16px', // Standard for readability
+        'lg': '18px', // Slightly larger for importance
+        'xl': '20px', // Prominent for headings and important calls to action
+      },
+      lineHeight: {
+        'normal': '1.6', // Optimal reading ease
+        'heading': '1.3', // Tight for impactful headings
       },
       spacing: {
         '4': '1rem', '8': '2rem', '12': '3rem', '24': '6rem', '48': '12rem',
@@ -32,13 +50,15 @@ module.exports = {
         'xl': '1rem',
       },
       boxShadow: {
-        'custom': '0 4px 8px rgba(255, 255, 255, 0.25)',
-        'strong': '0 8px 12px rgba(255, 255, 255, 0.35)',
+        'custom': '0 2px 4px rgba(0, 0, 0, 0.15)', // Subtle shadow for textural depth
+        'strong': '0 4px 6px rgba(0, 0, 0, 0.20)', // More pronounced for critical interface elements
       },
-      fontSize: {
-        'base': '1rem', 'lg': '1.375rem', 'xl': '1.5rem',
-      },
+      gradients: {
+        'background': 'linear-gradient(135deg, #242424 0%, #000000 100%)', // Stealthy gradient for dramatic sections
+        'background-dark': 'linear-gradient(135deg, #1A1A1A 0%, #333333 100%)', // Dark mode gradient that enhances the theme
+      }
     },
   },
   plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
+  darkMode: 'media', // Automatically switch based on user's system preferences
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-dark text-sans min-h-screen flex flex-col p-8">
+  <div class="bg-secondary text-sans min-h-screen flex flex-col p-8">
     <NavBar />
     <Nuxt /> <!-- This tag renders the page content -->
     <Footer />
