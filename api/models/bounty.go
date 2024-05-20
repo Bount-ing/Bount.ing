@@ -1,16 +1,19 @@
 package models
 
 import (
-    "gorm.io/gorm"
+	"time"
+
+	"gorm.io/gorm"
 )
 
 type Bounty struct {
-    gorm.Model
-    Amount      float64 `json:"amount" gorm:"not null"`
-    Currency    string  `json:"currency" gorm:"default:'USD'"`
-    IssueID     uint    `json:"issue_id"`
-    Issue       Issue   `gorm:"foreignKey:IssueID"`
-    UserID      uint    `json:"user_id"`
-    User        User    `gorm:"foreignKey:UserID"`
-    Status      string  `json:"status" gorm:"default:'open'"` // e.g., open, claimed, cancelled
+	gorm.Model
+	Amount          float64   `json:"amount" gorm:"not null"`
+	Currency        string    `json:"currency" gorm:"default:'USD'"`
+	IssueGithubID   int       `json:"issue_github_id" gorm:"not null"`
+	IssueGithubURL  string    `json:"issue_github_url" gorm:"not null"`
+	UserGithubLogin string    `json:"user_github_login" gorm:"not null"`
+	CreatedAt       time.Time `json:"created_at"`
+	StartAt         time.Time `json:"start_at"`
+	EndAt           time.Time `json:"end_at"`
 }

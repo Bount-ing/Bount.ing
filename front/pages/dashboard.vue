@@ -1,39 +1,11 @@
 <template>
-  <div class="container mx-auto px-4 py-12 "> <!-- 'soft' used for a subtle main background -->
-    <h1 class="text-4xl font-bold text-center mb-6 text-text font-serif">Welcome {{ username }} !</h1>
-    <h2 class="text-2xl font-bold text-center mb-6 text-secondary font-serif">Issues you're following:</h2>
+  <div class="container mx-auto px-4 py-12">
+    <h1 class="text-4xl font-bold text-center mb-6 text-gray-800">Welcome, {{ username }}!</h1>
+    <h2 class="text-2xl font-bold text-center mb-6 text-gray-600">Issues you're following:</h2>
     <div class="overflow-auto h-screen">
-      <ul class="space-y-4">
-        <li v-for="issue in issues" :key="issue.id" class="flex items-start bg-secondary rounded-lg shadow-custom p-4 justify-between text-soft"> <!-- 'soft' for text to reduce harshness -->
-          <img :src="issue.image_url" alt="Repo Image" class="w-20 h-20 rounded-full mr-4">
-          <div class="flex flex-col justify-between flex-grow">
-            <div class="flex flex-row items-center space-x-4">
-              <h4 class="text-md font-bold text-accent">{{ issue.repo_owner }}</h4>
-              <h3 class="text-xl font-bold text-accent font-serif">{{ issue.repo_name }}</h3> <!-- 'secondary' for secondary information to keep it consistent -->
-              </div>
-              <div>
-              <h5 class="text-lg font-semibold text-accent font-serif">{{ issue.title }}</h5>
-              <p class="text-info">{{ issue.body }}</p> <!-- 'info' used here for a slightly softer contrast -->
-            </div>
-            <div class="flex flex-col">
-              <a :href="issue.html_url" target="_blank" class="text-text hover:text-secondary font-serif"> <!-- 'secondary' for hover to maintain elegance -->
-                View Issue on GitHub &rarr;
-              </a>
-            </div>
-          </div>
-          <div class="flex flex-col items-end space-y-2">
-            <span class="bg-primary font-semibold text-lg px-5 py-2.5 rounded-lg"> <!-- 'soft' text for more readability against 'warning' background -->
-              {{ issue.bounty || 0 }} €
-            </span>
-            <div class="flex space-x-2">
-              <button @click="claimBounty(issue)" class="bg-info hover:bg-secondary text-dark font-bold py-2 px-4 rounded-lg h-12 w-20"> <!-- 'secondary' hover for a subtle transition -->
-                Claim
-              </button>
-              <button @click="raiseBounty(issue)" class="bg-success hover:bg-accent text-dark font-bold py-2 px-4 rounded-lg h-12 w-20"> <!-- 'accent' hover for a mild emphasis -->
-                Raise
-              </button>
-            </div>
-          </div>
+      <ul class="space-y-4" v-if="username">
+        <li v-for="issue in issues" :key="issue.id" class="issue-item" >
+          <IssueItem v-bind="issue" :issue="issue" :username="username" :bounty="issue.bounty"/>
         </li>
       </ul>
     </div>
@@ -42,16 +14,25 @@
 
 
 <script>
+import IssueItem from '@/components/IssueItem.vue';
 import axios from 'axios';
+import BountyModal from '@/components/BountyModal.vue';
 
 export default {
   data() {
     return {
-      username: '',
-      issues: [],
-      userBackground: 'default-image.jpg',
-      repoImages: {}
-    };
+    username: '',
+    userId: null,
+    issues: [],
+    userBackground: 'default-image.jpg',
+    repoImages: {},
+    currentIssue: null,
+    bountyAmount: 0,
+    bountyCurrency: 'EUR',
+    bountyCurrency: 'EUR',
+    bountyStart: '',
+    bountyEnd: ''
+  };
   },
 
   created() {
@@ -113,10 +94,17 @@ export default {
 },
 
 
+
     async processAllRepositories(repos) {
       const issues = await this.fetchAndProcessIssues(repos);
       this.issues = this.issues.concat(issues);
-    },
+  const bounties = await this.fetchBounties(); // Fetch sums of bounties for each issue
+  const issuesWithBounties = issues.map(issue => ({
+    ...issue,
+    bounty: bounties[issue.id] || 0 // Attach the sum of bounties if it exists
+  }));
+  this.issues = issuesWithBounties;
+},
 
     async fetchAndProcessIssues(repos) {
       const issuesPromises = repos.map(repo =>
@@ -142,7 +130,7 @@ export default {
 
       // Filter and map as needed
       return issues.filter(issue => issue.user.login === this.username || issue.body.includes(`@${this.username}`))
-                   .map(issue => ({ ...issue, image_url: issue.user.avatar_url, repo_owner: repo.owner.login, repo_name: repo.name }));
+                   .map(issue => ({ ...issue, image_url: issue.user.avatar_url, repo_owner: repo.owner.login, repo_name: repo.name}));
     },
 
     getAuthHeader() {
@@ -161,8 +149,28 @@ export default {
         }
       }
       return null;
+    },
+
+
+    async fetchBounties() {
+  const response = await axios.get('http://0.0.0.0:8080/api/v1/bounties/');
+  return response.data.reduce((acc, bounty) => {
+    // Initialize the sum for the issue if it hasn't been added yet
+    if (!acc[bounty.issue_github_id]) {
+      acc[bounty.issue_github_id] = parseFloat(0);
     }
+    // Add the current bounty's amount to the sum
+    acc[bounty.issue_github_id] += parseFloat(bounty.amount);
+    return acc;
+  }, {});
+}
+
+
   },
+  components: {
+    IssueItem,
+    BountyModal
+  }
 };
 </script>
 
@@ -174,3 +182,5 @@ export default {
     cursor: pointer;
   }
 </style>
+
+
