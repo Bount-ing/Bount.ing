@@ -31,7 +31,7 @@
         <button @click="toggleBountyModal" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
           Raise
         </button>
-        <BountyModal v-if="showBountyModal" :issue="issue" :show="showBountyModal" :username="username"/>
+        <BountyModal v-if="isModalVisible" :show.sync="isModalVisible" :issue="issue"  :username="username"/>
       </div>
     </div>
   </li>
@@ -42,12 +42,12 @@ export default {
   name: 'IssueItem',
   data() {
     return {
-      showBountyModal: false,
+      isModalVisible: false,
     }
   },
   methods: {
     toggleBountyModal() {
-  this.showBountyModal = !this.showBountyModal;
+  this.isModalVisible = !this.isModalVisible;
   console.log('Bounty Modal toggled:', this.showBountyModal);  // Debugging output
 },
 
