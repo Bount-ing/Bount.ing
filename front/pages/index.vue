@@ -9,40 +9,10 @@
         </p>
       </div>
     </div>
-    <div v-if="issues.length > 0" class="w-full mt-6 p-6 bg-white rounded-md shadow">
+    <div v-if="issues.length > 0" class="w-full mt-6 p-6  rounded-md shadow">
       <ul class="space-y-3 text-gray-800">
-        <li v-for="issue in issues" :key="issue.id" class="flex flex-col md:flex-row items-start bg-gray-100 rounded-lg shadow-lg p-4 justify-between">
-          <img :src="issue.issue_image_url || 'default-image.png'" alt="Repo Image" class="w-20 h-20 rounded-full mr-4">
-          <div class="flex-grow space-y-3">
-            <div class="flex items-center space-x-4">
-              <h4 class="text-sm md:text-md font-bold text-blue-500">{{ issue.user_github_login }}</h4>
-            </div>
-            <div>
-              <h5 class="text-lg font-semibold text-blue-500">{{ issue.title }}</h5>
-              <p class="text-gray-700">{{ issue.description }}</p>
-            </div>
-            <div class="space-y-2">
-              <p class="text-xs text-gray-500">Repository: {{ issue.repository_name }} (⭐ {{ issue.repository_stars }})</p>
-              <p class="text-xs text-gray-500">Created: {{ new Date(issue.created_at).toLocaleDateString() }}</p>
-              <p class="text-xs text-gray-500">Last Updated: {{ new Date(issue.updated_at).toLocaleDateString() }}</p>
-              <a :href="`${issue.issue_github_url}`" target="_blank" class="text-blue-500 hover:text-blue-600">
-                View Issue on GitHub &rarr;
-              </a>
-            </div>
-          </div>
-          <div class="flex flex-col items-end space-y-2">
-            <span class="bg-blue-500 text-white font-semibold text-md px-4 py-2 rounded-lg">
-              {{ issue.amount }} €
-            </span>
-            <div class="flex space-x-2">
-              <button @click="claimBounty(issue)" class="bg-blue-300 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded-lg">
-                Claim
-              </button>
-              <button @click="raiseBounty(issue)" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
-                Raise
-              </button>
-            </div>
-          </div>
+        <li v-for="issue in issues" :key="issue.id" class="issue-item">
+          <IssueItem v-bind="issue" :issue="issue" :bounty="issue.amount"/>
         </li>
       </ul>
     </div>
