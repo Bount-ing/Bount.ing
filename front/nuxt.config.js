@@ -39,6 +39,7 @@ export default {
   buildModules: [
     // https://go.nuxtjs.dev/tailwindcss
     '@nuxtjs/tailwindcss',
+    '@nuxtjs/google-analytics',
     '@nuxtjs/dotenv',
   ],
 
@@ -57,6 +58,10 @@ export default {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
     baseURL: '/',
   },
+
+  googleAnalytics: {
+    id: 'G-QBDN4M54DT' // Replace G-XXXXXXX with your Measurement ID
+  }
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
