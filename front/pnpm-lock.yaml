@@ -11,6 +11,9 @@ importers:
       '@nuxtjs/axios':
         specifier: ^5.13.6
         version: 5.13.6
+      '@nuxtjs/google-analytics':
+        specifier: ^2.4.0
+        version: 2.4.0
       '@tailwindcss/forms':
         specifier: ^0.5.7
         version: 0.5.7(tailwindcss@3.4.3)
@@ -26,6 +29,9 @@ importers:
       vue:
         specifier: ^2.7.10
         version: 2.7.16
+      vue-gtag:
+        specifier: ^2.0.1
+        version: 2.0.1(vue@2.7.16)
       vue-server-renderer:
         specifier: ^2.7.10
         version: 2.7.16
@@ -1077,6 +1083,9 @@ packages:
 
   '@nuxtjs/dotenv@1.4.2':
     resolution: {integrity: sha512-/3+Cw5qLNIQD8ZvXLJG1suxvfC4ltlUuYegOwirHrLrzptHh/+rCkBXrNbrz2qAiwc+/yK91XjZGGzNM1dFmCw==}
+
+  '@nuxtjs/google-analytics@2.4.0':
+    resolution: {integrity: sha512-rDQTwHIjyjVrx8GywHPuWykJ3jRFGaHl5Iqji/y8tQWUc0yGEeHxOoR0yimzxnTS1Ph2/PubQYpgnVeEPEdL/A==}
 
   '@nuxtjs/proxy@2.1.0':
     resolution: {integrity: sha512-/qtoeqXgZ4Mg6LRg/gDUZQrFpOlOdHrol/vQYMnKu3aN3bP90UfOUB3QSDghUUK7OISAJ0xp8Ld78aHyCTcKCQ==}
@@ -5384,8 +5393,17 @@ packages:
   vm-browserify@1.1.2:
     resolution: {integrity: sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==}
 
+  vue-analytics@5.22.1:
+    resolution: {integrity: sha512-HPKQMN7gfcUqS5SxoO0VxqLRRSPkG1H1FqglsHccz6BatBatNtm/Vyy8brApktZxNCfnAkrSVDpxg3/FNDeOgQ==}
+    deprecated: Sorry but vue-analytics is no longer maintained. I would suggest you switch to vue-gtag, with love, the guy who made the package.
+
   vue-client-only@2.1.0:
     resolution: {integrity: sha512-vKl1skEKn8EK9f8P2ZzhRnuaRHLHrlt1sbRmazlvsx6EiC3A8oWF8YCBrMJzoN+W3OnElwIGbVjsx6/xelY1AA==}
+
+  vue-gtag@2.0.1:
+    resolution: {integrity: sha512-aM4A58FVL0wV2ptYi+xzAjeg+pQVRyUcfBc5UkXAwQrR4t3WBhor50Izp2I+3Oo7+l+vWJ7u78DGcNzReb8S/A==}
+    peerDependencies:
+      vue: ^3.0.0
 
   vue-hot-reload-api@2.3.4:
     resolution: {integrity: sha512-BXq3jwIagosjgNVae6tkHzzIk6a8MHFtzAdwhnV5VlvPTFxDCvIttgSiHWjdGoTJvXtmRu5HacExfdarRcFhog==}
@@ -7161,6 +7179,10 @@ snapshots:
     dependencies:
       consola: 3.2.3
       dotenv: 8.6.0
+
+  '@nuxtjs/google-analytics@2.4.0':
+    dependencies:
+      vue-analytics: 5.22.1
 
   '@nuxtjs/proxy@2.1.0':
     dependencies:
@@ -12082,7 +12104,13 @@ snapshots:
 
   vm-browserify@1.1.2: {}
 
+  vue-analytics@5.22.1: {}
+
   vue-client-only@2.1.0: {}
+
+  vue-gtag@2.0.1(vue@2.7.16):
+    dependencies:
+      vue: 2.7.16
 
   vue-hot-reload-api@2.3.4: {}
 

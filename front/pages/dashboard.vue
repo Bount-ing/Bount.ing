@@ -127,10 +127,14 @@ export default {
         issues = issues.concat(response.data);
         url = this.getNextPageUrl(response.headers);
       }
-
-      // Filter and map as needed
-      return issues.filter(issue => issue.user.login === this.username || issue.body.includes(`@${this.username}`))
-                   .map(issue => ({ ...issue, image_url: issue.user.avatar_url, repo_owner: repo.owner.login, repo_name: repo.name}));
+      // add data to each issue
+      issues = issues.map(issue => ({
+        ...issue,
+        repository_name: repo.name,
+        repository_stars: repo.stargazers_count,
+        image_url: repo.owner.avatar_url || 'default-image.png'
+      }));
+      return issues
     },
 
     getAuthHeader() {

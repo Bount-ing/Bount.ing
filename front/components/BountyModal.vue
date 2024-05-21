@@ -57,6 +57,7 @@ export default {
           currency: this.bountyCurrency,
           issue_github_id: this.issue.id,
           issue_github_url: this.issue.url,
+          issue_image_url: this.issue.image_url,
           user_github_login: this.username,
           created_at: new Date().toISOString(),
           start_at: new Date().toISOString(),
