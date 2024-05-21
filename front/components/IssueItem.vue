@@ -25,13 +25,14 @@
         </div>
       </span>
       <div class="flex space-x-2" v-if="username">
-        <button @click="$emit('claim', issue)" class="bg-blue-300 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded-lg">
+        <button @click="toggleClaimModal" class="bg-blue-300 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded-lg">
           Claim
         </button>
         <button @click="toggleBountyModal" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
           Raise
         </button>
-        <BountyModal v-if="isModalVisible" :show.sync="isModalVisible" :issue="issue"  :username="username"/>
+        <BountyModal v-if="isModalVisible" :isModalVisible.sync="isModalVisible" :issue="issue"  :username="username"/>
+        <ClaimModal v-if="isClaimModalVisible" :isClaimModalVisible.sync="isClaimModalVisible" :issue="issue"  :username="username"/>
       </div>
     </div>
   </li>
@@ -42,13 +43,16 @@ export default {
   name: 'IssueItem',
   data() {
     return {
-      isModalVisible: false,
+     isModalVisible: false,
+     isClaimModalVisible: false,
     }
   },
   methods: {
     toggleBountyModal() {
   this.isModalVisible = !this.isModalVisible;
-  console.log('Bounty Modal toggled:', this.showBountyModal);  // Debugging output
+},
+toggleClaimModal() {
+  this.isClaimModalVisible = !this.isClaimModalVisible;
 },
 
   },
@@ -67,7 +71,8 @@ export default {
     }
   },
   components: {
-    BountyModal: () => import('@/components/BountyModal.vue')
+    BountyModal: () => import('@/components/BountyModal.vue'),
+    ClaimModal: () => import('@/components/ClaimModal.vue')
   }
 }
 </script>

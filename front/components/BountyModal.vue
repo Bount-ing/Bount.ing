@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="modal fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
+  <div v-if="isModalVisible" class="modal fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
     <div class="modal-content bg-white p-4 rounded-lg shadow-lg">
       <h3 class="text-lg font-semibold mb-4">Set Bounty Amount</h3>
       <input type="number" v-model="amount" placeholder="Enter amount in EUR" class="input border border-gray-300 p-2 rounded">
@@ -17,7 +17,7 @@ import axios from 'axios';
 export default {
   name: 'BountyModal',
   props: {
-    show: {
+    isModalVisible: {
       type: Boolean,
       required: true
     },
@@ -41,7 +41,8 @@ export default {
   },
   methods: {
     close() {
-      this.$emit('update:show', false);
+      this.isModalVisible = false;
+      this.$emit('update:isModalVisible', false);
     },
     submit() {
       this.submitBounty();
