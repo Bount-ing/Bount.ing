@@ -6,7 +6,7 @@
         <div class="flex items-center">
           <a href="/" class="flex items-center">
             <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Open Bounties Logo" />
-            <span class="ml-3 text-xl font-bold tracking-tight">Open Bounties</span>
+            <span class="ml-3 text-xl font-bold tracking-tight">Bount.ing</span>
           </a>
           <div class="hidden md:flex space-x-4 ml-10">
             <NuxtLink to="/" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-700">Home</NuxtLink>
