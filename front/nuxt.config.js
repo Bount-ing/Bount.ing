@@ -60,7 +60,7 @@ export default {
   },
 
   googleAnalytics: {
-    id: 'G-QBDN4M54DT', // Replace G-XXXXXXX with your Measurement ID
+    id: 'G-JBW6WFECS1', // Replace G-XXXXXXX with your Measurement ID
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
