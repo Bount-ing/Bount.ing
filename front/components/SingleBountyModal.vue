@@ -51,6 +51,7 @@ export default {
   },
   methods: {
     close() {
+      this.isModalVisible = false;
       this.$emit('update:isModalVisible', false);
     },
     async submit() {

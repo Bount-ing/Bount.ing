@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isModalVisible && bountyType === 'degressive'" class="modal fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+  <div v-if="isModalVisible" class="modal fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
     <div class="modal-content bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
       <h3 class="text-xl font-semibold mb-6 text-gray-800">Create a Degressive Bounty</h3>
 
@@ -52,10 +52,7 @@ export default {
       type: Boolean,
       required: true
     },
-    bountyType: {
-      type: String,
-      required: true
-    },
+
     issue: {
       type: Object,
       required: true
@@ -78,6 +75,7 @@ export default {
   },
   methods: {
     close() {
+      this.isModalVisible = false;
       this.$emit('update:isModalVisible', false);
     },
     async submit() {

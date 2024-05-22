@@ -26,12 +26,27 @@
         <button @click="toggleClaimModal" class="bg-blue-300 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded-lg">
           Claim
         </button>
-        <button @click="toggleBountyModal" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
+        <button @click="openBountySelection" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
           Raise
         </button>
-        <component :is="bountyTypeComponent" v-if="isModalVisible" :isModalVisible.sync="isModalVisible" :issue="issue" :username="username"/>
-        <ClaimModal v-if="isClaimModalVisible" :isClaimModalVisible.sync="isClaimModalVisible" :issue="issue" :username="username"/>
       </div>
+      <div v-if="showBountyTypeSelection" class="absolute top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div class="bg-white p-4 rounded-lg space-y-4">
+          <h3>Select Bounty Type:</h3>
+          <button @click="selectBountyType('progressive')" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
+            Economic
+          </button>
+          <button @click="selectBountyType('degressive')" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg">
+            Fast
+          </button>
+          <button @click="selectBountyType('single')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+            Standard
+          </button>
+        </div>
+      </div>
+      <!-- Dynamically inject the correct modal component -->
+      <component :is="bountyTypeComponent" v-if="isModalVisible" :isModalVisible="isModalVisible" :issue="issue" :username="username"/>
+      <ClaimModal v-if="isClaimModalVisible" :issue="issue" :username="username"/>
     </div>
   </li>
 </template>
@@ -40,59 +55,52 @@
 import ProgressiveBountyModal from '@/components/ProgressiveBountyModal.vue';
 import DegressiveBountyModal from '@/components/DegressiveBountyModal.vue';
 import SingleBountyModal from '@/components/SingleBountyModal.vue';
+import ClaimModal from '@/components/ClaimModal.vue';
+
 export default {
   name: 'IssueItem',
   components: {
-    ClaimModal: () => import('@/components/ClaimModal.vue'),
     ProgressiveBountyModal,
     DegressiveBountyModal,
-    SingleBountyModal
+    SingleBountyModal,
+    ClaimModal
   },
   props: {
-    issue: {
-      type: Object,
-      required: true
-    },
-    username: {
-      type: String,
-      required: false
-    },
-    bounty: {
-      type: Number,
-      required: false
-    }
+    issue: Object,
+    username: String,
+    bounty: Number
   },
   data() {
     return {
       isModalVisible: false,
-      isClaimModalVisible: false
+      isClaimModalVisible: false,
+      showBountyTypeSelection: false,
+      bountyType: null
     };
   },
-  computed: {
-    bountyTypeComponent() {
-      switch (this.issue.bountyType) {
-        case 'progressive':
-          return ProgressiveBountyModal;
-        case 'degressive':
-          return DegressiveBountyModal;
-        default:
-          return SingleBountyModal;
-      }
-    }
-  },
   methods: {
-    toggleBountyModal() {
-      this.isModalVisible = !this.isModalVisible;
+    selectBountyType(type) {
+      this.bountyType = type;
+      this.isModalVisible = true; // Ensure modal visibility is set to true
+      this.showBountyTypeSelection = false; // Ensure selection overlay is hidden
     },
     toggleClaimModal() {
       this.isClaimModalVisible = !this.isClaimModalVisible;
+    },
+    openBountySelection() {
+      this.showBountyTypeSelection = true;
+      this.isModalVisible = false; // Ensure other modals are closed
+    }
+  },
+  computed: {
+    bountyTypeComponent() {
+      switch (this.bountyType) {
+        case 'progressive': return 'ProgressiveBountyModal';
+        case 'degressive': return 'DegressiveBountyModal';
+        case 'single': return 'SingleBountyModal';
+        default: return null; // Ensuring a null is returned if no match
+      }
     }
   }
 }
 </script>
-
-<style scoped>
-.rounded-lg {
-  border-radius: 0.5rem;
-}
-</style>
