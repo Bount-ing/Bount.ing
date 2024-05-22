@@ -1,7 +1,7 @@
 <template>
-  <section class="container mx-auto px-8 py-12">
+  <section class="container mx-auto px-8 py-14">
     <h1 class="text-3xl font-bold text-center mb-16 text-dark">Contact Us</h1>
-    <p class="text-lg text-gray-700 text-center mb-6">
+    <p class="text-lg text-gray-700 text-center mb-8">
       We're here to help! If you have any questions, suggestions, or need assistance with Open Bounties, please don't hesitate to reach out.
     </p>
     <div class="max-w-md mx-auto bg-white p-8 border border-gray-200 rounded-lg shadow-custom">

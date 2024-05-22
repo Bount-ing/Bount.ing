@@ -32,18 +32,26 @@ export default {
   name: 'Home',
   methods: {
     async fetchBounties() {
-      this.loading = true;
-      try {
-        const response = await axios.get('http://0.0.0.0:8080/api/v1/bounties/');
-        this.issues = response.data;
-        await Promise.all(this.issues.map(issue => this.fetchGitHubIssueData(issue)));
-        this.issues.sort((a, b) => b.amount - a.amount); // Sorting by bounty amount in descending order
-      } catch (error) {
-        console.error('Error fetching bounties:', error);
-      } finally {
-        this.loading = false;
+  const response = await axios.get('http://0.0.0.0:8080/api/v1/bounties/');
+  const currentDate = new Date(); // Current date for comparison
+
+  return response.data.reduce((acc, bounty) => {
+    const startDate = new Date(bounty.start_at);
+    const endDate = new Date(bounty.end_at);
+
+    // Check if the current date is between the start and end dates
+    if (currentDate > startDate && currentDate < endDate) {
+      // Initialize the sum for the issue if it hasn't been added yet
+      if (!acc[bounty.issue_github_id]) {
+        acc[bounty.issue_github_id] = 0; // Use zero directly, no need to parse it
       }
-    },
+      // Add the current bounty's amount to the sum
+      acc[bounty.issue_github_id] += parseFloat(bounty.amount);
+    }
+    return acc;
+  }, {});
+},
+
     async fetchGitHubIssueData(issue) {
       try {
         const response = await axios.get(issue.issue_github_url, {

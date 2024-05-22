@@ -15,8 +15,8 @@
 
 <script>
 import IssueItem from '@/components/IssueItem.vue';
+
 import axios from 'axios';
-import BountyModal from '@/components/BountyModal.vue';
 
 export default {
   data() {
@@ -155,25 +155,33 @@ export default {
       return null;
     },
 
-
     async fetchBounties() {
   const response = await axios.get('http://0.0.0.0:8080/api/v1/bounties/');
+  const currentDate = new Date(); // Current date for comparison
+
   return response.data.reduce((acc, bounty) => {
-    // Initialize the sum for the issue if it hasn't been added yet
-    if (!acc[bounty.issue_github_id]) {
-      acc[bounty.issue_github_id] = parseFloat(0);
+    const startDate = new Date(bounty.start_at);
+    const endDate = new Date(bounty.end_at);
+
+    // Check if the current date is between the start and end dates
+    if (currentDate > startDate && currentDate < endDate) {
+      // Initialize the sum for the issue if it hasn't been added yet
+      if (!acc[bounty.issue_github_id]) {
+        acc[bounty.issue_github_id] = 0; // Use zero directly, no need to parse it
+      }
+      // Add the current bounty's amount to the sum
+      acc[bounty.issue_github_id] += parseFloat(bounty.amount);
     }
-    // Add the current bounty's amount to the sum
-    acc[bounty.issue_github_id] += parseFloat(bounty.amount);
     return acc;
   }, {});
 }
 
 
+
+
   },
   components: {
     IssueItem,
-    BountyModal
   }
 };
 </script>

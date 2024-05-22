@@ -1,7 +1,7 @@
 <template>
-  <section class="bg-dark container mx-auto px-4 py-6">
+  <section class="bg-gray-800 container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold text-center mb-4 text-primary">Open Bounties</h1>
-    <p class="text-lg text-gray-700 text-center mb-6">
+    <p class="text-lg text-gray-200 text-center mb-8">
       Open Bounties is a revolutionary platform where open source enthusiasts can sponsor development by putting bounties on GitHub issues. Enhance the progress of your favorite projects by financially supporting specific development tasks.
     </p>
     <div class="flex justify-center">

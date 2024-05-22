@@ -19,10 +19,8 @@
       </div>
     </div>
     <div class="flex flex-col items-end space-y-2">
-      <span class="bg-blue-500 text-white font-semibold text-md px-4 py-2 rounded-lg">
-        <div v-if="bounty" class="">
-          {{ bounty.toFixed(2) }} €
-        </div>
+      <span class="bg-blue-500 text-white font-semibold text-md px-4 py-2 rounded-lg" v-if="bounty">
+        {{ bounty.toFixed(2) }} €
       </span>
       <div class="flex space-x-2" v-if="username">
         <button @click="toggleClaimModal" class="bg-blue-300 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded-lg">
@@ -31,30 +29,24 @@
         <button @click="toggleBountyModal" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
           Raise
         </button>
-        <BountyModal v-if="isModalVisible" :isModalVisible.sync="isModalVisible" :issue="issue"  :username="username"/>
-        <ClaimModal v-if="isClaimModalVisible" :isClaimModalVisible.sync="isClaimModalVisible" :issue="issue"  :username="username"/>
+        <component :is="bountyTypeComponent" v-if="isModalVisible" :isModalVisible.sync="isModalVisible" :issue="issue" :username="username"/>
+        <ClaimModal v-if="isClaimModalVisible" :isClaimModalVisible.sync="isClaimModalVisible" :issue="issue" :username="username"/>
       </div>
     </div>
   </li>
 </template>
 
 <script>
+import ProgressiveBountyModal from '@/components/ProgressiveBountyModal.vue';
+import DegressiveBountyModal from '@/components/DegressiveBountyModal.vue';
+import SingleBountyModal from '@/components/SingleBountyModal.vue';
 export default {
   name: 'IssueItem',
-  data() {
-    return {
-     isModalVisible: false,
-     isClaimModalVisible: false,
-    }
-  },
-  methods: {
-    toggleBountyModal() {
-  this.isModalVisible = !this.isModalVisible;
-},
-toggleClaimModal() {
-  this.isClaimModalVisible = !this.isClaimModalVisible;
-},
-
+  components: {
+    ClaimModal: () => import('@/components/ClaimModal.vue'),
+    ProgressiveBountyModal,
+    DegressiveBountyModal,
+    SingleBountyModal
   },
   props: {
     issue: {
@@ -66,13 +58,35 @@ toggleClaimModal() {
       required: false
     },
     bounty: {
-      type: Object,
+      type: Number,
       required: false
     }
   },
-  components: {
-    BountyModal: () => import('@/components/BountyModal.vue'),
-    ClaimModal: () => import('@/components/ClaimModal.vue')
+  data() {
+    return {
+      isModalVisible: false,
+      isClaimModalVisible: false
+    };
+  },
+  computed: {
+    bountyTypeComponent() {
+      switch (this.issue.bountyType) {
+        case 'progressive':
+          return ProgressiveBountyModal;
+        case 'degressive':
+          return DegressiveBountyModal;
+        default:
+          return SingleBountyModal;
+      }
+    }
+  },
+  methods: {
+    toggleBountyModal() {
+      this.isModalVisible = !this.isModalVisible;
+    },
+    toggleClaimModal() {
+      this.isClaimModalVisible = !this.isClaimModalVisible;
+    }
   }
 }
 </script>
