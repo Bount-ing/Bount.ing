@@ -4,16 +4,12 @@
       <h3 class="text-xl font-semibold mb-6 text-gray-800">Create a Progressive Bounty</h3>
       <form @submit.prevent="submit">
         <label class="block mb-4">
-          <span class="text-gray-700">Individual Bounty Amount (EUR):</span>
-          <input type="number" v-model.number="individualAmount" placeholder="Enter initial amount" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+          <span class="text-gray-700">Bounty Amount (EUR):</span>
+          <input type="number" v-model.number="individualAmount" placeholder="Enter amount" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
         </label>
         <label class="block mb-4">
-          <span class="text-gray-700">Step Amount (EUR):</span>
-          <input type="number" v-model.number="stepAmount" placeholder="Minimum 1 EUR" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-        </label>
-        <label class="block mb-4">
-          <span class="text-gray-700">Step Frequency (Days):</span>
-          <input type="number" v-model.number="stepFrequency" placeholder="Frequency in days" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+          <span class="text-gray-700">Frequency (Days):</span>
+          <input type="number" v-model.number="stepFrequency" placeholder="Enter frequency in days" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
         </label>
         <label class="block mb-4">
           <span class="text-gray-700">Start Date:</span>
@@ -23,10 +19,13 @@
           <span class="text-gray-700">End Date:</span>
           <input type="date" v-model="bountyEnd" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
         </label>
-        <div class="mb-4">
-          <span class="text-gray-700 font-semibold">Total Bounty to be Paid (EUR):</span>
-          <span class="ml-2 text-lg font-semibold text-indigo-600">{{ totalAmount.toFixed(2) }}</span>
-        </div>
+        <label class="block mb-4">
+          <div class="stats mt-4">
+  <p class="text-gray-800">Total Bounties Created: <strong>{{ formattedTotalBounties }}</strong></p>
+  <p class="text-gray-800">Total Amount: <strong>{{ formattedTotalAmount }} EUR</strong></p>
+</div>
+
+        </label>
         <div class="flex justify-between mt-6">
           <button type="submit" class="btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline">Submit</button>
           <button @click="close" type="button" class="btn bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline">Cancel</button>
@@ -56,81 +55,78 @@ export default {
     },
     bountyType: {
       type: String,
-      default: 'progressive'  // Ensures this component only handles progressive bounties
+      default: 'progressive'
     }
   },
   data() {
     return {
       individualAmount: 0.0,
-      stepAmount: 1.0,
       stepFrequency: 1,
       bountyStart: '',
       bountyEnd: '',
-      bountyCurrency: 'EUR'
+      totalBounties: 0,     // To keep track of the number of bounties
+      totalAmount: 0.0      // To keep track of the total amount of bounties in EUR
     };
   },
+
   computed: {
-    totalAmount() {
-      let total = this.individualAmount;
-      let days = (new Date(this.bountyEnd) - new Date(this.bountyStart)) / (1000 * 3600 * 24);
-      let steps = Math.floor(days / this.stepFrequency);
-      return total + this.stepAmount * steps;
+    formattedTotalBounties() {
+      return this.calculateTotalBounties().toString().replace(/\d(?=(\d{3})+$)/g, '$&,');
+    },
+    formattedTotalAmount() {
+      return this.calculateTotalAmount().toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     }
   },
+
   methods: {
     close() {
       this.isModalVisible = false;
       this.$emit('update:isModalVisible', false);
     },
     async submit() {
-      if (this.validateDates()) {
-        await this.submitMultipleBounties();
+      if (new Date(this.bountyEnd) > new Date(this.bountyStart) && this.individualAmount > 0) {
+        await this.submitBounty();
         this.close();
       } else {
         alert('Please ensure the end date is after the start date and all inputs are valid.');
       }
     },
-    validateDates() {
-      return new Date(this.bountyEnd) > new Date(this.bountyStart) && this.individualAmount > 0;
-    },
-    async submitMultipleBounties() {
+    async submitBounty() {
       let startDate = new Date(this.bountyStart);
-      let currentAmount = parseFloat(this.individualAmount);
+      const endDate = new Date(this.bountyEnd);
 
-      while (startDate < new Date(this.bountyEnd) && currentAmount < this.totalAmount) {
-        let endDate = new Date(startDate.getTime() + this.stepFrequency * 86400000);
-        endDate = new Date(endDate - 1); // Ensuring end date is just before the next period starts
-
-        if (endDate > new Date(this.bountyEnd)) {
-          endDate = new Date(this.bountyEnd);
-        }
-
-        await this.submitBounty(currentAmount, startDate, endDate);
-
-        // Update startDate for next interval
-        startDate = new Date(endDate.getTime() + 1); // Start next period right after current period ends
-
-        // Update the amount
-        currentAmount += this.stepAmount;
-        currentAmount = Math.min(currentAmount, this.totalAmount); // Ensure not to exceed total amount
+      if (startDate >= endDate) {
+        alert('The start date must be before the end date.');
+        return;
       }
-    },
-    async submitBounty(amount, start_at, end_at) {
+
       try {
-        const response = await axios.post('http://0.0.0.0:8080/api/v1/bounties/', {
-          amount: parseFloat(amount),
-          currency: this.bountyCurrency,
-          issue_github_id: this.issue.id,
-          issue_github_url: this.issue.url,
-          user_github_login: this.username,
-          start_at: new Date(start_at).toISOString(),
-          end_at: new Date(end_at).toISOString(),
-        });
-        console.log('Bounty submitted:', response);
+        while (startDate < endDate) {
+          const response = await axios.post('http://0.0.0.0:8080/api/v1/bounties/', {
+            amount: parseFloat(this.individualAmount),
+            currency: 'EUR',
+            issue_github_id: this.issue.id,
+            issue_github_url: this.issue.url,
+            user_github_login: this.username,
+            start_at: startDate.toISOString(),
+            end_at: endDate.toISOString(),
+          });
+          console.log('Bounty submitted:', response.data);
+
+          // Increment the start date by the frequency
+          startDate.setDate(startDate.getDate() + this.stepFrequency);
+        }
       } catch (error) {
         console.error('Error submitting bounty:', error);
-        alert('Failed to submit bounty. Please check your network connection and try again.');
+        alert('Failed to submit multiple bounties. Please check your network connection and try again.');
       }
+    },
+    calculateTotalBounties() {
+      const days = (new Date(this.bountyEnd) - new Date(this.bountyStart)) / (1000 * 60 * 60 * 24);
+      return Math.floor(days / this.stepFrequency) + 1;
+    },
+    calculateTotalAmount() {
+      return this.calculateTotalBounties() * this.individualAmount;
     }
   }
 };
