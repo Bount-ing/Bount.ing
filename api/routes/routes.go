@@ -24,9 +24,6 @@ func SetupRouter() *gin.Engine {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.Bounty{})
-	db.AutoMigrate(&models.Issue{})
-	db.AutoMigrate(&models.Repository{})
-	db.AutoMigrate(&models.Organization{})
 
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
@@ -35,17 +32,11 @@ func SetupRouter() *gin.Engine {
 	// Initialize UserService with the database connection
 	userService := services.NewUserService(db)
 	bountyService := services.NewBountyService(db)
-	issueService := services.NewIssueService(db)
-	repositoryService := services.NewRepositoryService(db)
-	organizationService := services.NewOrganizationService(db)
 
 	// Initialize controllers
 	loginController := controllers.NewLoginController(userService)
 	userController := controllers.NewUserController(userService)
 	bountyController := controllers.NewBountyController(bountyService)
-	issueController := controllers.NewIssueController(issueService)
-	repositoryController := controllers.NewRepositoryController(repositoryService)
-	organizationController := controllers.NewOrganizationController(organizationService)
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:  []string{"*"},
@@ -98,35 +89,6 @@ func SetupRouter() *gin.Engine {
 				bountyRoutes.DELETE("/:id", bountyController.DeleteBounty)
 			}
 
-			// Issue routes
-			issueRoutes := authorized.Group("/issues")
-			{
-				issueRoutes.GET("/", issueController.GetAllIssues)
-				issueRoutes.POST("/", issueController.CreateIssue)
-				issueRoutes.GET("/:id", issueController.GetIssue)
-				issueRoutes.PUT("/:id", issueController.UpdateIssue)
-				issueRoutes.DELETE("/:id", issueController.DeleteIssue)
-			}
-
-			// Repository routes
-			repositoryRoutes := authorized.Group("/repositories")
-			{
-				repositoryRoutes.GET("/", repositoryController.GetAllRepositories)
-				repositoryRoutes.POST("/", repositoryController.CreateRepository)
-				repositoryRoutes.GET("/:id", repositoryController.GetRepository)
-				repositoryRoutes.PUT("/:id", repositoryController.UpdateRepository)
-				repositoryRoutes.DELETE("/:id", repositoryController.DeleteRepository)
-			}
-
-			// Organization routes
-			organizationRoutes := authorized.Group("/organizations")
-			{
-				organizationRoutes.GET("/", organizationController.GetAllOrganizations)
-				organizationRoutes.POST("/", organizationController.CreateOrganization)
-				organizationRoutes.GET("/:id", organizationController.GetOrganization)
-				organizationRoutes.PUT("/:id", organizationController.UpdateOrganization)
-				organizationRoutes.DELETE("/:id", organizationController.DeleteOrganization)
-			}
 		}
 	}
 

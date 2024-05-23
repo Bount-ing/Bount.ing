@@ -91,6 +91,7 @@ export default {
         currency: 'EUR',
         issue_github_id: this.issue.id,
         issue_github_url: this.issue.url,
+        issue_image_url: this.issue.image_url,
         user_github_login: this.username,
         start_at: startDate.toISOString(),
         end_at: currentDate.toISOString(),
