@@ -41,9 +41,8 @@
     <div v-show="isOpen" class="md:hidden">
       <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
         <NuxtLink to="/" class="block px-3 py-2 rounded-md text-base font-medium bg-gray-900 hover:bg-gray-700">Home</NuxtLink>
+        <NuxtLink to="/dashboard" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Dashboard</NuxtLink>
         <NuxtLink to="/about" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">About</NuxtLink>
-        <NuxtLink to="/services" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Services</NuxtLink>
-        <NuxtLink to="/pricing" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Pricing</NuxtLink>
         <NuxtLink to="/contact" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Contact</NuxtLink>
       </div>
     </div>
