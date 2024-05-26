@@ -41,14 +41,14 @@ export default {
   buildModules: [
     // https://go.nuxtjs.dev/tailwindcss
     '@nuxtjs/tailwindcss',
-    '@nuxtjs/google-analytics',
+    'nuxt-gtag',
     '@nuxtjs/dotenv',
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     '@nuxtjs/axios',
-    '@nuxtjs/auth-next',
+    'nuxt-gtag',
     '@nuxtjs/dotenv',
     '@nuxtjs/tailwindcss',
     '@tailwindcss/forms',
@@ -61,7 +61,7 @@ export default {
     baseURL: '/',
   },
 
-  googleAnalytics: {
+  gtag: {
     id: 'G-JBW6WFECS1', // Replace G-XXXXXXX with your Measurement ID
   },
 

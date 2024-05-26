@@ -11,9 +11,6 @@ importers:
       '@nuxtjs/axios':
         specifier: ^5.13.6
         version: 5.13.6
-      '@nuxtjs/google-analytics':
-        specifier: ^2.4.0
-        version: 2.4.0
       '@tailwindcss/forms':
         specifier: ^0.5.7
         version: 0.5.7(tailwindcss@3.4.3)
@@ -26,6 +23,9 @@ importers:
       nuxt:
         specifier: ^2.15.8
         version: 2.17.3(@vue/compiler-sfc@2.7.16)(buffer@4.9.2)(consola@3.2.3)(mustache@2.3.2)(vue@2.7.16)
+      nuxt-gtag:
+        specifier: ^2.0.6
+        version: 2.0.6
       vue:
         specifier: ^2.7.10
         version: 2.7.16
@@ -1083,9 +1083,6 @@ packages:
 
   '@nuxtjs/dotenv@1.4.2':
     resolution: {integrity: sha512-/3+Cw5qLNIQD8ZvXLJG1suxvfC4ltlUuYegOwirHrLrzptHh/+rCkBXrNbrz2qAiwc+/yK91XjZGGzNM1dFmCw==}
-
-  '@nuxtjs/google-analytics@2.4.0':
-    resolution: {integrity: sha512-rDQTwHIjyjVrx8GywHPuWykJ3jRFGaHl5Iqji/y8tQWUc0yGEeHxOoR0yimzxnTS1Ph2/PubQYpgnVeEPEdL/A==}
 
   '@nuxtjs/proxy@2.1.0':
     resolution: {integrity: sha512-/qtoeqXgZ4Mg6LRg/gDUZQrFpOlOdHrol/vQYMnKu3aN3bP90UfOUB3QSDghUUK7OISAJ0xp8Ld78aHyCTcKCQ==}
@@ -3645,6 +3642,9 @@ packages:
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
 
+  nuxt-gtag@2.0.6:
+    resolution: {integrity: sha512-KjHujiwX4mtmgtHLMQB25NP3vxAuzsEqmZDkUoq9ZUSRLXly6FaPT97BTM4slr72eSfaoPGDeFyFxVvJhN4LVg==}
+
   nuxt@2.17.3:
     resolution: {integrity: sha512-mQUy0J2DYYxHZvgBX8YvrrM8sKUhBqBxcQ0ePjy7cdyTaDAN8QeOLrizINm7NVPMrFGLYurhp5rbX3/qyQcKyg==}
     hasBin: true
@@ -5392,10 +5392,6 @@ packages:
 
   vm-browserify@1.1.2:
     resolution: {integrity: sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==}
-
-  vue-analytics@5.22.1:
-    resolution: {integrity: sha512-HPKQMN7gfcUqS5SxoO0VxqLRRSPkG1H1FqglsHccz6BatBatNtm/Vyy8brApktZxNCfnAkrSVDpxg3/FNDeOgQ==}
-    deprecated: Sorry but vue-analytics is no longer maintained. I would suggest you switch to vue-gtag, with love, the guy who made the package.
 
   vue-client-only@2.1.0:
     resolution: {integrity: sha512-vKl1skEKn8EK9f8P2ZzhRnuaRHLHrlt1sbRmazlvsx6EiC3A8oWF8YCBrMJzoN+W3OnElwIGbVjsx6/xelY1AA==}
@@ -7179,10 +7175,6 @@ snapshots:
     dependencies:
       consola: 3.2.3
       dotenv: 8.6.0
-
-  '@nuxtjs/google-analytics@2.4.0':
-    dependencies:
-      vue-analytics: 5.22.1
 
   '@nuxtjs/proxy@2.1.0':
     dependencies:
@@ -10121,6 +10113,16 @@ snapshots:
     dependencies:
       boolbase: 1.0.0
 
+  nuxt-gtag@2.0.6:
+    dependencies:
+      '@nuxt/kit': 3.11.2
+      defu: 6.1.4
+      pathe: 1.1.2
+      ufo: 1.5.3
+    transitivePeerDependencies:
+      - rollup
+      - supports-color
+
   nuxt@2.17.3(@vue/compiler-sfc@2.7.16)(buffer@4.9.2)(consola@3.2.3)(mustache@2.3.2)(vue@2.7.16):
     dependencies:
       '@nuxt/babel-preset-app': 2.17.3(vue@2.7.16)
@@ -12103,8 +12105,6 @@ snapshots:
   vary@1.1.2: {}
 
   vm-browserify@1.1.2: {}
-
-  vue-analytics@5.22.1: {}
 
   vue-client-only@2.1.0: {}
 
