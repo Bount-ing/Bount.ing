@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   db:
+    restart: always
     image: postgres
     volumes:
       - ./db/data:/var/lib/postgresql/data
