@@ -42,6 +42,7 @@ export default {
     // https://go.nuxtjs.dev/tailwindcss
     '@nuxtjs/tailwindcss',
     'nuxt-gtag',
+    '@nuxtjs/auth-next',
     '@nuxtjs/dotenv',
   ],
 
@@ -50,6 +51,7 @@ export default {
     '@nuxtjs/axios',
     'nuxt-gtag',
     '@nuxtjs/dotenv',
+    '@nuxtjs/auth-next',
     '@nuxtjs/tailwindcss',
     '@tailwindcss/forms',
     '@tailwindcss/typography'
