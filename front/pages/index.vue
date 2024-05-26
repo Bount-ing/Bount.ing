@@ -72,6 +72,13 @@ export default {
       };
       return this.fetchGitHubIssueData(issue);
     }));
+    // filter start and end date
+    this.issues = this.issues.filter(issue => {
+      const startDate = new Date(issue.start_at);
+      const endDate = new Date(issue.end_at);
+      return currentDate > startDate && currentDate < endDate;
+    });
+    this.issues = this.issues.sort((a, b) => b.amount - a.amount);
   } catch (error) {
     console.error('Error fetching bounties:', error);
   } finally {
