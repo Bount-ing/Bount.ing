@@ -26,6 +26,7 @@ export default {
     issues: [],
     userBackground: 'default-image.jpg',
     repoImages: {},
+    seenRepos: new Set(), // Set to keep track of processed repositories
     currentIssue: null,
     bountyAmount: 0,
     bountyCurrency: 'EUR',
@@ -75,36 +76,38 @@ export default {
     },
 
     async fetchReposIncludingUser(orgs) {
-  let allRepos = [];
-  const repoUrls = orgs.map(org => `https://api.github.com/orgs/${org.login}/repos`); // Fetch all visibility levels
+      let allRepos = [];
+      const repoUrls = orgs.map(org => `https://api.github.com/orgs/${org.login}/repos`); // Fetch all visibility levels
 
-  // Include user's own repositories, including private ones
-  repoUrls.push(`https://api.github.com/user/repos`);
+      // Include user's own repositories, including private ones
+      repoUrls.push(`https://api.github.com/user/repos`);
 
-  for (const url of repoUrls) {
-    let repoUrl = url;
-    while (repoUrl) {
-      const response = await axios.get(repoUrl, { headers: { Authorization: this.getAuthHeader() } });
-      allRepos = allRepos.concat(response.data);
-      repoUrl = this.getNextPageUrl(response.headers);
-    }
-  }
+      for (const url of repoUrls) {
+        let repoUrl = url;
+        while (repoUrl) {
+          const response = await axios.get(repoUrl, { headers: { Authorization: this.getAuthHeader() } });
+          response.data.forEach(repo => {
+            if (!this.seenRepos.has(repo.full_name)) { // Check if repo has been processed
+              allRepos.push(repo);
+              this.seenRepos.add(repo.full_name); // Add to set to avoid duplicates
+            }
+          });
+          repoUrl = this.getNextPageUrl(response.headers);
+        }
+      }
 
-  return allRepos;
-},
-
-
+      return allRepos;
+    },
 
     async processAllRepositories(repos) {
       const issues = await this.fetchAndProcessIssues(repos);
-      this.issues = this.issues.concat(issues);
-  const bounties = await this.fetchBounties(); // Fetch sums of bounties for each issue
-  const issuesWithBounties = issues.map(issue => ({
-    ...issue,
-    bounty: bounties[issue.id] || 0 // Attach the sum of bounties if it exists
-  }));
-  this.issues = issuesWithBounties;
-},
+      const bounties = await this.fetchBounties(); // Fetch sums of bounties for each issue
+      const issuesWithBounties = issues.map(issue => ({
+        ...issue,
+        bounty: bounties[issue.id] || 0 // Attach the sum of bounties if it exists
+      }));
+      this.issues = issuesWithBounties.filter(issue => !this.seenRepos.has(issue.repository_name)); // Filter out duplicate issues
+    },
 
     async fetchAndProcessIssues(repos) {
       const issuesPromises = repos.map(repo =>

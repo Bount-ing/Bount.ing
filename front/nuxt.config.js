@@ -83,7 +83,7 @@ export default {
 
         codeChallengeMethod: 'S256',
         responseType: 'token',
-        scope: ['read:user', 'user:email'],
+        scope: ['read:user', 'user:email', 'repo', 'read:org'],
         tokenType: 'Bearer',
       },
     },
