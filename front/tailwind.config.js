@@ -7,18 +7,22 @@ module.exports = {
         'dark-mode': {'raw': '(prefers-color-scheme: dark)'},
       },
       colors: {
-        'primary': '#005f73', // Deep, elegant teal
-        'primary-dark': '#023e57', // Darker shade of teal for depth
-        'primary-light': '#72ddf7', // Bright teal for highlights
+        'primary': '#006666',
+        'primary-dark': '#004d4d',
+        'primary-light': '#FFF',
 
-        'secondary': '#adb5bd', // Neutral, sophisticated gray
-        'secondary-dark': '#6c757d', // Darker gray for contrast
-        'secondary-light': '#dee2e6', // Light gray for soft accents
+        'secondary': '#002D0B', // Neutral, sophisticated gray
+        'secondary-dark': '#001800', // Darker gray for contrast
+        'secondary-light': '#014421', // Light gray for soft accents
 
-        'success': '#2f855a', // Dark green, reflecting precision
+        'success': '#2f855a', // Dark green, for success and confirmation
+        'success-light': '#48bb78', // Light green, for positive feedback
         'error': '#9b2c2c', // Dark red, elegant and alerting
+        'error-light': '#f56565', // Light red, for critical alerts
         'warning': '#975a16', // Refined amber, precise and clear
+        'warning-light': '#ecc94b', // Bright amber, for warnings and notices
         'info': '#2c5282', // Deep blue for clarity and trust
+        'info-light': '#4299e1', // Light blue for information and guidance
 
         'neutral': '#e1e1e1', // Soft, clean gray for neutral backgrounds
         'neutral-dark': '#4a5568', // Solid, dark gray for strong contrasts

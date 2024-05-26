@@ -1,11 +1,11 @@
 <template>
-  <nav class="bg-gray-800 text-white shadow-lg">
+  <nav class="bg-secondary-dark text-primary-light shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <!-- Logo and navigation links -->
         <div class="flex items-center">
           <a href="/" class="flex items-center">
-            <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Open Bounties Logo" />
+            <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Bount.ing Logo" />
             <span class="ml-3 text-xl font-bold tracking-tight">Bount.ing</span>
           </a>
           <div class="hidden md:flex space-x-4 ml-10">
@@ -18,8 +18,8 @@
 
         <!-- Authentication buttons -->
         <div class="hidden md:block">
-          <button v-if="!$auth.loggedIn" @click="$auth.login()" class="px-3 py-2 rounded-md text-sm font-medium bg-blue-500 hover:bg-blue-600">Login</button>
-          <button v-else @click="$auth.logout()" class="px-3 py-2 rounded-md text-sm font-medium bg-red-600 hover:bg-red-700">Logout</button>
+          <button v-if="!$auth.loggedIn" @click="$auth.login()" class="px-3 py-2 rounded-md text-sm font-medium bg-info hover:bg-info-light">Login</button>
+          <button v-else @click="$auth.logout()" class="px-3 py-2 rounded-md text-sm font-medium bg-error hover:bg-error-light hover:text-primary-dark">Logout</button>
         </div>
 
         <!-- Mobile menu button -->
@@ -50,6 +50,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
@@ -58,17 +60,18 @@ export default {
   },
   name: 'NavBar',
   methods: {
-    loginWithGithub() {
-    console.log("Attempting to log in with GitHub");
-    this.$auth.loginWith('github').then(() => {
-      console.log("Logged in successfully!");
-    }).catch(err => {
-      console.error("Error logging in:", err);
-    });
-  }
+    loginWithGitHub() {
+      const clientID = 'your_github_client_id';
+      const redirectURI = 'http://localhost:8080/api/auth/github/callback';
+      window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectURI}&scope=read:user`;
+    }
   }
 }
 </script>
+
+
+
+
 
 <style scoped>
 

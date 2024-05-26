@@ -1,32 +1,32 @@
 <template>
-  <li class="flex flex-col md:flex-row items-start bg-gray-100 rounded-lg shadow-lg p-4 justify-between">
+  <li class="flex flex-col md:flex-row items-start bg-secondary-dark rounded-lg shadow-lg p-4 justify-between">
     <img :src="issue.image_url || issue.issue_image_url || 'default-image.png'" alt="Repo Image" class="w-20 h-20 rounded-full mr-4">
     <div class="flex-grow space-y-3">
       <div class="flex items-center space-x-4">
-        <h4 class="text-sm md:text-md font-bold text-blue-500">{{ issue.user_github_login }}</h4>
+        <h4 class="text-sm md:text-md font-bold text-primary-light">{{ issue.user_github_login }}</h4>
       </div>
       <div>
-        <h5 class="text-lg font-semibold text-blue-500">{{ issue.title }}</h5>
-        <p class="text-gray-700">{{ issue.description }}</p>
+        <h5 class="text-lg font-semibold text-primary-light">{{ issue.title }}</h5>
+        <p class="text-info">{{ issue.description }}</p>
       </div>
       <div class="space-y-2">
-        <p class="text-xs text-gray-500">Repository: {{ issue.repository_name }} (⭐ {{ issue.repository_stars }})</p>
-        <p class="text-xs text-gray-500">Created: {{ new Date(issue.created_at).toLocaleDateString() }}</p>
-        <p class="text-xs text-gray-500">Last Updated: {{ new Date(issue.updated_at).toLocaleDateString() }}</p>
-        <a :href="issue.url || issue.issue_github_url || `https://github.com/issues/${issue.github_id}`" target="_blank" class="text-blue-500 hover:text-blue-600">
+        <p class="text-xs text-info">Repository: {{ issue.repository_name }} (⭐ {{ issue.repository_stars }})</p>
+        <p class="text-xs text-info">Created: {{ new Date(issue.created_at).toLocaleDateString() }}</p>
+        <p class="text-xs text-info">Last Updated: {{ new Date(issue.updated_at).toLocaleDateString() }}</p>
+        <a :href="issue.url || issue.issue_github_url || `https://github.com/issues/${issue.github_id}`" target="_blank" class="text-info hover:text-info-light">
           View Issue on GitHub &rarr;
         </a>
       </div>
     </div>
     <div class="flex flex-col items-end space-y-2">
-      <span class="bg-blue-500 text-white font-semibold text-md px-4 py-2 rounded-lg" v-if="bounty">
+      <span class="bg-info text-white font-semibold text-md px-4 py-2 rounded-lg" v-if="bounty">
         {{ bounty.toFixed(2) }} €
       </span>
       <div class="flex space-x-2" v-if="username">
-        <button @click="toggleClaimModal" class="bg-blue-300 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded-lg">
+        <button @click="toggleClaimModal" class="bg-info hover:bg-info-light text-white font-bold py-2 px-4 rounded-lg">
           Claim
         </button>
-        <button @click="openBountySelection" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
+        <button @click="openBountySelection" class="bg-success hover:bg-success-light text-white font-bold py-2 px-4 rounded-lg">
           Raise
         </button>
       </div>
