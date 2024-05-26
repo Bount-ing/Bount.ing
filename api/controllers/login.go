@@ -1,48 +1,83 @@
 package controllers
 
 import (
-    "open-bounties-api/services"
-    "open-bounties-api/models"
-    "github.com/gin-gonic/gin"
-    "net/http"
-    "github.com/golang-jwt/jwt/v4"
-    "time"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"os"
+	"time"
+
+	"open-bounties-api/services"
+
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type LoginController struct {
-    userService *services.UserService
+	userService *services.UserService
 }
 
 func NewLoginController(userService *services.UserService) *LoginController {
-    return &LoginController{
-        userService: userService,
-    }
+	return &LoginController{
+		userService: userService,
+	}
 }
-func (ctl *LoginController) Login(c *gin.Context) {
-    var loginReq models.LoginRequest
-    if err := c.ShouldBindJSON(&loginReq); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-        return
-    }
 
-    user, err := ctl.userService.AuthenticateUser(loginReq.Username, loginReq.Password)
-    if err != nil {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
-        return
-    }
+// Constants for API URLs and client settings
+const (
+	GithubAuthorizeURL = "https://github.com/login/oauth/authorize"
+	GithubTokenURL     = "https://github.com/login/oauth/access_token"
+	GithubClientID     = "GITHUB_CLIENT_ID"
+	GithubClientSecret = "GITHUB_CLIENT_SECRET"
+	JWTSecretKey       = "your_secret_key"
+	RedirectURL        = "https://yourapp.com/oauth/callback"
+)
 
-    // Create the JWT token
-    claims := jwt.MapClaims{
-        "user_id": user.ID,  // Make sure this claim is expected in the middleware
-        "exp":     time.Now().Add(time.Hour * 72).Unix(),
-    }
-    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+func (ctl *LoginController) LoginWithGithub(c *gin.Context) {
+	params := url.Values{
+		"client_id":    {os.Getenv(GithubClientID)},
+		"scope":        {"read:user"},
+		"redirect_uri": {RedirectURL},
+	}
+	redirectURL := GithubAuthorizeURL + "?" + params.Encode()
+	c.Redirect(http.StatusTemporaryRedirect, redirectURL)
+}
 
-    tokenString, err := token.SignedString([]byte("your_secret_key")) // Same key as in middleware
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
-        return
-    }
+func (ctl *LoginController) GithubCallback(c *gin.Context) {
+	code := c.Query("code")
+	requestData := url.Values{
+		"client_id":     {os.Getenv(GithubClientID)},
+		"client_secret": {os.Getenv(GithubClientSecret)},
+		"code":          {code},
+	}
 
-    c.JSON(http.StatusOK, gin.H{"message": "Login successful", "token": tokenString, "user": user})
+	resp, err := http.PostForm(GithubTokenURL, requestData)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to request GitHub token"})
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read response body"})
+		return
+	}
+
+	jwtToken, err := generateJWT(string(body))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": jwtToken})
+}
+
+func generateJWT(accessToken string) (string, error) {
+	claims := jwt.MapClaims{
+		"access_token": accessToken, // Use the actual data claims relevant for your app
+		"exp":          time.Now().Add(72 * time.Hour).Unix(),
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(JWTSecretKey))
 }

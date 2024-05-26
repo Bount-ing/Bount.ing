@@ -1,7 +1,6 @@
 package models
 
-type LoginRequest struct {
-    Username string `json:"username"`
-    Password string `json:"password"`
+type OAuthLoginRequest struct {
+	Username string `json:"username"`
+	Token    string `json:"token"`
 }
-

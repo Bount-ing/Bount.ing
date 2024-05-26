@@ -92,6 +92,12 @@ export default {
       }
     },
     async submitBounty() {
+      const baseURL = process.env.API_BASE_URL;
+      if (!baseURL) {
+        console.error('API base URL is not set.');
+        alert('API base URL is not set.');
+        return;
+      }
       let startDate = new Date(this.bountyStart);
       const endDate = new Date(this.bountyEnd);
 
@@ -101,8 +107,9 @@ export default {
       }
 
       try {
+
         while (startDate < endDate) {
-          const response = await axios.post('http://0.0.0.0:8080/api/v1/bounties/', {
+          const response = await axios.post(`${baseURL}/api/v1/bounties/`, {
             amount: parseFloat(this.individualAmount),
             currency: 'EUR',
             issue_github_id: this.issue.id,

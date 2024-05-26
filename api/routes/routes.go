@@ -56,7 +56,8 @@ func SetupRouter() *gin.Engine {
 		// Public routes
 		public := v1.Group("/")
 		{
-			public.POST("/login", loginController.Login)
+			public.GET("/login/github", loginController.LoginWithGithub)
+			public.GET("/oauth/github/callback", loginController.GithubCallback)
 			public.POST("/register", userController.RegisterUser)
 		}
 

@@ -10,7 +10,7 @@
     1. Terms
   </h2>
   <p class="text-lg text-info-light mb-8">
-    By accessing the website at https://bount.ing, you are agreeing to be bound by these terms of service, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws. If you do not agree with any of these terms, you are prohibited from using or accessing this site. The materials contained in this website are protected by applicable copyright and trademark law.
+    By accessing the website at <a href="https://bount.ing" class="underline text-info">https://bount.ing</a>, you are agreeing to be bound by these terms of service, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws. If you do not agree with any of these terms, you are prohibited from using or accessing this site. The materials contained in this website are protected by applicable copyright and trademark law.
   </p>
   <h2 class="text-2xl font-semibold mb-4 text-primary-light">
     2. Use License
@@ -85,7 +85,7 @@
     11. Contact Information
   </h2>
   <p class="text-lg text-info-light mb-8">
-    If you have any questions about these Terms, please contact us at support@bount.ing.
+    If you have any questions about these Terms, please contact us at <a href="mailto:support@bount.ing" class="underline text-info">support@bount.ing</a>.
   </p>
 </section>
 

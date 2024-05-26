@@ -68,9 +68,15 @@ export default {
       this.$emit('update:isModalVisible', false);
     },
     async submitBounty() {
-  const startDate = new Date(this.bountyStart);
-  let currentDate = new Date(this.bountyStart);
-  const endDate = new Date(this.bountyEnd);
+      const baseURL = process.env.API_BASE_URL;
+      if (!baseURL) {
+        console.error('API base URL is not set.');
+        alert('API base URL is not set.');
+        return;
+      }
+      const startDate = new Date(this.bountyStart);
+      let currentDate = new Date(this.bountyStart);
+      const endDate = new Date(this.bountyEnd);
 
   if (startDate >= endDate) {
     console.error('The start date must be before the end date.');
@@ -86,7 +92,8 @@ export default {
 
   try {
     while (currentDate <= endDate) {
-      const response = await axios.post('http://0.0.0.0:8080/api/v1/bounties/', {
+
+      const response = await axios.post(`${baseURL}/api/v1/bounties/`, {
         amount: parseFloat(this.bountyValue.toFixed(2)),
         currency: 'EUR',
         issue_github_id: this.issue.id,

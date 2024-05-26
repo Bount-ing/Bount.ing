@@ -76,10 +76,10 @@ export default {
 
     async fetchReposIncludingUser(orgs) {
   let allRepos = [];
-  const repoUrls = orgs.map(org => `https://api.github.com/orgs/${org.login}/repos?visibility=all`); // Fetch all visibility levels
+  const repoUrls = orgs.map(org => `https://api.github.com/orgs/${org.login}/repos`); // Fetch all visibility levels
 
   // Include user's own repositories, including private ones
-  repoUrls.push(`https://api.github.com/user/repos?visibility=all`);
+  repoUrls.push(`https://api.github.com/user/repos`);
 
   for (const url of repoUrls) {
     let repoUrl = url;

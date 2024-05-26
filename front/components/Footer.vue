@@ -11,7 +11,7 @@
         <NuxtLink to="/terms" class="underline text-info">Terms of Service</NuxtLink> |
         <NuxtLink to="/privacy" class="underline text-info">Privacy Policy</NuxtLink>
       </p>
-      <p>Contact us: <a href="mailto:support@bount.ing" class="underline text-info">support@bount.ing.com</a></p>
+      <p>Contact us: <a href="mailto:support@bount.ing" class="underline text-info">support@bount.ing</a></p>
     </div>
   </footer>
 </template>

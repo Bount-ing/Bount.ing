@@ -1,8 +1,10 @@
+import { rule } from "postcss/lib/postcss";
+
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
   server: {
-    host: '0.0.0.0', // Default: localhost
+    host: 'localhost', // Default: localhost
     port: 3000 // You can specify the port here as well if needed
   },
 
@@ -101,4 +103,10 @@ export default {
       user: { url: '/api/auth/user', method: 'get' }
     }
   },
+  eslint: {
+    rules: {
+      'no-console': 'off',
+      'no-unused-vars': 'off'
+    }
+  }
 }

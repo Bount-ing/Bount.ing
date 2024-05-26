@@ -46,7 +46,8 @@ export default {
       individualAmount: 0.0,
       bountyStart: '',
       bountyEnd: '',
-      bountyCurrency: 'EUR'
+      bountyCurrency: 'EUR',
+      authToken: '',
     };
   },
   methods: {
@@ -56,6 +57,7 @@ export default {
     },
     async submit() {
       if (this.validateDates()) {
+        await this.loginAndSetToken();
         await this.submitBounty(this.individualAmount, this.bountyStart, this.bountyEnd);
         this.close();
       } else {
@@ -65,11 +67,29 @@ export default {
     validateDates() {
       return new Date(this.bountyEnd) > new Date(this.bountyStart) && this.individualAmount > 0;
     },
+    async loginAndSetToken() {
+      try {
+        const baseURL = process.env.API_BASE_URL;
+        const githubToken = process.env.GITHUB_TOKEN;
+
+        const response = await axios.post(`${baseURL}/api/v1/login`, {
+          github_token: githubToken,
+        });
+
+        this.authToken = response.data.jwt;
+      } catch (error) {
+        console.error('Error logging in:', error);
+        alert('Failed to login. Please check your network and try again.');
+      }
+    },
     async submitBounty(amount, start_at, end_at) {
       try {
-        const response = await axios.post('http://0.0.0.0:8080/api/v1/bounties/', {
+        const baseURL = process.env.API_BASE_URL;
+
+        const response = await axios.post(`${baseURL}/api/v1/bounties/`, {
           amount: parseFloat(amount),
           currency: this.bountyCurrency,
+          auth_token: this.authToken,
           issue_github_id: this.issue.id,
           issue_github_url: this.issue.url,
           issue_image_url: this.issue.image_url,
@@ -86,12 +106,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.modal {
-  /* Modal styling */
-}
-.btn {
-  /* Button styling */
-}
-</style>
