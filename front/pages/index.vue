@@ -99,10 +99,6 @@ export default {
 
     async fetchGitHubIssueData(issue) {
       const token = this.$auth.strategy.token.get();
-      if (!token) {
-        console.error("GitHub token is not set.");
-        return { ...issue, is_private: true }; // Indicate inaccessible issue
-      }
       try {
         const response = await axios.get(issue.issue_github_url, { headers: { Authorization: `${token}` } });
         // Merge fetched data with existing issue data
