@@ -13,7 +13,7 @@
         <p class="text-xs text-info">Repository: {{ issue.repository_name }} (⭐ {{ issue.repository_stars }})</p>
         <p class="text-xs text-info">Created: {{ new Date(issue.created_at).toLocaleDateString() }}</p>
         <p class="text-xs text-info">Last Updated: {{ new Date(issue.updated_at).toLocaleDateString() }}</p>
-        <a :href="issue.url || issue.issue_github_url || `https://github.com/issues/${issue.github_id}`" target="_blank" class="text-info hover:text-info-light">
+        <a :href="issueGitHubUrl" target="_blank" class="text-info hover:text-info-light">
           View Issue on GitHub &rarr;
         </a>
       </div>
@@ -100,6 +100,10 @@ export default {
         case 'single': return 'SingleBountyModal';
         default: return null; // Ensuring a null is returned if no match
       }
+    },
+    issueGitHubUrl() {
+      // remove api and repos from url
+      return this.issue.url.replace('api.', '').replace('/repos', '');
     }
   }
 }
