@@ -1,11 +1,11 @@
 <template>
-  <nav class="bg-secondary-dark text-primary-light shadow-lg">
+  <nav class="bg-secondary-dark text-primary-light shadow-lg rounded-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <!-- Logo and navigation links -->
         <div class="flex items-center">
           <a href="/" class="flex items-center">
-            <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Bount.ing Logo" />
+            <img src="/bount.ing.logo.png" class="h-12 w-12 bg-primary-light rounded-3xl" alt="Bount.ing Logo" />
             <span class="ml-3 text-xl font-bold tracking-tight">Bount.ing</span>
           </a>
           <div class="hidden md:flex space-x-4 ml-10">

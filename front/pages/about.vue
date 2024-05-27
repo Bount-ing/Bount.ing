@@ -1,11 +1,13 @@
 <template>
   <section class="bg-secondary-dark container mx-auto px-4 my-6 py-6 rounded-lg">
-    <h1 class="text-4xl font-bold text-center mb-6 text-primary-light">Join Bount.ing</h1>
-    <p class="text-lg text-info-light text-center mb-10">
-      Revolutionizing open source development. Contribute, learn, and earn with every code commit while advancing sustainability.
-    </p>
-    <div class="flex justify-center">
-      <img src="https://via.placeholder.com/400x225.png?text=Bount.ing" alt="Bount.ing Image" class="shadow-lg rounded-lg mb-8">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold text-center mb-6 text-primary-light">Join Bount.ing</h1>
+      <div class="flex justify-center mb-6">
+        <img src="bount.ing.banner.png" alt="Bount.ing Banner" class="w-1/2 object-cover rounded-lg">
+      </div>
+      <p class="text-lg text-info-light text-center mb-10">
+        Revolutionizing open source development. Contribute, learn, and earn with every code commit while advancing sustainability.
+      </p>
     </div>
     <h2 class="text-2xl font-semibold mb-4 text-primary-light">How It Works</h2>
     <ul class="list-disc pl-5 mb-8 text-info-light">
