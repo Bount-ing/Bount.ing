@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-secondary-dark text-primary-light py-16">
+  <footer class="bg-secondary-dark text-primary-light py-4  min-w-screen">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
       <p>© 2024 Bount.ing. All rights reserved.</p>
       <p>Follow us on

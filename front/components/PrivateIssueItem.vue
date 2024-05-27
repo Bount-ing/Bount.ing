@@ -1,7 +1,7 @@
 <template>
   <li class="flex flex-col md:flex-row items-start bg-secondary-dark rounded-lg shadow-lg p-4 justify-between">
     <div class="flex items-start">
-      <img :src="repoImage" alt="Repository Image" class="w-20 h-20 rounded-full mr-2">
+      <img :src="issue.image_url || issue.issue_image_url || 'default-image.png'" alt="Repo Image" class="w-20 h-20 rounded-full mr-4">
       <div class="flex flex-col">
         <span class="text-sm md:text-md font-bold text-primary-light">{{ repoOwner }} / {{ repoName }}</span>
         <span class="text-lg md:text-md font-bold text-primary-light">Private Issue</span>

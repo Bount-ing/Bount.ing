@@ -1,7 +1,9 @@
 <template>
-  <div class="bg-gradient-to-tr from-primary to-secondary  text-sans min-h-screen flex flex-col p-8">
+  <div class="bg-gradient-to-tr from-primary to-secondary  text-sans min-h-screen flex flex-col  min-w-screen">
     <NavBar />
-    <Nuxt /> <!-- This tag renders the page content -->
+    <div class="flex-grow pt-8">
+      <Nuxt /> <!-- This tag renders the page content -->
+    </div>
     <Footer />
   </div>
 </template>
