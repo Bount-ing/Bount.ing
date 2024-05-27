@@ -1,12 +1,12 @@
 <template>
-  <nav class="bg-secondary-dark text-primary-light shadow-lg fixed top-0 left-0 w-full z-50">
+  <nav class="border-b border-primary bg-secondary-dark text-primary-light shadow-lg fixed top-0 left-0 w-full z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <!-- Logo and navigation links -->
         <div class="flex items-center">
           <a href="/" class="flex items-center">
-            <img src="/bount.ing.logo.png" class="h-12 w-12 bg-primary-light rounded-3xl" alt="Bount.ing Logo" />
-            <span class="ml-3 text-xl font-bold tracking-tight">Bount.ing</span>
+            <img src="/bount.ing.logo.png" class="h-12 w-12 bg-black rounded-3xl" alt="Bount.ing Logo" />
+            <span class="ml-3 text-3xl font-bold text-primary tracking-tight">Bount.ing</span>
           </a>
           <div class="hidden md:flex space-x-4 ml-10">
             <NuxtLink to="/" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-700">Home</NuxtLink>
@@ -18,8 +18,8 @@
 
         <!-- Authentication buttons -->
         <div class="hidden md:block">
-          <button v-if="!$auth.loggedIn" @click="$auth.login()" class="px-3 py-2 rounded-md text-sm font-medium bg-info hover:bg-info-light">Login</button>
-          <button v-else @click="$auth.logout()" class="px-3 py-2 rounded-md text-sm font-medium bg-error hover:bg-error-light hover:text-primary-dark">Logout</button>
+          <button v-if="!$auth.loggedIn" @click="$auth.login()" class="px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Login</button>
+          <button v-else @click="$auth.logout()" class="px-3 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-ligh">Logout</button>
         </div>
 
         <!-- Mobile menu button -->

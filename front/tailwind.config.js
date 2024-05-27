@@ -12,7 +12,7 @@ module.exports = {
         'primary-light': '#FFF',
 
         'secondary': '#002D0B', // Neutral, sophisticated gray
-        'secondary-dark': '#001800', // Darker gray for contrast
+        'secondary-dark': '#000', // Darker gray for contrast
         'secondary-light': '#014421', // Light gray for soft accents
 
         'success': '#2f855a', // Dark green, for success and confirmation
@@ -33,8 +33,9 @@ module.exports = {
       },
 
       fontFamily: {
-        'sans': ['Roboto Condensed', 'sans-serif'], // More modern, clean lines, good for dynamic content
-        'serif': ['Merriweather', 'serif'], // Elegant but readable for longer texts
+        'sans': ['Roboto', 'monospace'],
+        'serif': ['Philosopher', 'serif'],
+        'mono': ['VT323', 'monospace'],
       },
       fontSize: {
         'base': '16px', // Standard for readability

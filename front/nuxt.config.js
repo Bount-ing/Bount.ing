@@ -21,7 +21,11 @@ export default {
       { name: 'format-detection', content: 'telephone=no' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Gugi&family=Oswald:wght@200..700&family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&family=Play:wght@400;700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=VT323&family=Zen+Tokyo+Zoo&display=swap'
+      },
     ]
   },
 

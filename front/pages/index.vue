@@ -1,7 +1,7 @@
 <template>
   <section class="min-h-screen flex flex-col items-center justify-center p-4">
     <div v-if="loading" class="text-center text-2xl font-semibold text-gray-800">Loading...</div>
-    <div v-else class="w-full max-w-6xl bg-white rounded-2xl shadow-xl overflow-hidden">
+    <div v-else class="w-full max-w-6xl rounded-2xl shadow-xl overflow-hidden">
       <div class="relative">
         <img src="bount.ing.banner.png" alt="Bount.ing Banner" class="w-full h-64 object-cover">
         <div class="absolute inset-0 bg-black opacity-30"></div>
@@ -12,15 +12,15 @@
         </div>
       </div>
       <div class="px-6 md:px-10 lg:px-16 py-8 space-y-6 text-center">
-        <p class="text-md md:text-lg lg:text-xl text-gray-700">
+        <p class="text-md md:text-lg lg:text-xl text-primary">
           Enhance your coding skills, foster innovation, and contribute to the growth of open source projects while earning rewards.
         </p>
       </div>
     </div>
     <div v-if="issues.length > 0" class="w-full mt-8 p-6 rounded-md shadow-md">
-      <h2 class="text-2xl font-semibold text-gray-900 mb-4">Available Issues</h2>
-      <ul class="space-y-3 text-gray-800">
-        <li v-for="issue in issues" :key="issue.id" class="issue-item p-1 bg-primary rounded-lg shadow-lg hover:bg-primary-light border-primary">
+      <h2 class="text-2xl font-semibold text-primary mb-4">Available Issues</h2>
+      <ul class="space-y-3">
+        <li v-for="issue in issues" :key="issue.id" class="issue-item rounded-lg shadow-lg border border-primary">
           <PrivateIssueItem v-if="issue.is_private" :issue="issue" :bounty="issue.amount" />
           <IssueItem v-else v-bind="issue" :issue="issue" :bounty="issue.amount" />
         </li>

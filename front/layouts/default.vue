@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gradient-to-tr from-primary to-secondary  text-sans min-h-screen flex flex-col  min-w-screen">
+  <div class="bg-secondary-dark  text-mono min-h-screen flex flex-col  min-w-screen">
     <NavBar />
     <div class="flex-grow py-16">
       <Nuxt /> <!-- This tag renders the page content -->

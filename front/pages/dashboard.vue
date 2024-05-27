@@ -2,9 +2,9 @@
   <div class="container mx-auto px-4 py-12">
     <h1 class="text-4xl font-bold text-center mb-6 text-gray-800">Welcome, {{ username }}!</h1>
     <h2 class="text-2xl font-bold text-center mb-6 text-gray-600">Issues you're following:</h2>
-    <div class="overflow-auto h-screen">
-      <ul class="space-y-4" v-if="username">
-        <li v-for="issue in issues" :key="issue.id" class="issue-item" >
+    <div class="mt-8 p-6 rounded-md shadow-md">
+      <ul class="space-y-3" v-if="username">
+        <li v-for="issue in issues" :key="issue.id" class="issue-item rounded-lg shadow-lg border border-primary" >
           <IssueItem v-bind="issue" :issue="issue" :username="username" :bounty="issue.bounty"/>
         </li>
       </ul>
