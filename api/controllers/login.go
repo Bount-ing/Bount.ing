@@ -33,16 +33,6 @@ const (
 	RedirectURL        = "https://yourapp.com/oauth/callback"
 )
 
-func (ctl *LoginController) LoginWithGithub(c *gin.Context) {
-	params := url.Values{
-		"client_id":    {os.Getenv(GithubClientID)},
-		"scope":        {"read:user"},
-		"redirect_uri": {RedirectURL},
-	}
-	redirectURL := GithubAuthorizeURL + "?" + params.Encode()
-	c.Redirect(http.StatusTemporaryRedirect, redirectURL)
-}
-
 func (ctl *LoginController) GithubCallback(c *gin.Context) {
 	code := c.Query("code")
 	requestData := url.Values{
