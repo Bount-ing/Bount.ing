@@ -8,6 +8,9 @@
           <IssueItem v-bind="issue" :issue="issue" :username="username" :bounty="issue.bounty"/>
         </li>
       </ul>
+      <div v-else class="text-center ">
+        <p class="text-lg text-primary-light">Please log in to see your issues.</p>
+        </div>
     </div>
   </div>
 </template>

@@ -1,37 +1,24 @@
 <template>
   <li class="flex flex-col md:flex-row items-start bg-secondary-dark rounded-lg shadow-lg p-4 justify-between">
-    <img :src="issueImage" alt="Issue Image" class="w-20 h-20 rounded-full mr-4">
-    <div class="flex-grow space-y-3">
-      <h4 class="text-sm md:text-md font-bold text-primary-light">{{ issue.user_github_login }}</h4>
-      <div>
-        <h5 class="text-lg font-semibold text-primary-light">Private Issue</h5>
+    <div class="flex items-start">
+      <img :src="repoImage" alt="Repository Image" class="w-20 h-20 rounded-full mr-2">
+      <div class="flex flex-col">
+        <span class="text-sm md:text-md font-bold text-primary-light">{{ repoOwner }} / {{ repoName }}</span>
+        <span class="text-lg md:text-md font-bold text-primary-light">Private Issue</span>
         <p class="text-info">Details are confidential.</p>
+        <p class="text-info">You need to be logged in and granted to see it.</p>
       </div>
-      <div class="space-y-2">
-        <p class="text-xs text-info">Repository: {{ issue.repository_name }} (⭐ {{ issue.repository_stars }})</p>
-        <p class="text-xs text-info">Created: {{ formattedDate(issue.created_at) }}</p>
-        <p class="text-xs text-info">Last Updated: {{ formattedDate(issue.updated_at) }}</p>
-        <a :href="issueGitHubUrl" target="_blank" class="text-info hover:text-info-light">
-  View Issue Details &rarr;
-</a>
-
-      </div>
-      <div class="flex flex-col items-end space-y-2">
-        <span class="bg-info text-white font-semibold text-md px-4 py-2 rounded-lg" v-if="bounty">
-          {{ bounty.toFixed(2) }} €
-        </span>
-        <div class="flex space-x-2" v-if="username">
-          <button @click="toggleClaimModal" class="bg-info hover:bg-info-light text-white font-bold py-2 px-4 rounded-lg">
-            Claim
-          </button>
-          <button @click="openBountySelection" class="bg-success hover:bg-success-light text-white font-bold py-2 px-4 rounded-lg">
-            Raise
-          </button>
-        </div>
-      </div>
+    </div>
+    <div class="flex flex-col justify-center items-center md:items-end space-y-2 mt-4 md:mt-0">
+      <span class="bg-info text-white font-semibold text-md px-4 py-2 rounded-lg" v-if="bounty">
+        {{ bounty.toFixed(2) }} €
+      </span>
     </div>
   </li>
 </template>
+
+
+
 <script>
 export default {
   name: 'PrivateIssueItem',
@@ -50,7 +37,15 @@ export default {
     issueGitHubUrl() {
       // remove api and repos from url
       return this.issue.issue_github_url.replace('api.', '').replace('/repos', '');
-    }
+    },
+    repoOwner() {
+      const urlParts = this.issueGitHubUrl.split('/');
+      return urlParts[3];
+    },
+    repoName() {
+      const urlParts = this.issueGitHubUrl.split('/');
+      return urlParts[4];
+    },
   },
   methods: {
     formattedDate(date) {

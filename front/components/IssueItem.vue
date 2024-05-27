@@ -2,20 +2,15 @@
   <li class="flex flex-col md:flex-row items-start bg-secondary-dark rounded-lg shadow-lg p-4 justify-between">
     <img :src="issue.image_url || issue.issue_image_url || 'default-image.png'" alt="Repo Image" class="w-20 h-20 rounded-full mr-4">
     <div class="flex-grow space-y-3">
-      <div class="flex items-center space-x-4">
-        <h4 class="text-sm md:text-md font-bold text-primary-light">{{ issue.user_github_login }}</h4>
-      </div>
-      <div>
-        <h5 class="text-lg font-semibold text-primary-light">{{ issue.title }}</h5>
+      <div class="flex flex-col">
+        <span class="text-sm md:text-md font-bold text-primary-light">{{ repoOwner }} / {{ repoName }}</span>
+        <span class="text-lg md:text-md font-bold text-primary-light">{{ issue.title }}</span>
         <p class="text-info">{{ issue.description }}</p>
-      </div>
-      <div class="space-y-2">
-        <p class="text-xs text-info">Repository: {{ issue.repository_name }} (⭐ {{ issue.repository_stars }})</p>
-        <p class="text-xs text-info">Created: {{ new Date(issue.created_at).toLocaleDateString() }}</p>
-        <p class="text-xs text-info">Last Updated: {{ new Date(issue.updated_at).toLocaleDateString() }}</p>
         <a :href="issueGitHubUrl" target="_blank" class="text-info hover:text-info-light">
           View Issue on GitHub &rarr;
         </a>
+      </div>
+      <div>
       </div>
     </div>
     <div class="flex flex-col items-end space-y-2">
@@ -108,7 +103,15 @@ export default {
       }catch(e){
         return this.issue.issue_github_url.replace('api.', '').replace('/repos', '');
       }
-    }
+    },
+    repoOwner() {
+      const urlParts = this.issueGitHubUrl.split('/');
+      return urlParts[3];
+    },
+    repoName() {
+      const urlParts = this.issueGitHubUrl.split('/');
+      return urlParts[4];
+    },
   }
 }
 </script>
