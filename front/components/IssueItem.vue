@@ -103,7 +103,11 @@ export default {
     },
     issueGitHubUrl() {
       // remove api and repos from url
-      return this.issue.url.replace('api.', '').replace('/repos', '');
+      try{
+        return this.issue.url.replace('api.', '').replace('/repos', '');
+      }catch(e){
+        return this.issue.issue_github_url.replace('api.', '').replace('/repos', '');
+      }
     }
   }
 }

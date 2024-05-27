@@ -21,6 +21,7 @@
     </div>
   </section>
 </template>
+
 <script>
 import axios from 'axios';
 
@@ -103,9 +104,7 @@ export default {
         return { ...issue, is_private: true }; // Indicate inaccessible issue
       }
       try {
-        const response = await axios.get(issue.issue_github_url, {
-          headers: { 'Authorization': `token ${token}` }
-        });
+        const response = await axios.get(issue.issue_github_url, { headers: { Authorization: `${token}` } });
         // Merge fetched data with existing issue data
         this.$set(issue, 'title', response.data.title);
         this.$set(issue, 'description', response.data.body);
