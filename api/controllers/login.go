@@ -29,7 +29,7 @@ const (
 	GithubTokenURL     = "https://github.com/login/oauth/access_token"
 	GithubClientID     = "GITHUB_CLIENT_ID"
 	GithubClientSecret = "GITHUB_CLIENT_SECRET"
-	JWTSecretKey       = "your_secret_key"
+	JWTSecretKey       = "JWT_SECRET_KEY"
 	RedirectURL        = "https://yourapp.com/oauth/callback"
 )
 
@@ -69,5 +69,5 @@ func generateJWT(accessToken string) (string, error) {
 		"exp":          time.Now().Add(72 * time.Hour).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(JWTSecretKey))
+	return token.SignedString([]byte(os.Getenv(JWTSecretKey)))
 }
