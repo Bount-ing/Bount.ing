@@ -2,31 +2,26 @@
   <li class="flex flex-col md:flex-row items-start bg-secondary-dark rounded-lg shadow-lg p-4 justify-between">
     <img :src="issue.image_url || issue.issue_image_url || 'default-image.png'" alt="Repo Image" class="w-20 h-20 rounded-full mr-4">
     <div class="flex-grow space-y-3">
-      <div class="flex items-center space-x-4">
-        <h4 class="text-sm md:text-md font-bold text-primary-light">{{ issue.user_github_login }}</h4>
-      </div>
-      <div>
-        <h5 class="text-lg font-semibold text-primary-light">{{ issue.title }}</h5>
+      <div class="flex flex-col">
+        <span class="text-sm md:text-md font-bold text-primary">{{ repoOwner }} / {{ repoName }}</span>
+        <span class="text-lg md:text-md font-bold text-primary">{{ issue.title }}</span>
         <p class="text-info">{{ issue.description }}</p>
-      </div>
-      <div class="space-y-2">
-        <p class="text-xs text-info">Repository: {{ issue.repository_name }} (⭐ {{ issue.repository_stars }})</p>
-        <p class="text-xs text-info">Created: {{ new Date(issue.created_at).toLocaleDateString() }}</p>
-        <p class="text-xs text-info">Last Updated: {{ new Date(issue.updated_at).toLocaleDateString() }}</p>
-        <a :href="issue.url || issue.issue_github_url || `https://github.com/issues/${issue.github_id}`" target="_blank" class="text-info hover:text-info-light">
+        <a :href="issueGitHubUrl" target="_blank" class="text-info hover:text-info-light">
           View Issue on GitHub &rarr;
         </a>
       </div>
+      <div>
+      </div>
     </div>
     <div class="flex flex-col items-end space-y-2">
-      <span class="bg-info text-white font-semibold text-md px-4 py-2 rounded-lg" v-if="bounty">
+      <span class="text-primary text-mono font-semibold text-md px-4 py-2 rounded-lg" v-if="bounty">
         {{ bounty.toFixed(2) }} €
       </span>
       <div class="flex space-x-2" v-if="username">
-        <button @click="toggleClaimModal" class="bg-info hover:bg-info-light text-white font-bold py-2 px-4 rounded-lg">
+        <button @click="toggleClaimModal" class="hover:bg-info text-primary hover:text-secondary-dark font-bold py-2 px-4 rounded-lg">
           Claim
         </button>
-        <button @click="openBountySelection" class="bg-success hover:bg-success-light text-white font-bold py-2 px-4 rounded-lg">
+        <button @click="openBountySelection" class="hover:bg-success hover:text-secondary-dark text-primary  font-bold py-2 px-4 rounded-lg">
           Raise
         </button>
       </div>
@@ -100,7 +95,23 @@ export default {
         case 'single': return 'SingleBountyModal';
         default: return null; // Ensuring a null is returned if no match
       }
-    }
+    },
+    issueGitHubUrl() {
+      // remove api and repos from url
+      try{
+        return this.issue.url.replace('api.', '').replace('/repos', '');
+      }catch(e){
+        return this.issue.issue_github_url.replace('api.', '').replace('/repos', '');
+      }
+    },
+    repoOwner() {
+      const urlParts = this.issueGitHubUrl.split('/');
+      return urlParts[3];
+    },
+    repoName() {
+      const urlParts = this.issueGitHubUrl.split('/');
+      return urlParts[4];
+    },
   }
 }
 </script>
