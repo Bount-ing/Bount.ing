@@ -64,7 +64,21 @@ func (ctl *LoginController) GithubCallback(c *gin.Context) {
 		return
 	}
 
-	jwtToken, err := generateJWT(string(body))
+	var githubToken struct {
+		AccessToken string `json:"access_token"`
+		Scope       string `json:"scope"`
+		TokenType   string `json:"token_type"`
+	}
+	if err := json.Unmarshal(body, &githubToken); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse response body"})
+		return
+	}
+
+	u, err := ctl.userService.VerifyGitHubToken(githubToken.AccessToken)
+	if err != nil {
+		return
+	}
+	jwtToken, err := generateJWT(u.ID, githubToken.AccessToken)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return
