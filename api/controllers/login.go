@@ -43,7 +43,15 @@ func (ctl *LoginController) GithubCallback(c *gin.Context) {
 		"code":          {code},
 	}
 
-	resp, err := http.PostForm(GithubTokenURL, requestData)
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s?%s", GithubTokenURL, requestData.Encode()), nil)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Faild to create request"})
+		return
+	}
+	req.Header.Add("accept", "application/json")
+
+	httpClient := http.Client{}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to request GitHub token"})
 		return
