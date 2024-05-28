@@ -25,12 +25,11 @@ func NewLoginController(userService *services.UserService) *LoginController {
 
 // Constants for API URLs and client settings
 const (
-	GithubAuthorizeURL = "https://github.com/login/oauth/authorize"
-	GithubTokenURL     = "https://github.com/login/oauth/access_token"
+	GithubTokenURL = "https://github.com/login/oauth/access_token"
+
 	GithubClientID     = "GITHUB_CLIENT_ID"
 	GithubClientSecret = "GITHUB_CLIENT_SECRET"
 	JWTSecretKey       = "JWT_SECRET_KEY"
-	RedirectURL        = "https://yourapp.com/oauth/callback"
 )
 
 func (ctl *LoginController) GithubCallback(c *gin.Context) {
