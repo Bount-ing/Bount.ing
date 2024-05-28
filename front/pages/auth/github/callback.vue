@@ -11,9 +11,10 @@
 </template>
 
 <script>
-export default {
-  async asyncData({ app, route }) {
-
+  export default {
+    async asyncData({ route }) {
+      localStorage.token = route.query.token
+      window.location.href = "http://localhost:3000/"
+    },
   }
-}
 </script>
