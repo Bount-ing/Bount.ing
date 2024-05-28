@@ -87,9 +87,10 @@ func (ctl *LoginController) GithubCallback(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"token": jwtToken})
 }
 
-func generateJWT(accessToken string) (string, error) {
+func generateJWT(userId uint, accessToken string) (string, error) {
 	claims := jwt.MapClaims{
-		"access_token": accessToken, // Use the actual data claims relevant for your app
+		"access_token": accessToken,
+		"user_id":      userId,
 		"exp":          time.Now().Add(72 * time.Hour).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
