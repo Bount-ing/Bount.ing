@@ -84,7 +84,7 @@ func (ctl *LoginController) GithubCallback(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": jwtToken})
+	c.Redirect(http.StatusFound, fmt.Sprintf("%s?token=%s", "http://localhost:3000/auth/github/callback",jwtToken))
 }
 
 func generateJWT(userId uint, accessToken string) (string, error) {
