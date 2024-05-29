@@ -18,7 +18,7 @@
 
         <!-- Authentication buttons -->
         <div class="hidden md:block">
-          <button v-if="!isLoggedIn" @click="login" class="px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Login</button>
+          <router-link v-if="!isLoggedIn" to="/login" class="px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Login</router-link>
           <button v-else @click="logout" class="px-3 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-light">Logout</button>
         </div>
 
@@ -67,10 +67,8 @@ const logout = () => {
 };
 
 const loginWithGitHub = () => {
-  const clientID = 'your_github_client_id';
-  const redirectURI = 'http://localhost:8080/api/auth/github/callback';
-  window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectURI}&scope=read:user`;
-};
+    window.location.href = "/login";
+}
 </script>
 
 <style scoped>
