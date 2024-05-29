@@ -10,10 +10,18 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
   
-  backend:
+  api:
     restart: always
     build: ./api
     ports:
       - "8080:8080"
     depends_on:
       - db
+
+  web:
+    restart: always
+    build: ./front
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api

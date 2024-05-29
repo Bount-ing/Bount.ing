@@ -51,6 +51,8 @@
   import DegressiveBountySetup from '@/components/DegressiveBountySetup.vue';
   import StandardBountySetup from '@/components/StandardBountySetup.vue';
   
+  
+
   export default {
     name: 'IssueListItem',
     components: {
@@ -110,7 +112,8 @@
         const urlParts = this.issueGitHubUrl.split('/');
         return urlParts[4];
       },
-    }
+    },
+    
   }
   </script>
   
