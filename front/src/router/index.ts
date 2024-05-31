@@ -50,4 +50,9 @@ const router = createRouter({
   ]
 })
 
+router.beforeEach((to, from, next) => {
+  const defaultTitle = 'My Default Title';
+  document.title = to.name ? to.name.toString() : defaultTitle;
+  next();
+});
 export default router

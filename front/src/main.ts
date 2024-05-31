@@ -22,7 +22,7 @@ const gtagOptions: GtagPluginOptions = {
       id: import.meta.env.VITE_GTAG
     },
     // Additional configuration can go here
-    appName: 'My Vue App',
+    appName: 'Bount.ing',
     pageTrackerScreenviewEnabled: true,
   };
 app.use(createGtag, gtagOptions);
