@@ -131,10 +131,9 @@ export default defineComponent({
       }
     };
 
-    const fetchGitHubIssueData = async (issue: Issue) => {
-      const token = ''; // Replace with the appropriate way to get the auth token
+        const fetchGitHubIssueData = async (issue: Issue) => {
       try {
-        const response = await axios.get(issue.issue_github_url, { headers: { Authorization: authGithubHeader.value } });
+        const response = await axios.get(issue.issue_github_url);
         // Merge fetched data with existing issue data
         issue.title = response.data.title;
         issue.description = response.data.body;
@@ -142,8 +141,22 @@ export default defineComponent({
         issue.updated_at = response.data.updated_at;
         return issue;
       } catch (error) {
-        console.error('Error fetching GitHub issue data:', error);
-        return { ...issue, is_private: true }; // Fallback for errors or private issues
+        console.error('Error fetching GitHub issue data without token:', error);
+        
+        // If unauthenticated request fails, try with token (assuming it is a private issue)
+        const token = ''; // Replace with the appropriate way to get the auth token
+        try {
+          const response = await axios.get(issue.issue_github_url, { headers: { Authorization: authGithubHeader.value  } });
+          // Merge fetched data with existing issue data
+          issue.title = response.data.title;
+          issue.description = response.data.body;
+          issue.created_at = response.data.created_at;
+          issue.updated_at = response.data.updated_at;
+          return issue;
+        } catch (authError) {
+          console.error('Error fetching GitHub issue data with token:', authError);
+          return { ...issue, is_private: true }; // Fallback for errors or private issues
+        }
       }
     };
 
