@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, computed } from 'vue';
 import IssueListItem from '../components/IssueListItem.vue';
 import axios from 'axios';
 import { useUserStore } from '../stores/user'
@@ -31,9 +31,10 @@ interface Issue {
   [key: string]: any; // For other possible properties
 }
 
-const userStore = useUserStore()
+const userStore = useUserStore();
+const user = computed(() => userStore.user);
 
-const { user, authGithubHeader, authHeader, isLoggedIn } = storeToRefs(userStore)
+const { authGithubHeader, authHeader, isLoggedIn } = storeToRefs(userStore);
 
 export default defineComponent({
   components: {
@@ -57,8 +58,10 @@ export default defineComponent({
     };
 
     const fetchUserData = () => {
-      username.value = user.value.username;
-      userBackground.value = user.value.avatar || 'default-image.jpg';
+      if (user.value) {
+        username.value = user.value.username || '';
+        userBackground.value = user.value.avatar || 'default-image.jpg';
+      }
     };
 
     const fetchOrganizationsAndRepos = async () => {

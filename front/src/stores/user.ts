@@ -2,41 +2,53 @@ import axios from 'axios';
 import { ref, computed } from 'vue';
 import { defineStore } from "pinia";
 
+interface User {
+	userid: string;
+	username: string;
+	avatar: string;
+  }
+
 export const useUserStore = defineStore('user', () => {
-	const u = ref(null)
+	const u = ref<User | null>(null);
 	const loggedIn = ref(false)
-	const token = ref('')
-	const isLoggedIn = computed({
+	const token = ref<string>('');
+	const isLoggedIn = computed<boolean>({
 		get() {
 			return loggedIn.value || !!localStorage.getItem('token');
 		},
-		set(v) {
+		set(v: boolean) {
 			loggedIn.value = v
 		},
 	})
-	const user = computed({
+	const user = computed<User | null>({
 		get() {
 			if (!u.value) {
-				u.value = JSON.parse(localStorage.getItem('user'));
+				const userData = localStorage.getItem('user');
+				if (userData) {
+					u.value = JSON.parse(userData);
+				}
 			}
-			return u.value
+			return u.value;
 		},
+		set(value: User | null) {
+			u.value = value;
+		}
 	})
 
 	// Getter Header for app API
-	const authHeader = computed(() => 'Bearer ' + localStorage.getItem('token'))
+	const authHeader = computed<string>(() => 'Bearer ' + (localStorage.getItem('token') || ''));
 
-	// Header for Github API
-	const authGithubHeader = computed(() => {
-		if (!token.value) {
-			const u = parseJwt(localStorage.getItem('token'));
-			token.value = u.access_token
-		}
-		const t = token.value
-		return 'Bearer ' + t
-	})
+	const authGithubHeader = computed<string>(() => {
+	  const storedToken = localStorage.getItem('token');
+	  if (storedToken) {
+		const u = parseJwt(storedToken);
+		token.value = u.access_token;
+	  }
+	  const t = token.value;
+	  return 'Bearer ' + t;
+	});
 
-	async function login(jwt) {
+	async function login(jwt: string) {
 		localStorage.setItem('token', jwt)
 		const u = parseJwt(jwt);
 		token.value = u.access_token;
@@ -52,7 +64,8 @@ export const useUserStore = defineStore('user', () => {
 		loggedIn.value = true
 	}
 
-	function parseJwt(token) {
+	function parseJwt(token: string) {
+		if (!token) throw new Error("Token is required");
 		var base64Url = token.split('.')[1];
 		var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
 		var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
