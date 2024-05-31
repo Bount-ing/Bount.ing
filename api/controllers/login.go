@@ -28,6 +28,7 @@ func NewLoginController(userService *services.UserService) *LoginController {
 // Constants for API URLs and client settings
 const (
 	GithubTokenURL = "https://github.com/login/oauth/access_token"
+	AppRedirULR    = "http://localhost:3000/auth"
 
 	GithubClientID     = "GITHUB_CLIENT_ID"
 	GithubClientSecret = "GITHUB_CLIENT_SECRET"
@@ -83,7 +84,7 @@ func (ctl *LoginController) GithubCallback(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(http.StatusFound, fmt.Sprintf("%s?token=%s", "http://localhost:3000/auth/github/callback",jwtToken))
+	c.Redirect(http.StatusFound, fmt.Sprintf("%s?token=%s", AppRedirULR, jwtToken))
 }
 
 func generateJWT(userId uint, accessToken string) (string, error) {
