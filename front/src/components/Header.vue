@@ -45,6 +45,10 @@
         <router-link to="/about" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">About</router-link>
         <router-link to="/contact" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Contact</router-link>
       </div>
+      <div class="hidden md:block">
+          <router-link v-if="!isLoggedIn" to="/login" class="px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Login</router-link>
+          <button v-else @click="logout" class="px-3 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-light">Logout</button>
+      </div>
     </div>
   </nav>
 </template>
