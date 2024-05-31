@@ -62,6 +62,7 @@ export default defineComponent({
   setup() {
     const issues = ref<Issue[]>([]);
     const loading = ref(true);
+    const userStore = useUserStore();
     const { authGithubHeader, authHeader, isLoggedIn } = storeToRefs(userStore);
 
 
