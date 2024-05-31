@@ -34,6 +34,8 @@ import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
 import PrivateIssueListItem from '../components/PrivateIssueListItem.vue';
 import IssueListItem from '../components/IssueListItem.vue';
+import { useUserStore } from '../stores/user'
+import { storeToRefs } from 'pinia'
 
 interface Issue {
   id: string;
@@ -60,6 +62,8 @@ export default defineComponent({
   setup() {
     const issues = ref<Issue[]>([]);
     const loading = ref(true);
+    const { authGithubHeader, authHeader, isLoggedIn } = storeToRefs(userStore);
+
 
     const fetchBounties = async () => {
       loading.value = true;
@@ -129,7 +133,7 @@ export default defineComponent({
     const fetchGitHubIssueData = async (issue: Issue) => {
       const token = ''; // Replace with the appropriate way to get the auth token
       try {
-        const response = await axios.get(issue.issue_github_url, { headers: { Authorization: `Bearer ${token}` } });
+        const response = await axios.get(issue.issue_github_url, { headers: { Authorization: authGithubHeader.value } });
         // Merge fetched data with existing issue data
         issue.title = response.data.title;
         issue.description = response.data.body;
