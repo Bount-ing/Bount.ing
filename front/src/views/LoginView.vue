@@ -11,36 +11,31 @@
       </div>
     </div>
   </template>
-  
+
   <script lang="ts">
   import { defineComponent } from 'vue';
-  import axios from 'axios';
-  
+
   export default defineComponent({
-    setup() {
-      const loginWithGitHub = async () => {
-        try {
-          const clientId = 'YOUR_GITHUB_CLIENT_ID';
-          const redirectUri = 'YOUR_REDIRECT_URI';
-          const scope = 'read:user repo';
-          const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
-  
-          window.location.href = authUrl;
-        } catch (error) {
-          console.error('GitHub login failed:', error);
-        }
+	setup() {
+	  const loginWithGitHub = () => {
+		  const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
+		  const redirectUri = import.meta.env.VITE_GITHUB_REDIRECT_URI;
+		  const scope = 'read:user repo';
+		  const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
+
+		  window.location.href = authUrl;
       };
-  
+
       return {
         loginWithGitHub,
       };
     },
   });
   </script>
-  
+
   <style scoped>
   .cursor-pointer {
     cursor: pointer;
   }
   </style>
-  
+

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"open-bounties-api/models"
@@ -112,7 +112,7 @@ func (s *UserService) VerifyGitHubToken(token string) (*models.User, error) {
 	defer resp.Body.Close()
 
 	// Read and parse the response body
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}

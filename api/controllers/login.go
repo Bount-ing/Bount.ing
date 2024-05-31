@@ -1,7 +1,9 @@
 package controllers
 
 import (
-	"io/ioutil"
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -25,23 +27,13 @@ func NewLoginController(userService *services.UserService) *LoginController {
 
 // Constants for API URLs and client settings
 const (
-	GithubAuthorizeURL = "https://github.com/login/oauth/authorize"
-	GithubTokenURL     = "https://github.com/login/oauth/access_token"
+	GithubTokenURL = "https://github.com/login/oauth/access_token"
+	AppRedirULR    = "http://localhost:3000/auth"
+
 	GithubClientID     = "GITHUB_CLIENT_ID"
 	GithubClientSecret = "GITHUB_CLIENT_SECRET"
-	JWTSecretKey       = "your_secret_key"
-	RedirectURL        = "https://yourapp.com/oauth/callback"
+	JWTSecretKey       = "JWT_SECRET_KEY"
 )
-
-func (ctl *LoginController) LoginWithGithub(c *gin.Context) {
-	params := url.Values{
-		"client_id":    {os.Getenv(GithubClientID)},
-		"scope":        {"read:user"},
-		"redirect_uri": {RedirectURL},
-	}
-	redirectURL := GithubAuthorizeURL + "?" + params.Encode()
-	c.Redirect(http.StatusTemporaryRedirect, redirectURL)
-}
 
 func (ctl *LoginController) GithubCallback(c *gin.Context) {
 	code := c.Query("code")
@@ -51,33 +43,56 @@ func (ctl *LoginController) GithubCallback(c *gin.Context) {
 		"code":          {code},
 	}
 
-	resp, err := http.PostForm(GithubTokenURL, requestData)
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s?%s", GithubTokenURL, requestData.Encode()), nil)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Faild to create request"})
+		return
+	}
+	req.Header.Add("accept", "application/json")
+
+	httpClient := http.Client{}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to request GitHub token"})
 		return
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read response body"})
 		return
 	}
 
-	jwtToken, err := generateJWT(string(body))
+	var githubToken struct {
+		AccessToken string `json:"access_token"`
+		Scope       string `json:"scope"`
+		TokenType   string `json:"token_type"`
+	}
+	if err := json.Unmarshal(body, &githubToken); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse response body"})
+		return
+	}
+
+	u, err := ctl.userService.VerifyGitHubToken(githubToken.AccessToken)
+	if err != nil {
+		return
+	}
+	jwtToken, err := generateJWT(u.ID, githubToken.AccessToken)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": jwtToken})
+	c.Redirect(http.StatusFound, fmt.Sprintf("%s?token=%s", AppRedirULR, jwtToken))
 }
 
-func generateJWT(accessToken string) (string, error) {
+func generateJWT(userId uint, accessToken string) (string, error) {
 	claims := jwt.MapClaims{
-		"access_token": accessToken, // Use the actual data claims relevant for your app
+		"access_token": accessToken,
+		"user_id":      userId,
 		"exp":          time.Now().Add(72 * time.Hour).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(JWTSecretKey))
+	return token.SignedString([]byte(os.Getenv(JWTSecretKey)))
 }

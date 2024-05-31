@@ -17,8 +17,10 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import IssueListItem from '@/components/IssueListItem.vue';
+import IssueListItem from '../components/IssueListItem.vue';
 import axios from 'axios';
+import { useUserStore } from '../stores/user'
+import { storeToRefs } from 'pinia'
 
 interface Issue {
   id: number;
@@ -28,6 +30,10 @@ interface Issue {
   bounty: number;
   [key: string]: any; // For other possible properties
 }
+
+const userStore = useUserStore()
+
+const { user, authGithubHeader, authHeader, isLoggedIn } = storeToRefs(userStore)
 
 export default defineComponent({
   components: {
@@ -40,22 +46,19 @@ export default defineComponent({
     const seenRepos = ref<Set<string>>(new Set());
 
     const initializeData = async () => {
-      if (!isLoggedIn()) return;
+      if (!isLoggedIn.value) return;
 
       try {
-        await fetchUserData();
+        fetchUserData();
         await fetchOrganizationsAndRepos();
       } catch (error) {
         console.error('Initialization failed:', error);
       }
     };
 
-    const fetchUserData = async () => {
-      const response = await axios.get('https://api.github.com/user', {
-        headers: { Authorization: getAuthHeader() },
-      });
-      username.value = response.data.login;
-      userBackground.value = response.data.avatar_url || 'default-image.jpg';
+    const fetchUserData = () => {
+      username.value = user.value.username;
+      userBackground.value = user.value.avatar || 'default-image.jpg';
     };
 
     const fetchOrganizationsAndRepos = async () => {
@@ -69,7 +72,7 @@ export default defineComponent({
       let url = `https://api.github.com/users/${username.value}/orgs`;
 
       while (url) {
-        const response = await axios.get(url, { headers: { Authorization: getAuthHeader() } });
+        const response = await axios.get(url, { headers: { Authorization: authGithubHeader.value } });
         orgs = orgs.concat(response.data);
         url = getNextPageUrl(response.headers);
       }
@@ -85,7 +88,7 @@ export default defineComponent({
       for (const url of repoUrls) {
         let repoUrl = url;
         while (repoUrl) {
-          const response = await axios.get(repoUrl, { headers: { Authorization: getAuthHeader() } });
+          const response = await axios.get(repoUrl, { headers: { Authorization: authGithubHeader.value } });
           response.data.forEach((repo: any) => {
             if (!seenRepos.value.has(repo.full_name)) {
               allRepos.push(repo);
@@ -126,7 +129,7 @@ export default defineComponent({
       let url = `https://api.github.com/repos/${repo.full_name}/issues`;
 
       while (url) {
-        const response = await axios.get(url, { headers: { Authorization: getAuthHeader() } });
+		const response = await axios.get(url, { headers: { Authorization: authGithubHeader.value } });
         issues = issues.concat(response.data);
         url = getNextPageUrl(response.headers);
       }
@@ -142,7 +145,7 @@ export default defineComponent({
     };
 
     const fetchBounties = async () => {
-      const response = await axios.get('http://0.0.0.0:8080/api/v1/bounties/');
+	  const response = await axios.get('http://0.0.0.0:8080/api/v1/bounties/');
       const currentDate = new Date();
 
       return response.data.reduce((acc: Record<number, number>, bounty: any) => {
@@ -159,10 +162,6 @@ export default defineComponent({
       }, {});
     };
 
-    const getAuthHeader = () => {
-      return `${(this as any).$auth.strategy.token.get()}`;
-    };
-
     const getNextPageUrl = (headers: any) => {
       const linkHeader = headers.link;
       if (!linkHeader) return null;
@@ -175,10 +174,6 @@ export default defineComponent({
         }
       }
       return null;
-    };
-
-    const isLoggedIn = () => {
-      return (this as any).$auth.loggedIn;
     };
 
     onMounted(() => {
