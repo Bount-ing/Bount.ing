@@ -18,7 +18,7 @@
 
         <!-- Authentication buttons -->
         <div class="hidden md:block">
-          <router-link v-if="!isLoggedIn" to="/login" class="px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Login</router-link>
+          <router-link v-if="!user.isLoggedIn" to="/login" class="px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Login</router-link>
           <button v-else @click="logout" class="px-3 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-light">Logout</button>
         </div>
 
