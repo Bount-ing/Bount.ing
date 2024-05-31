@@ -8,14 +8,28 @@
 </template>
 
 <script setup>
+	import { onMounted } from 'vue';
 	import { useRoute, useRouter } from 'vue-router';
 	import { useUserStore } from '../stores/user';
 
 	const route = useRoute();
 	const router = useRouter();
+	const userStore = useUserStore();
 
-	useUserStore().login(route.query.token).then(() => {
-		router.push('/')
+	onMounted(async () => {
+		const token = route.query.token;
+		if (token) {
+			try {
+				await userStore.login(token);
+				router.push('/');
+			} catch (error) {
+				console.error('Login failed:', error);
+				// Handle the error (e.g., show a notification to the user)
+			}
+		} else {
+			console.error('No token found in the query parameters');
+			// Handle the case where the token is missing
+		}
 	});
 </script>
 
@@ -24,4 +38,3 @@
 		cursor: pointer;
 	}
 </style>
-

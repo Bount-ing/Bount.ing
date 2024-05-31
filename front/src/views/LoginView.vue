@@ -18,8 +18,11 @@
   export default defineComponent({
 	setup() {
 	  const loginWithGitHub = () => {
-		  const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
-		  const redirectUri = import.meta.env.VITE_GITHUB_REDIRECT_URI;
+      console.log('GITHUB_CLIENT_ID:', import.meta.env.VITE_GITHUB_CLIENT_ID);
+      console.log('GITHUB_REDIRECT_URI:', import.meta.env.VITE_GITHUB_REDIRECT_URI);
+
+      const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
+      const redirectUri = import.meta.env.VITE_GITHUB_REDIRECT_URI;
 		  const scope = 'read:user repo';
 		  const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
 

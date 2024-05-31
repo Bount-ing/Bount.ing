@@ -63,7 +63,7 @@ export default defineComponent({
 
     const fetchBounties = async () => {
       loading.value = true;
-      const baseURL = import.meta.env.VITE_API_BASE_URL as string;
+      const baseURL = import.meta.env.API_BASE_URL as string;
 
       if (!baseURL) {
         console.error("API base URL is not set.");
