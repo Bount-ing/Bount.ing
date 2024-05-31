@@ -131,9 +131,14 @@ export default defineComponent({
       }
     };
 
-        const fetchGitHubIssueData = async (issue: Issue) => {
+    const fetchGitHubIssueData = async (issue: Issue) => {
+      const issueUrlParts = issue.issue_github_url.split('/');
+      const owner = issueUrlParts[issueUrlParts.length - 4];
+      const repo = issueUrlParts[issueUrlParts.length - 3];
+      const issueNumber = issueUrlParts[issueUrlParts.length - 1];
+
       try {
-        const response = await axios.get(issue.issue_github_url);
+        const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}`);
         // Merge fetched data with existing issue data
         issue.title = response.data.title;
         issue.description = response.data.body;
@@ -146,7 +151,7 @@ export default defineComponent({
         // If unauthenticated request fails, try with token (assuming it is a private issue)
         const token = ''; // Replace with the appropriate way to get the auth token
         try {
-          const response = await axios.get(issue.issue_github_url, { headers: { Authorization: authGithubHeader.value  } });
+          const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}`, { headers: { Authorization: `Bearer ${token}` } });
           // Merge fetched data with existing issue data
           issue.title = response.data.title;
           issue.description = response.data.body;
