@@ -29,7 +29,6 @@ func NewLoginController(userService *services.UserService) *LoginController {
 // Constants for API URLs and client settings
 const (
 	GithubTokenURL = "https://github.com/login/oauth/access_token"
-	AppRedirULR    = "http://0.0.0.0:3000/auth"
 
 	GithubClientID     = "GITHUB_CLIENT_ID"
 	GithubClientSecret = "GITHUB_CLIENT_SECRET"
@@ -37,6 +36,7 @@ const (
 )
 
 func (ctl *LoginController) GithubCallback(c *gin.Context) {
+	AppRedirULR := os.Getenv("REDIRECT_URL")
 	code := c.Query("code")
 	log.Printf("Received code: %s", code)
 
