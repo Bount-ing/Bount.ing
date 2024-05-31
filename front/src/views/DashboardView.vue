@@ -148,7 +148,8 @@ export default defineComponent({
     };
 
     const fetchBounties = async () => {
-	  const response = await axios.get('http://0.0.0.0:8080/api/v1/bounties/');
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+	  const response = await axios.get(`${apiBaseUrl}/api/v1/bounties/`);
       const currentDate = new Date();
 
       return response.data.reduce((acc: Record<number, number>, bounty: any) => {
