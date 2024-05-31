@@ -151,7 +151,7 @@ export default defineComponent({
         // If unauthenticated request fails, try with token (assuming it is a private issue)
         const token = ''; // Replace with the appropriate way to get the auth token
         try {
-          const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}`, { headers: { Authorization: `Bearer ${token}` } });
+          const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}`, { headers:  { Authorization: authGithubHeader.value } });
           // Merge fetched data with existing issue data
           issue.title = response.data.title;
           issue.description = response.data.body;
