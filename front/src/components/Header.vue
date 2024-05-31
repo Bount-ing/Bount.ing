@@ -51,24 +51,18 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '../stores/user';
 
+const user = useUserStore()
+const { isLoggedIn } = storeToRefs(user)
 const isOpen = ref(false);
-const isLoggedIn = ref(false); // Assuming you have a way to check login status
-
-const router = useRouter();
-
-const login = () => {
-  // Handle login logic
-};
 
 const logout = () => {
-  // Handle logout logic
+  user.logout();
+  isLoggedIn.value = false;
 };
 
-const loginWithGitHub = () => {
-    window.location.href = "/login";
-}
 </script>
 
 <style scoped>
