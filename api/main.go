@@ -1,11 +1,17 @@
 package main
 
 import (
-    "open-bounties-api/routes"
+	"log"
+	"open-bounties-api/routes"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
-    r := routes.SetupRouter()
-    r.Run() // listen and serve on 0.0.0.0:8080
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+	r := routes.SetupRouter()
+	r.Run() // listen and serve on 0.0.0.0:8080
 }
-

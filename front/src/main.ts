@@ -19,7 +19,7 @@ app.use(router)
 
 const gtagOptions: GtagPluginOptions = {
     property: {
-      id: 'G-XXXXXXXXXX'
+      id: import.meta.env.VITE_GTAG
     },
     // Additional configuration can go here
     appName: 'My Vue App',

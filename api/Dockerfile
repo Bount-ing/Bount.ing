@@ -23,6 +23,7 @@ WORKDIR /root/
 
 # Copy the Pre-built binary file from the previous stage
 COPY --from=builder /app/open-bounties-api .
+COPY --from=builder /app/.env .
 
 # Expose port 8080 to the outside world
 EXPOSE 8080

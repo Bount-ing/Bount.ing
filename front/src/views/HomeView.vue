@@ -32,8 +32,8 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
-import PrivateIssueItem from '../components/PrivateIssueListItem.vue';
-import IssueItem from '../components/IssueListItem.vue';
+import PrivateIssueListItem from '../components/PrivateIssueListItem.vue';
+import IssueListItem from '../components/IssueListItem.vue';
 
 interface Issue {
   id: string;
@@ -54,8 +54,8 @@ interface Issue {
 export default defineComponent({
   name: 'Home',
   components: {
-    PrivateIssueItem,
-    IssueItem
+    PrivateIssueListItem,
+    IssueListItem
   },
   setup() {
     const issues = ref<Issue[]>([]);
