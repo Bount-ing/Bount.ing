@@ -145,7 +145,7 @@ export default defineComponent({
     };
 
     const fetchBounties = async () => {
-	  const response = await axios.get('http://0.0.0.0:8080/api/v1/bounties/', { headers: { Authorization: authHeader.value } });
+	  const response = await axios.get('http://0.0.0.0:8080/api/v1/bounties/');
       const currentDate = new Date();
 
       return response.data.reduce((acc: Record<number, number>, bounty: any) => {
