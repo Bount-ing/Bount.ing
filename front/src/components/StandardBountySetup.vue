@@ -1,6 +1,6 @@
 <template>
   <div v-if="isModalVisible" class="modal fixed top-0 left-0 inset-0 bg-black h-screen w-screen flex justify-center items-center">
-    <div class="modal-content p-6 rounded-lg shadow-lg max-w-md w-full  border-primary border">
+    <div class="modal-content p-6 rounded-lg shadow-lg max-w-md w-full border-primary border">
       <h3 class="text-xl font-semibold mb-6 text-gray-800">Create a Single Bounty</h3>
       <form @submit.prevent="handleSubmit">
         <div class="form-group">
@@ -17,23 +17,21 @@
         </div>
         <div class="form-group">
           <label class="block mb-4">
-            <span class="text-gray-700">Start Date:</span>
-            <input
-              type="date"
-              v-model="bountyStart"
-              class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary"
-            />
-          </label>
-        </div>
-        <div class="form-group">
-          <label class="block mb-4">
-            <span class="text-gray-700">End Date:</span>
-            <input
-              type="date"
-              v-model="bountyEnd"
-              class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary"
-            />
-          </label>
+          <span class="text-gray-700">Start Date:</span>
+          <DatePicker
+            v-model="bountyStart"
+            format="yyyy-MM-dd"
+            :input-class="'mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary'"
+          />
+        </label>
+        <label class="block mb-4">
+          <span class="text-gray-700">End Date:</span>
+          <DatePicker
+            v-model="bountyEnd"
+            format="yyyy-MM-dd"
+            :input-class="'mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary'"
+          />
+        </label>
         </div>
         <div class="flex justify-between mt-6">
           <button
@@ -58,49 +56,31 @@
 <script>
 import axios from 'axios';
 import { useUserStore } from '@/stores/user';
+import DatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
 
 export default {
   name: 'StandardBountySetup',
+  components: {
+    DatePicker
+
+  },
   props: {
     isModalVisible: Boolean,
     issue: Object,
     username: String
   },
   data() {
+
     const today = new Date().toISOString().substring(0, 10);
-    const futureDate = new Date();
-    futureDate.setDate(futureDate.getDate() + 30); // Default 30 days later
+    const oneyearfromnow = new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().substring(0, 10);
     return {
       individualAmount: 0.0,
       bountyCurrency: 'EUR',
-      authToken: ''
+      authToken: '',
+      bountyStart: today,
+      bountyEnd: oneyearfromnow
     };
-  },
-  computed: {
-    bountyStart: {
-      get() {
-        return this.$data.bountyStart || this.today;
-      },
-      set(value) {
-        this.$data.bountyStart = value;
-      }
-    },
-    bountyEnd: {
-      get() {
-        return this.$data.bountyEnd || this.futureDate;
-      },
-      set(value) {
-        this.$data.bountyEnd = value;
-      }
-    },
-    today() {
-      return new Date().toISOString().substring(0, 10);
-    },
-    futureDate() {
-      const futureDate = new Date();
-      futureDate.setDate(futureDate.getDate() + 30);
-      return futureDate.toISOString().substring(0, 10);
-    }
   },
   methods: {
     close() {
@@ -156,3 +136,7 @@ export default {
   }
 };
 </script>
+
+<style>
+/* Add your styles here */
+</style>

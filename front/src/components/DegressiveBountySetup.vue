@@ -1,6 +1,6 @@
 <template>
   <div v-if="isModalVisible" class="modal fixed top-0 left-0 inset-0 bg-black h-screen w-screen flex justify-center items-center">
-    <div class="modal-content p-6 rounded-lg shadow-lg max-w-md w-full  border-primary border">
+    <div class="modal-content p-6 rounded-lg shadow-lg max-w-md w-full border-primary border">
       <h3 class="text-xl font-semibold mb-6 text-gray-800">Create Multiple Degressive Bounties</h3>
       <form @submit.prevent="submitAllBounties">
         <label class="block mb-4">
@@ -20,21 +20,24 @@
             v-model.number="stepFrequency"
             placeholder="Frequency in days"
             min="1"
-            class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary"          />
+            class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary"
+          />
         </label>
         <label class="block mb-4">
           <span class="text-gray-700">Start Date:</span>
-          <input
-            type="date"
+          <DatePicker
             v-model="bountyStart"
-            class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary"          />
+            format="yyyy-MM-dd"
+            :input-class="'mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary'"
+          />
         </label>
         <label class="block mb-4">
           <span class="text-gray-700">End Date:</span>
-          <input
-            type="date"
+          <DatePicker
             v-model="bountyEnd"
-            class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary"          />
+            format="yyyy-MM-dd"
+            :input-class="'mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary'"
+          />
         </label>
         <div v-if="isValidInput" class="mt-4 mb-6">
           <p class="text-gray-700">Number of Bounties to Create: {{ numberOfBounties }}</p>
@@ -50,7 +53,7 @@
           <button
             type="button"
             @click="close"
-            class="btn border  border-error text-error font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline"
+            class="btn border border-error text-error font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline"
           >
             Cancel
           </button>
@@ -62,22 +65,28 @@
 
 <script>
 import axios from 'axios';
+import DatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
 import { useUserStore } from '@/stores/user';
 
 export default {
   name: 'DegressiveBountyModal',
+  components: {     DatePicker
+ },
   props: {
     isModalVisible: Boolean,
     issue: Object,
     username: String
   },
   data() {
+    
     const today = new Date().toISOString().substring(0, 10);
+    const oneyearfromnow = new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().substring(0, 10);
     return {
       totalAmount: 0,
       stepFrequency: 1,
       bountyStart: today,
-      bountyEnd: today
+      bountyEnd: oneyearfromnow
     };
   },
   computed: {
@@ -167,4 +176,3 @@ export default {
   }
 };
 </script>
-

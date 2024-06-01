@@ -14,6 +14,9 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.13
         version: 0.5.13(tailwindcss@3.4.3)
+      '@vuepic/vue-datepicker':
+        specifier: ^8.7.0
+        version: 8.7.0(vue@3.4.27(typescript@5.4.5))
       axios:
         specifier: ^1.7.2
         version: 1.7.2
@@ -770,6 +773,12 @@ packages:
   '@vue/tsconfig@0.5.1':
     resolution: {integrity: sha512-VcZK7MvpjuTPx2w6blwnwZAu5/LgBUtejFOi3pPGQFXQN5Ela03FUtd2Qtg4yWGGissVL0dr6Ro1LfOFh+PCuQ==}
 
+  '@vuepic/vue-datepicker@8.7.0':
+    resolution: {integrity: sha512-EqL51GdaRg6AExVuPCOmnO81n9+oLqgTi+LlST44TwU0UcX0UfefHx1HXwV948fAqBgj0ESgTyDvjXx7EFFL2A==}
+    engines: {node: '>=18.12.0'}
+    peerDependencies:
+      vue: '>=3.2.0'
+
   accepts@1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
     engines: {node: '>= 0.6'}
@@ -1071,6 +1080,9 @@ packages:
 
   datasette@1.0.1:
     resolution: {integrity: sha512-aJdlCBToEJUP4M57r67r4V6tltwGKa3qetnjpBtXYIlqbX9tM9jsoDMxb4xd9AGjpp3282oHRmqI5Z8TVAU0Mg==}
+
+  date-fns@3.6.0:
+    resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
 
   de-indent@1.0.2:
     resolution: {integrity: sha512-e/1zu3xH5MQryN2zdVaF0OrdNLUbvWxzMbi+iNA6Bky7l1RoP8a2fIbRocyHclXt/arDrrR6lL3TqFD9pMQTsg==}
@@ -3394,6 +3406,11 @@ snapshots:
 
   '@vue/tsconfig@0.5.1': {}
 
+  '@vuepic/vue-datepicker@8.7.0(vue@3.4.27(typescript@5.4.5))':
+    dependencies:
+      date-fns: 3.6.0
+      vue: 3.4.27(typescript@5.4.5)
+
   accepts@1.3.8:
     dependencies:
       mime-types: 2.1.35
@@ -3735,6 +3752,8 @@ snapshots:
       comparejs: 1.0.0
       eventemitter2: 5.0.1
       lodash: 4.17.5
+
+  date-fns@3.6.0: {}
 
   de-indent@1.0.2: {}
 
