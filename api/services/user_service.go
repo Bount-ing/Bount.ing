@@ -2,14 +2,11 @@ package services
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"open-bounties-api/models"
 
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -37,32 +34,8 @@ func (s *UserService) FindUserById(id uint) (*models.User, error) {
 
 // CreateUser creates a new user in the database
 func (s *UserService) CreateUser(user models.User) (*models.User, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
-	if err != nil {
-		return nil, err
-	}
-	user.PasswordHash = string(hashedPassword)
 	result := s.db.Create(&user)
 	return &user, result.Error
-}
-
-func (s *UserService) AuthenticateUser(username, password string) (*models.User, error) {
-	var user models.User
-	result := s.db.Where("username = ?", username).First(&user)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, errors.New("invalid username or password")
-		}
-		return nil, result.Error
-	}
-
-	err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
-	if err != nil {
-		log.Printf("bcrypt comparison error: %v", err) // Log only on error
-		return nil, errors.New("invalid username or password")
-	}
-	log.Printf("Authentication successful for user: %s", username) // Confirm success only
-	return &user, nil
 }
 
 func (s *UserService) UpdateUser(id uint, updatedData models.User) (*models.User, error) {
@@ -91,9 +64,10 @@ func (s *UserService) DeleteUser(id uint) error {
 	deleteResult := s.db.Delete(&user)
 	return deleteResult.Error
 }
-
 func (s *UserService) VerifyGitHubToken(token string) (*models.User, error) {
 	const githubUserAPIURL = "https://api.github.com/user"
+	const githubEmailsAPIURL = "https://api.github.com/user/emails"
+
 	// Create a new request to the GitHub API to fetch user data
 	req, err := http.NewRequest("GET", githubUserAPIURL, nil)
 	if err != nil {
@@ -125,13 +99,59 @@ func (s *UserService) VerifyGitHubToken(token string) (*models.User, error) {
 	var githubUser struct {
 		ID    int    `json:"id"`
 		Login string `json:"login"`
+		Email string `json:"email"`
 	}
 	if err := json.Unmarshal(body, &githubUser); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
 	}
 
+	// If email is null, fetch the user's email addresses
+	if githubUser.Email == "" {
+		req, err := http.NewRequest("GET", githubEmailsAPIURL, nil)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create request: %w", err)
+		}
+
+		// Add the OAuth token in the Authorization header
+		req.Header.Add("Authorization", "Bearer "+token)
+
+		resp, err := client.Do(req)
+		if err != nil {
+			return nil, fmt.Errorf("failed to send request to GitHub: %w", err)
+		}
+		defer resp.Body.Close()
+
+		// Read and parse the response body
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read response body: %w", err)
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			return nil, fmt.Errorf("GitHub API returned non-OK status: %s", resp.Status)
+		}
+
+		// Parse the JSON response into a slice of structs
+		var emails []struct {
+			Email    string `json:"email"`
+			Primary  bool   `json:"primary"`
+			Verified bool   `json:"verified"`
+		}
+		if err := json.Unmarshal(body, &emails); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal email response body: %w", err)
+		}
+
+		// Find the primary and verified email address
+		for _, email := range emails {
+			if email.Primary && email.Verified {
+				githubUser.Email = email.Email
+				break
+			}
+		}
+	}
+
 	// Assuming you have a method to find or create your user based on GitHub data
-	user, err := s.FindOrCreateUser(githubUser.ID, githubUser.Login)
+	user, err := s.FindOrCreateUser(githubUser.ID, githubUser.Login, githubUser.Email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find or create user: %w", err)
 	}
@@ -139,7 +159,7 @@ func (s *UserService) VerifyGitHubToken(token string) (*models.User, error) {
 	return user, nil
 }
 
-func (s *UserService) FindOrCreateUser(githubID int, githubLogin string) (*models.User, error) {
+func (s *UserService) FindOrCreateUser(githubID int, githubLogin string, githubEmail string) (*models.User, error) {
 	// Check if the user already exists in the database
 	var user models.User
 	result := s.db.Where("github_id = ?", githubID).First(&user)
@@ -151,6 +171,7 @@ func (s *UserService) FindOrCreateUser(githubID int, githubLogin string) (*model
 	newUser := models.User{
 		GithubID: githubID,
 		Username: githubLogin,
+		Email:    githubEmail,
 	}
 	result = s.db.Create(&newUser)
 	if result.Error != nil {
