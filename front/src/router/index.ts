@@ -38,6 +38,11 @@ const router = createRouter({
       component: () => import('../views/TermsView.vue')
     },
     {
+      path: "/profile",
+      name: "Profile",
+      component: () => import('../views/UserProfileView.vue')
+    },
+    {
       path: "/login",
       name: "Login",
       component: () => import('../views/LoginView.vue')
@@ -51,7 +56,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const defaultTitle = 'My Default Title';
+  const defaultTitle = 'Bount.ing';
   document.title = to.name ? to.name.toString() : defaultTitle;
   next();
 });

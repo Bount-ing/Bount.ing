@@ -11,6 +11,7 @@
           <div class="hidden md:flex space-x-4 ml-10">
             <router-link to="/" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-700">Home</router-link>
             <router-link to="/dashboard" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Dashboard</router-link>
+            <router-link to="/profile" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Profile</router-link>
             <router-link to="/about" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">About</router-link>
             <router-link to="/contact" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Contact</router-link>
           </div>
@@ -42,6 +43,7 @@
       <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
         <router-link to="/" class="block px-3 py-2 rounded-md text-base font-medium bg-gray-900 hover:bg-gray-700">Home</router-link>
         <router-link to="/dashboard" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Dashboard</router-link>
+        <router-link to="/profile" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Profile</router-link>
         <router-link to="/about" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">About</router-link>
         <router-link to="/contact" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Contact</router-link>
         <router-link v-if="!isLoggedIn" to="/login" class="block px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Login</router-link>
