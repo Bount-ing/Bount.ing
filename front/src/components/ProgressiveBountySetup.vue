@@ -1,23 +1,26 @@
 <template>
-  <div v-if="isModalVisible && bountyType === 'progressive'" class="modal fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-    <div class="modal-content bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+  <div v-if="isModalVisible" class="modal fixed top-0 left-0 inset-0 bg-black h-screen w-screen flex justify-center items-center">
+    <div class="modal-content p-6 rounded-lg shadow-lg max-w-md w-full border-primary border">
       <h3 class="text-xl font-semibold mb-6 text-gray-800">Create a Progressive Bounty</h3>
       <form @submit.prevent="submit">
         <label class="block mb-4">
           <span class="text-gray-700">Bounty Amount (EUR):</span>
-          <input type="number" v-model.number="individualAmount" placeholder="Enter amount" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+          <input type="number" v-model.number="individualAmount" placeholder="Enter amount" min="1" class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary">
         </label>
         <label class="block mb-4">
           <span class="text-gray-700">Frequency (Days):</span>
-          <input type="number" v-model.number="stepFrequency" placeholder="Enter frequency in days" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+          <input type="number" v-model.number="stepFrequency" placeholder="Enter frequency in days" min="1" class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary">
         </label>
         <label class="block mb-4">
           <span class="text-gray-700">Start Date:</span>
-          <input type="date" v-model="bountyStart" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+          <input type="date" v-model="bountyStart" 
+          class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary"
+          >
         </label>
         <label class="block mb-4">
           <span class="text-gray-700">End Date:</span>
-          <input type="date" v-model="bountyEnd" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+          <input type="date" v-model="bountyEnd"
+          class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary">
         </label>
         <label class="block mb-4">
           <div class="stats mt-4">
@@ -26,8 +29,19 @@
           </div>
         </label>
         <div class="flex justify-between mt-6">
-          <button type="submit" class="btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline">Submit</button>
-          <button @click="close" type="button" class="btn bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline">Cancel</button>
+          <button
+            type="submit"
+            class="btn border border-success text-success font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline"
+          >
+            Submit
+          </button>
+          <button
+            type="button"
+            @click="close"
+            class="btn border border-error text-error font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline"
+          >
+            Cancel
+          </button>
         </div>
       </form>
     </div>
@@ -79,8 +93,8 @@ computed: {
 },
 methods: {
   close() {
-    this.$emit('update:isModalVisible', false);
-  },
+      this.$emit('close-modal');
+    },
   async submit() {
     if (new Date(this.bountyEnd) > new Date(this.bountyStart) && this.individualAmount > 0) {
       await this.submitBounty();
