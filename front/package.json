@@ -13,6 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@mdi/font": "^7.4.47",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.13",
     "@vuepic/vue-datepicker": "^8.7.0",
@@ -20,10 +21,12 @@
     "chart.js": "^4.4.3",
     "pinia": "^2.1.7",
     "tailwind": "^4.0.0",
+    "vite-plugin-vuetify": "^2.0.3",
     "vue": "^3.4.21",
     "vue-chartjs": "^5.3.1",
     "vue-gtag-next": "^1.14.0",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "vuetify": "3.6.0-beta.0.0"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",

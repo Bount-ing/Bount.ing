@@ -25,19 +25,11 @@
         </label>
         <label class="block mb-4">
           <span class="text-gray-700">Start Date:</span>
-          <DatePicker
-            v-model="bountyStart"
-            format="yyyy-MM-dd"
-            :input-class="'mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary'"
-          />
+          <input type="date" v-model="bountyStart" class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 border-primary text-primary bg-grey-500" >
         </label>
         <label class="block mb-4">
           <span class="text-gray-700">End Date:</span>
-          <DatePicker
-            v-model="bountyEnd"
-            format="yyyy-MM-dd"
-            :input-class="'mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary'"
-          />
+          <input type="date" v-model="bountyEnd" class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 border-primary text-primary bg-grey-500">
         </label>
         <div v-if="isValidInput" class="mt-4 mb-6">
           <p class="text-gray-700">Number of Bounties to Create: {{ numberOfBounties }}</p>
@@ -65,15 +57,11 @@
 
 <script>
 import axios from 'axios';
-import DatePicker from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css';
 import { useUserStore } from '@/stores/user';
 
 export default {
   name: 'DegressiveBountyModal',
-  components: {     DatePicker
- },
-  props: {
+props: {
     isModalVisible: Boolean,
     issue: Object,
     username: String
@@ -86,7 +74,8 @@ export default {
       totalAmount: 0,
       stepFrequency: 1,
       bountyStart: today,
-      bountyEnd: oneyearfromnow
+      bountyEnd: oneyearfromnow,
+      
     };
   },
   computed: {

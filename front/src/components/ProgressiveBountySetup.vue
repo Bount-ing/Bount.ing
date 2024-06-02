@@ -1,43 +1,33 @@
 <template>
-  <div v-if="isModalVisible" class="modal fixed top-0 left-0 inset-0 bg-black h-screen w-screen flex justify-center items-center">
-    <div class="modal-content p-6 rounded-lg shadow-lg max-w-md w-full border-primary border">
+  <div v-if="isModalVisible" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div class=" p-6 rounded-lg shadow-lg max-w-md w-full border border-primary">
       <h3 class="text-xl font-semibold mb-6 text-gray-800">Create a Progressive Bounty</h3>
       <form @submit.prevent="submit">
         <label class="block mb-4">
           <span class="text-gray-700">Bounty Amount (EUR):</span>
-          <input type="number" v-model.number="individualAmount" placeholder="Enter amount" min="1" class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary">
+          <input type="number" v-model.number="individualAmount" placeholder="Enter amount" min="1" class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 border-primary text-primary bg-black">
         </label>
         <label class="block mb-4">
           <span class="text-gray-700">Frequency (Days):</span>
-          <input type="number" v-model.number="stepFrequency" placeholder="Enter frequency in days" min="1" class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary">
+          <input type="number" v-model.number="stepFrequency" placeholder="Enter frequency in days" min="1" class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 border-primary text-primary bg-black">
         </label>
         <label class="block mb-4">
           <span class="text-gray-700">Start Date:</span>
-          <DatePicker
-            v-model="bountyStart"
-            format="yyyy-MM-dd"
-            :input-class="'mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary'"
-          />
+          <input type="date" v-model="bountyStart" class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 border-primary text-primary bg-grey-500" >
         </label>
         <label class="block mb-4">
           <span class="text-gray-700">End Date:</span>
-          <DatePicker
-            v-model="bountyEnd"
-            format="yyyy-MM-dd"
-            :input-class="'mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-black border-primary text-primary'"
-          />
+          <input type="date" v-model="bountyEnd" class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 border-primary text-primary bg-grey-500">
         </label>
-        <label class="block mb-4">
-          <div class="stats mt-4">
-            <p class="text-gray-800">Total Bounties Created: <strong>{{ formattedTotalBounties }}</strong></p>
-            <p class="text-gray-800">Total Amount: <strong>{{ formattedTotalAmount }} EUR</strong></p>
-          </div>
-        </label>
+        <div class="stats mt-4">
+          <p class="text-gray-800">Total Bounties Created: <strong>{{ formattedTotalBounties }}</strong></p>
+          <p class="text-gray-800">Total Amount: <strong>{{ formattedTotalAmount }} EUR</strong></p>
+        </div>
         <div class="flex justify-between mt-6">
-          <button type="submit" class="btn border border-success text-success font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline">
+          <button type="submit" class="border border-success text-success font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline">
             Submit
           </button>
-          <button type="button" @click="close" class="btn border border-error text-error font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline">
+          <button type="button" @click="close" class="border border-error text-error font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline">
             Cancel
           </button>
         </div>
@@ -50,14 +40,9 @@
 import { defineComponent } from 'vue';
 import type { PropType } from 'vue';
 import axios from 'axios';
-import DatePicker from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css';
 
 export default defineComponent({
   name: 'ProgressiveBountySetup',
-  components: {
-    DatePicker
-  },
   props: {
     isModalVisible: {
       type: Boolean,
@@ -77,13 +62,16 @@ export default defineComponent({
     }
   },
   data() {
-    const today = new Date().toISOString().substring(0, 10);
-    const oneyearfromnow = new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().substring(0, 10);
+    const today = new Date().toISOString().split('T')[0];
+    const nextYear = new Date();
+    nextYear.setFullYear(nextYear.getFullYear() + 1);
+    const nextYearDate = nextYear.toISOString().split('T')[0];
+    
     return {
       individualAmount: 0.0,
       stepFrequency: 1,
       bountyStart: today,
-      bountyEnd: oneyearfromnow,
+      bountyEnd: nextYearDate,
       totalBounties: 0,
       totalAmount: 0.0
     };
@@ -157,9 +145,5 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.modal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* Custom styles if needed */
 </style>
