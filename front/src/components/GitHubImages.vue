@@ -1,11 +1,15 @@
 <template>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <img
-        v-for="src in imageSources"
-        :key="src"
-        :src="src"
-        alt="GitHub Stats"
-      />
+    <div class="grid gap-4">
+      <img :src="languageCalendar" alt="Language Calendar" class="single-row" />
+      <img :src="achievement" alt="Achievement" class="single-row" />
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <img
+          v-for="src in otherImageSources"
+          :key="src"
+          :src="src"
+          alt="GitHub Stats"
+        />
+      </div>
     </div>
   </template>
   
@@ -18,14 +22,18 @@
       },
     },
     computed: {
+      languageCalendar() {
+        return `https://metrics.lecoq.io/${this.username}?template=classic&base.header=0&base.activity=0&base.community=0&base.repositories=0&base.metadata=0&languages=1&isocalendar=1&languages.ignored=html%2Ccss%2Cscss&languages.limit=8&languages.colors=github&isocalendar.duration=half-year&config.timezone=America%2FNew_York`;
+      },
+      achievement() {
+        return `https://github-profile-trophy.vercel.app/?username=${this.username}&theme=radical&margin-w=15`;
+      },
       imageSources() {
         return [
           `https://github-readme-stats.vercel.app/api?username=${this.username}&show_icons=true&theme=radical`,
           `https://github-readme-stats.vercel.app/api/top-langs/?username=${this.username}&layout=compact&theme=radical`,
           `https://github-readme-streak-stats.herokuapp.com/?user=${this.username}&theme=radical`,
           `https://komarev.com/ghpvc/?username=${this.username}&color=blueviolet&style=flat-square`,
-          `https://github-profile-trophy.vercel.app/?username=${this.username}&theme=radical&margin-w=15`,
-          `https://metrics.lecoq.io/${this.username}?template=classic&base.header=0&base.activity=0&base.community=0&base.repositories=0&base.metadata=0&languages=1&isocalendar=1&languages.ignored=html%2Ccss%2Cscss&languages.limit=8&languages.colors=github&isocalendar.duration=half-year&config.timezone=America%2FNew_York`,
           `https://github-readme-stats.vercel.app/api/wakatime?username=${this.username}&theme=radical`,
           `https://github-contributor-stats.vercel.app/api?username=${this.username}&theme=radical`,
           `https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=${this.username}&theme=radical`,
@@ -44,6 +52,10 @@
           `https://img.shields.io/github/stars/${this.username}?style=social`,
         ];
       },
+      otherImageSources() {
+        const excludeSources = [this.languageCalendar, this.achievement];
+        return this.imageSources.filter((src) => !excludeSources.includes(src));
+      },
     },
   };
   </script>
@@ -54,6 +66,9 @@
     height: auto;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  .single-row {
+    grid-column: span 1 / span 1;
   }
   </style>
   
