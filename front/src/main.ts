@@ -1,6 +1,9 @@
 import './assets/main.css'
 import './assets/tailwind.css'
 
+import '@fontsource/roboto-mono'; 
+import '@fontsource/philosopher'; 
+import '@fontsource/vt323'; 
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'

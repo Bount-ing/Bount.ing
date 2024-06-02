@@ -1,56 +1,63 @@
 <template>
     <section class="min-h-screen flex flex-col items-center justify-center p-4 text-white">
         <div v-if="loading" class="text-center text-2xl font-semibold">Loading...</div>
-        <div v-else class="w-full max-w-6xl rounded-2xl shadow-xl overflow-hidden ">
+        <div v-else class="w-full max-w-6xl rounded-2xl shadow-xl overflow-hidden bg-gray-800">
             <!-- Profile Section -->
-            <div class="flex flex-col items-center p-8 ">
-                <img :src="user.avatar" alt="Profile Picture" class="w-32 h-32 rounded-full border-4 border-gray-500"/>
-                <h1 class="text-3xl font-semibold mt-4">{{ user.username }}</h1>
-                <p class="text-gray-300 mt-2">{{ user.userBio }}</p>
-                <button class="mt-4 px-4 py-2  text-white rounded-lg focus:outline-none">Edit Profile</button>
-                <div class="mt-4 flex space-x-4">
+            <div class="flex flex-col items-center p-8 bg-black-900">
+                <img :src="user.avatar" alt="Profile Picture" class="w-24 h-24 rounded-full border-2 border-gray-500"/>
+                <h1 class="text-2xl font-semibold mt-2">{{ user.username }}</h1>
+                <p class="text-gray-400 mt-1">{{ user.userBio }}</p>
+                <button class="mt-3 px-3 py-1 bg-blue-600 text-white rounded-lg focus:outline-none">Edit Profile</button>
+                <div class="mt-3 flex space-x-3">
                     <Badge :level="user.level" />
                     <Achievement :achievements="user.achievements" />
                 </div>
             </div>
 
-            <!-- Details Section -->
-            <div class="p-8">
-                <PersonalInfo :user="user" />
-                <AboutMe :aboutMe="user.aboutMe" />
-                <Interests :interests="user.interests" />
+            <!-- Tab Navigation -->
+            <div class="flex justify-around bg-gray-700 text-gray-300">
+                <button @click="currentTab = 'personal'" :class="tabClass('personal')">Personal Info</button>
+                <button @click="currentTab = 'activity'" :class="tabClass('activity')">Activity</button>
+                <button @click="currentTab = 'github'" :class="tabClass('github')">GitHub Stats</button>
+                <button @click="currentTab = 'bounties'" :class="tabClass('bounties')">Bounties</button>
+                <button @click="currentTab = 'transactions'" :class="tabClass('transactions')">Transactions</button>
+                <button @click="currentTab = 'payment'" :class="tabClass('payment')">Payment Info</button>
             </div>
 
-            <!-- Activity Section -->
-            <div class="p-8">
-                <RecentPosts :recentPosts="user.recentPosts" />
-                <div class="mt-6 flex flex-col items-center">
-                    <h2 class="text-2xl font-semibold mb-4">Recent Activities</h2>
+            <!-- Tab Content -->
+            <div class="p-6">
+                <div v-if="currentTab === 'personal'">
+                    <PersonalInfo :user="user" />
+                    <AboutMe :aboutMe="user.aboutMe" />
+                    <Interests :interests="user.interests" />
+                </div>
+
+                <div v-if="currentTab === 'activity'">
+                    <RecentPosts :recentPosts="user.recentPosts" />
                     <ActivityFeed :activities="user.activities" />
                 </div>
-            </div>
 
-            <!-- GitHub Stats Section -->
-            <div class="p-8 flex flex-col items-center">
-                <h2 class="text-2xl font-semibold mb-4">GitHub Stats</h2>
-                <img :src="`https://github-readme-stats.vercel.app/api?username=${user.username}&show_icons=true&theme=radical`" alt="GitHub Stats" class="mb-4" />
-                <img :src="`https://github-readme-stats.vercel.app/api/top-langs/?username=${user.username}&layout=compact&theme=radical`" alt="Top Languages" class="mb-4" />
-                <img :src="`https://github-profile-trophy.vercel.app/?username=${user.username}`" alt="Profile Trophy" class="mb-4" />
-                <img :src="`https://activity-graph.herokuapp.com/graph?username=${user.username}&theme=rogue`" alt="Contribution Graph" class="mb-4" />
-            </div>
-
-            <!-- Repositories Section -->
-            <div class="p-8">
-                <h2 class="text-2xl font-semibold mb-4">Repositories</h2>
-                <div v-if="repos.length">
-                    <div v-for="repo in repos" :key="repo.id" class="mb-4 p-4 rounded-lg">
-                        <h3 class="text-xl font-semibold">{{ repo.name }}</h3>
-                        <p class="text-gray-300">{{ repo.description }}</p>
-                        <a :href="repo.html_url" class="text-blue-400 hover:underline">View Repository</a>
-                    </div>
+                <div v-if="currentTab === 'github'" class="flex flex-col items-center">
+                    <h2 class="text-xl font-semibold mb-3">GitHub Stats</h2>
+                    <img :src="`https://github-readme-stats.vercel.app/api?username=${user.username}&show_icons=true&theme=radical`" alt="GitHub Stats" class="mb-3" />
+                    <img :src="`https://github-readme-stats.vercel.app/api/top-langs/?username=${user.username}&layout=compact&theme=radical`" alt="Top Languages" class="mb-3" />
+                    <img :src="`https://github-profile-trophy.vercel.app/?username=${user.username}`" alt="Profile Trophy" class="mb-3" />
+                    <img :src="`https://activity-graph.herokuapp.com/graph?username=${user.username}&theme=rogue`" alt="Contribution Graph" class="mb-3" />
                 </div>
-                <div v-else>
-                    <p class="text-gray-400">No repositories found.</p>
+
+                <div v-if="currentTab === 'bounties'">
+                    <h2 class="text-xl font-semibold mb-3">Bounties</h2>
+                    <UserBountiesList :bounties="user.bounties" />
+                </div>
+
+                <div v-if="currentTab === 'transactions'">
+                    <h2 class="text-xl font-semibold mb-3">Transaction History</h2>
+                    <UserTransactionsHistory :transactions="user.transactions" />
+                </div>
+
+                <div v-if="currentTab === 'payment'">
+                    <h2 class="text-xl font-semibold mb-3">Payment Information</h2>
+                    <UserPaymentInformation :paymentInfo="user.paymentInfo" />
                 </div>
             </div>
         </div>
@@ -69,6 +76,9 @@ import IssuesList from '../components/IssuesList.vue';
 import Badge from '../components/Badge.vue';
 import Achievement from '../components/Achievement.vue';
 import ActivityFeed from '../components/ActivityFeed.vue';
+import UserBountiesList from '../components/UserBountiesList.vue';
+import UserTransactionsHistory from '../components/UserTransactionsHistory.vue';
+import UserPaymentInformation from '../components/UserPaymentInformation.vue';
 import { ref, computed } from 'vue';
 import { useUserStore } from '../stores/user';
 
@@ -81,7 +91,10 @@ export default {
         IssuesList,
         Badge,
         Achievement,
-        ActivityFeed
+        ActivityFeed,
+        UserBountiesList,
+        UserTransactionsHistory,
+        UserPaymentInformation
     },
     setup() {
         const userStore = useUserStore();
@@ -89,6 +102,7 @@ export default {
         const loading = ref(true);
         const issues = ref([]);
         const repos = ref([]);
+        const currentTab = ref('personal');
 
         const fetchUserData = async () => {
             if (user.value) {
@@ -116,7 +130,10 @@ export default {
                         ],
                         level: calculateLevel(userData.public_repos, userData.followers),
                         achievements: fetchAchievements(userData),
-                        activities: fetchRecentActivities(userData)
+                        activities: fetchRecentActivities(userData),
+                        bounties: fetchBounties(userData),
+                        transactions: fetchTransactions(userData),
+                        paymentInfo: fetchPaymentInfo(userData)
                     });
 
                     const reposResponse = await fetch(`https://api.github.com/users/${user.value.username}/repos`, {
@@ -153,13 +170,48 @@ export default {
             ];
         };
 
+        const fetchBounties = (userData) => {
+            // Logic to fetch user bounties
+            return [
+                { id: 1, title: 'Bug Fix', description: 'Fix the bug in project X', amount: '$100', status: 'Completed' },
+                { id: 2, title: 'Feature Implementation', description: 'Implement feature Y in project Z', amount: '$200', status: 'In Progress' }
+            ];
+        };
+
+        const fetchTransactions = (userData) => {
+            // Logic to fetch user transactions
+            return [
+                { id: 1, type: 'Deposit', amount: '$500', date: '2023-01-01' },
+                { id: 2, type: 'Withdrawal', amount: '$200', date: '2023-01-15' }
+            ];
+        };
+
+        const fetchPaymentInfo = (userData) => {
+            // Logic to fetch payment information
+            return {
+                cardNumber: '**** **** **** 1234',
+                expiryDate: '12/25',
+                cardHolderName: userData.name
+            };
+        };
+
+        const tabClass = (tab) => {
+            return {
+                'px-4 py-2 border-b-2': true,
+                'border-blue-500 text-blue-500': currentTab.value === tab,
+                'border-transparent': currentTab.value !== tab
+            };
+        };
+
         fetchUserData();
 
         return {
             user,
             loading,
             issues,
-            repos
+            repos,
+            currentTab,
+            tabClass
         };
     }
 };

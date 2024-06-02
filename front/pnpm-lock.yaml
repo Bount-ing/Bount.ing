@@ -8,6 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@fontsource/philosopher':
+        specifier: ^5.0.12
+        version: 5.0.12
+      '@fontsource/roboto-mono':
+        specifier: ^5.0.18
+        version: 5.0.18
+      '@fontsource/vt323':
+        specifier: ^5.0.13
+        version: 5.0.13
       '@mdi/font':
         specifier: ^7.4.47
         version: 7.4.47
@@ -447,6 +456,15 @@ packages:
   '@eslint/js@8.57.0':
     resolution: {integrity: sha512-Ys+3g2TaW7gADOJzPt83SJtCDhMjndcDMFVQ/Tj9iA1BfJzFKD9mAUXT3OenpuPHbI6P/myECxRJrofUsDx/5g==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@fontsource/philosopher@5.0.12':
+    resolution: {integrity: sha512-f1jUTk21Lkg0wEIVyDE39xjpzr/lr2uNIp4EW3QY48+xP2Rauw+qpk+dJRrN9gZ56qKKFrzSusMxnqMpC6kZJg==}
+
+  '@fontsource/roboto-mono@5.0.18':
+    resolution: {integrity: sha512-hKuwk/cy3i6fWPzazT5xjgWq4YNqZWDHVbJh2Wwj3KYvWGi2v3ToBw/4LKQ+ggEkPLcIG6VU8GpCT3Xtf+mbbA==}
+
+  '@fontsource/vt323@5.0.13':
+    resolution: {integrity: sha512-tE8cs4zwNvMZWTiEXlssbDREikjOKXfthQfYAiOciuODPnESX/W3VQEG0EzLGtXu8TalYbey3gCkbTN5lRwqlA==}
 
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
@@ -3071,6 +3089,12 @@ snapshots:
       - supports-color
 
   '@eslint/js@8.57.0': {}
+
+  '@fontsource/philosopher@5.0.12': {}
+
+  '@fontsource/roboto-mono@5.0.18': {}
+
+  '@fontsource/vt323@5.0.13': {}
 
   '@humanwhocodes/config-array@0.11.14':
     dependencies:

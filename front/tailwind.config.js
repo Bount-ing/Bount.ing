@@ -10,7 +10,7 @@ module.exports = {
           'dark-mode': {'raw': '(prefers-color-scheme: dark)'},
         },
         colors: {
-          'primary': '#006666',
+          'primary': '#008888',
           'primary-dark': '#004d4d',
           'primary-light': '#FFF',
   
@@ -36,7 +36,7 @@ module.exports = {
         },
   
         fontFamily: {
-          'sans': ['Roboto', 'monospace'],
+          'sans': ['Roboto Mono', 'monospace'],
           'serif': ['Philosopher', 'serif'],
           'mono': ['VT323', 'monospace'],
         },
