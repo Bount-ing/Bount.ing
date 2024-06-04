@@ -14,6 +14,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/stripe/stripe-go/v74"
+	"github.com/stripe/stripe-go/v74/oauth"
 )
 
 type LoginController struct {
@@ -32,11 +34,12 @@ const (
 
 	GithubClientID     = "GITHUB_CLIENT_ID"
 	GithubClientSecret = "GITHUB_CLIENT_SECRET"
+	GithubRedirect     = "GITHUB_REDIRECT_URL"
 	JWTSecretKey       = "JWT_SECRET_KEY"
 )
 
 func (ctl *LoginController) GithubCallback(c *gin.Context) {
-	AppRedirULR := os.Getenv("REDIRECT_URL")
+	AppRedirULR := os.Getenv(GithubRedirect)
 	code := c.Query("code")
 	log.Printf("Received code: %s", code)
 
@@ -119,4 +122,31 @@ func generateJWT(userId uint, accessToken string) (string, error) {
 		return "", err
 	}
 	return signedToken, nil
+}
+
+// Constants for API URLs and client settings
+const (
+	StripeSecret   = "STRIPE_CLIENT_SECRET"
+	StripeRedirect = "STRIPE_REDIRECT_URL"
+)
+
+func (ctl *LoginController) StripeCallback(c *gin.Context) {
+	AppRedirULR := os.Getenv(StripeRedirect)
+	code := c.Query("code")
+	log.Printf("Received code: %s", code)
+
+	params := stripe.OAuthTokenParams{
+		GrantType: stripe.String("authorization_code"),
+		Code:      stripe.String(code),
+	}
+
+	resp, err := oauth.New(&params)
+	if err != nil {
+		log.Printf("Error oauth Stripe: %v", err)
+
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Stripe Oauth Failed"})
+		return
+	}
+	log.Println("User Stripe Id:", resp.StripeUserID)
+	c.Redirect(http.StatusFound, fmt.Sprintf("%s?account_id=%s", AppRedirULR, resp.StripeUserID))
 }
