@@ -24,6 +24,10 @@
           <button v-else @click="logout" class="px-3 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-light">Logout</button>
         </div>
 
+        <div class="hidden md:block" v-if="isLoggedIn">
+          <router-link to="/login" class="px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Connect Stripe</router-link>
+        </div>
+
         <!-- Mobile menu button -->
         <div class="md:hidden bg-gray-700 p-2 rounded-lg">
           <button @click="isOpen = !isOpen" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-600">
