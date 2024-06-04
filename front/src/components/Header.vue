@@ -25,7 +25,7 @@
         </div>
 
         <div class="hidden md:block" v-if="isLoggedIn">
-          <router-link to="/login" class="px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Connect Stripe</router-link>
+			<ConnectStripe />
         </div>
 
         <!-- Mobile menu button -->
@@ -63,6 +63,7 @@
 import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '../stores/user';
+import ConnectStripe from './StripeConnect.vue'
 
 const user = useUserStore()
 const { isLoggedIn } = storeToRefs(user)
