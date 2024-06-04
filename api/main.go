@@ -3,8 +3,10 @@ package main
 import (
 	"log"
 	"open-bounties-api/routes"
+	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/stripe/stripe-go/v74"
 )
 
 func main() {
@@ -12,6 +14,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
+	stripe.Key = os.Getenv("STRIPE_SECREY_KEY")
 	r := routes.SetupRouter()
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
