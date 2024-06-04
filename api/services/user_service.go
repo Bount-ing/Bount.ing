@@ -55,6 +55,17 @@ func (s *UserService) UpdateUser(id uint, updatedData models.User) (*models.User
 	return &user, nil
 }
 
+func (s *UserService) UpdateUserStripeID(id uint, stripeUserId string) (*models.User, error) {
+	var user models.User
+
+	result := s.db.First(&user, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	user.StipeAccountID = stripeUserId
+	return &user, nil
+}
+
 func (s *UserService) DeleteUser(id uint) error {
 	var user models.User
 	result := s.db.First(&user, id)
