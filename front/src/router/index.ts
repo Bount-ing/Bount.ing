@@ -56,6 +56,11 @@ const router = createRouter({
       path: "/auth",
       name: "Auth",
       component: () => import('../views/AuthView.vue')
+    },
+    {
+      path: "/connect/stripe",
+      name: "ConnectStripe",
+      component: () => import('../views/ConnectStripeView.vue')
     }
   ]
 })
