@@ -3,6 +3,7 @@ package routes
 import (
 	"log"
 	"open-bounties-api/controllers"
+	"open-bounties-api/middleware"
 	"open-bounties-api/models"
 	"open-bounties-api/services"
 	"time"
@@ -57,12 +58,20 @@ func SetupRouter() *gin.Engine {
 		public := v1.Group("/")
 		{
 			public.GET("/oauth/github/callback", loginController.GithubCallback)
+			public.GET("/oauth/stripe/callback", loginController.StripeCallback)
 			public.POST("/register", userController.RegisterUser)
+		}
+
+		// NOTE: Requires UserId set to context. Is a new variable because it may break other endpoits
+		// TODO: Merge endpoints that require authentication
+		auth := v1.Group("/", middleware.AuthorizeJWT())
+		{
+			auth.POST("/user/stripe", userController.ConnectStripe)
 		}
 
 		// Routes that require authentication
 		authorized := v1.Group("/")
-		//authorized.Use(middleware.AuthorizeJWT())
+		// authorized.Use(middleware.AuthorizeJWT())
 		{
 			// User routes
 			userRoutes := authorized.Group("/users")
