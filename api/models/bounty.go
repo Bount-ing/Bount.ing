@@ -28,8 +28,8 @@ type Bounty struct {
 	StartAt        time.Time `json:"start_at" gorm:"not null"`
 	EndAt          time.Time `json:"end_at" gorm:"not null"`
 	OwnerID        uint      `json:"owner_id" gorm:"not null"`
-	IssueID        uint      `json:"issue_id" gorm:"not null"`
-	Claims         []Claim   `json:"claims" gorm:"foreignKey:BountyID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	//IssueID        uint      `json:"issue_id" gorm:"not null"`
+	Claims []Claim `json:"claims" gorm:"foreignKey:BountyID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 func ValidateBountyType(bt string) error {

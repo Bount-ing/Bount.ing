@@ -23,7 +23,12 @@ func SetupRouter() *gin.Engine {
 
 	dsn := "host=db user=user password=password dbname=bountydb port=5432 sslmode=disable TimeZone=Europe/Paris"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	db.AutoMigrate(&models.User{}, &models.Bounty{}, &models.Claim{}, &models.Issue{}, &models.Repository{}, &models.Organization{})
+	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Organization{})
+	db.AutoMigrate(&models.Repository{})
+	db.AutoMigrate(&models.Issue{})
+	db.AutoMigrate(&models.Bounty{})
+	db.AutoMigrate(&models.Claim{})
 
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
