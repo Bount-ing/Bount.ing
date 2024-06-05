@@ -69,7 +69,8 @@ export default {
       bountyCurrency: 'EUR',
       authToken: '',
       bountyStart: today,
-      bountyEnd: oneyearfromnow
+      bountyEnd: oneyearfromnow,
+      bountyType: 'flat'
     };
   },
   methods: {
@@ -104,6 +105,7 @@ export default {
           {
             amount: parseFloat(amount),
             currency: this.bountyCurrency,
+            bounty_type: this.bountyType,
             issue_github_id: this.issue.id,
             issue_github_url: this.issue.url,
             issue_image_url: this.issue.image_url,

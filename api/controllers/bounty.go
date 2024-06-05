@@ -21,6 +21,7 @@ func NewBountyController(bountyService *services.BountyService) *BountyControlle
 
 func (uc *BountyController) CreateBounty(c *gin.Context) {
 	var newBounty models.Bounty
+
 	if err := c.ShouldBindJSON(&newBounty); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
 		return
