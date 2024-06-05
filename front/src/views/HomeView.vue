@@ -1,7 +1,7 @@
 <template>
   <section class="min-h-screen flex flex-col items-center justify-center p-4">
     <div v-if="issues.length > 0" class="w-full mt-8 p-6 rounded-md shadow-md">
-      <h2 class="text-2xl font-semibold text-primary mb-4">Available Issues</h2>
+      <h2 class="text-2xl font-semibold text-primary mb-4">{{ $t('welcome') }}</h2>
       <ul class="space-y-3">
         <li v-for="issue in issues" :key="issue.id" class="issue-item rounded-lg shadow-lg border border-primary">
           <PrivateIssueListItem v-if="issue.is_private" :issue="issue" :bounty="issue.amount" />

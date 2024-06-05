@@ -18,8 +18,10 @@
           </div>
         </div>
 
-        <!-- Authentication buttons -->
-        <div class="hidden md:block">
+        <!-- Language dropdown and Authentication buttons -->
+        <div class="hidden md:flex items-center space-x-4">
+          <!-- Language Dropdown Component -->
+          <LanguageDropdown :inline="false" />
           <router-link v-if="!isLoggedIn" to="/login" class="px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Login</router-link>
           <button v-else @click="logout" class="px-3 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-light">Logout</button>
         </div>
@@ -50,6 +52,8 @@
         <router-link to="/contact" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Contact</router-link>
         <router-link v-if="!isLoggedIn" to="/login" class="block px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Login</router-link>
         <button v-else @click="logout" class="block px-3 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-light">Logout</button>
+        <!-- Language Dropdown Component for mobile -->
+        <LanguageDropdown :inline="true" />
       </div>
     </div>
   </nav>
@@ -59,16 +63,16 @@
 import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '../stores/user';
+import LanguageDropdown from '../components/LanguageDropdown.vue';
 
-const user = useUserStore()
-const { isLoggedIn } = storeToRefs(user)
+const user = useUserStore();
+const { isLoggedIn } = storeToRefs(user);
 const isOpen = ref(false);
 
 const logout = () => {
   user.logout();
   isLoggedIn.value = false;
 };
-
 </script>
 
 <style scoped>
