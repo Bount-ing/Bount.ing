@@ -63,6 +63,8 @@ func SetupRouter() *gin.Engine {
 		{
 			public.GET("/oauth/github/callback", loginController.GithubCallback)
 			public.POST("/register", userController.RegisterUser)
+			public.GET("/bounties/", bountyController.GetAllBounties)
+
 		}
 
 		// Routes that require authentication
@@ -87,7 +89,6 @@ func SetupRouter() *gin.Engine {
 					c.Header("Content-Type", "application/json")
 					c.JSON(200, nil)
 				})
-				bountyRoutes.GET("/", bountyController.GetAllBounties)
 				bountyRoutes.POST("/", bountyController.CreateBounty)
 				bountyRoutes.GET("/:id", bountyController.GetBounty)
 				bountyRoutes.PUT("/:id", bountyController.UpdateBounty)
