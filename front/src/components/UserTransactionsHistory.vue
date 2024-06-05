@@ -4,9 +4,9 @@
         <table class="min-w-full bg-gray-700">
           <thead>
             <tr>
-              <th class="py-2">Type</th>
-              <th class="py-2">Amount</th>
-              <th class="py-2">Date</th>
+              <th class="py-2">{{ $t('Type') }}</th>
+              <th class="py-2">{{ $t('Amount') }}</th>
+              <th class="py-2">{{ $t('Date') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -19,7 +19,7 @@
         </table>
       </div>
       <div v-else>
-        <p class="text-gray-400">No transactions found.</p>
+        <p class="text-gray-400">{{ $t('No transactions found.') }}</p>
       </div>
     </div>
   </template>

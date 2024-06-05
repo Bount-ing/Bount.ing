@@ -1,6 +1,6 @@
 <template>
     <div class="badge flex items-center space-x-2">
-        <span class="text-lg font-bold">Level {{ level }}</span>
+        <span class="text-lg font-bold">{{ $t('Level') }} {{ level }}</span>
         <img :src="badgeIcon" alt="Level Badge" class="w-8 h-8" />
     </div>
 </template>

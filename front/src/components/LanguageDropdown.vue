@@ -5,22 +5,22 @@
       </button>
       <div v-if="isDropdownOpen" :class="dropdownClass">
         <a @click="setLanguage('en')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-          <span class="flag fi fi-squared fi-gb"></span> English
+          <span class="flag fi fi-squared fi-gb"></span> {{ $t('English') }}
         </a>
         <a @click="setLanguage('es')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-          <span class="flag fi fi-squared fi-es"></span> Spanish
+          <span class="flag fi fi-squared fi-es"></span> {{ $t('Spanish') }}
         </a>
         <a @click="setLanguage('fr')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-          <span class="flag fi fi-squared fi-fr"></span> French
+          <span class="flag fi fi-squared fi-fr"></span> {{ $t('French') }}
         </a>
         <a @click="setLanguage('ca')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-          <span class="flag fi fi-squared fi-es-ct"></span> Catalan
+          <span class="flag fi fi-squared fi-es-ct"></span> {{ $t('Catalan') }}
         </a>
         <a @click="setLanguage('pt')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-          <span class="flag fi fi-squared fi-pt"></span> Portuguese
+          <span class="flag fi fi-squared fi-pt"></span> {{ $t('Portuguese') }}
         </a>
         <a @click="setLanguage('eu')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-          <span class="flag fi fi-squared fi-es-pv"></span> Euskera
+          <span class="flag fi fi-squared fi-es-pv"></span> {{ $t('Euskera') }}
         </a>
         <!-- Add more languages as needed -->
       </div>

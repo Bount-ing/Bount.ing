@@ -1,11 +1,11 @@
 <template>
   <div v-if="isModalVisible" class="modal fixed top-0 left-0 inset-0 bg-black h-screen w-screen flex justify-center items-center">
     <div class="modal-content p-6 rounded-lg shadow-lg max-w-md w-full border-primary border">
-      <h3 class="text-xl font-semibold mb-6 text-gray-800">Create a Single Bounty</h3>
+      <h3 class="text-xl font-semibold mb-6 text-gray-800">{{ $t('Create an increasing Bounty') }}</h3>
       <form @submit.prevent="handleSubmit">
         <div class="form-group">
           <label class="block mb-4">
-            <span class="text-gray-700">Bounty Amount (EUR):</span>
+            <span class="text-gray-700">{{ $t('Bounty Amount') }} (EUR):</span>
             <input
               type="number"
               v-model.number="individualAmount"
@@ -17,11 +17,11 @@
         </div>
         <div class="form-group">
           <label class="block mb-4">
-          <span class="text-gray-700">Start Date:</span>
+          <span class="text-gray-700">{{ $t('Start Date') }}:</span>
           <input type="date" v-model="bountyStart" class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 border-primary text-primary bg-grey-500" >
         </label>
         <label class="block mb-4">
-          <span class="text-gray-700">End Date:</span>
+          <span class="text-gray-700">{{ $t('End Date') }}:</span>
           <input type="date" v-model="bountyEnd" class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 border-primary text-primary bg-grey-500">
         </label>
         </div>
@@ -30,14 +30,14 @@
             type="submit"
             class="btn border border-success text-success font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline"
           >
-            Submit
+          {{ $t('Submit') }}
           </button>
           <button
             type="button"
             @click="close"
             class="btn border border-error text-error font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline"
           >
-            Cancel
+          {{ $t('Cancel') }}
           </button>
         </div>
       </form>

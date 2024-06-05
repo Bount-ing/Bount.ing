@@ -7,7 +7,7 @@
         <span class="text-lg md:text-md font-bold text-primary">{{ issue.title }}</span>
         <p class="text-info">{{ issue.description }}</p>
         <a :href="issueGitHubUrl" target="_blank" class="text-info hover:text-info-light">
-          View Issue on GitHub &rarr;
+          {{ $t('View Issue on GitHub') }} &rarr;
         </a>
       </div>
       <div></div>
@@ -18,23 +18,23 @@
       </span>
       <div class="flex space-x-2" v-if="username">
         <button @click="toggleClaimModal" class="hover:bg-info text-primary hover:text-secondary-dark font-bold py-2 px-4 rounded-lg">
-          Claim
+          {{ $t('Claim') }}
         </button>
         <button @click="openBountySelection" class="hover:bg-success hover:text-secondary-dark text-primary font-bold py-2 px-4 rounded-lg">
-          Raise
+          {{ $t('Raise') }}
         </button>
       </div>
       <div v-if="showBountyTypeSelection" class="modal fixed top-0 left-0 inset-0 bg-black h-screen w-screen flex justify-center items-center ">
         <div class="p-4 rounded-lg space-y-4 border border-primary">
-          <h3>Select Bounty Type:</h3>
+          <h3>{{ $t('Select Bounty Type') }}:</h3>
           <button @click="selectBountyType('progressive')" class="w-full border text-success border-success hover:border-success-light font-bold py-2 px-4 rounded-lg">
-            Economic
+            {{ $t('Economic') }}
           </button>
           <button @click="selectBountyType('degressive')" class="w-full border text-warning border-warning hover:border-warning-light font-bold py-2 px-4 rounded-lg">
-            Fast
+            {{ $t('Fast') }}
           </button>
           <button @click="selectBountyType('single')" class="w-full border text-info border-info hover:border-info-lightfont-bold py-2 px-4 rounded-lg">
-            Standard
+            {{ $t('Standard') }}
           </button>
         </div>
       </div>
