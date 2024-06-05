@@ -3,6 +3,7 @@ package routes
 import (
 	"log"
 	"open-bounties-api/controllers"
+	"open-bounties-api/middleware"
 	"open-bounties-api/models"
 	"open-bounties-api/services"
 	"time"
@@ -62,7 +63,7 @@ func SetupRouter() *gin.Engine {
 
 		// Routes that require authentication
 		authorized := v1.Group("/")
-		//authorized.Use(middleware.AuthorizeJWT())
+		authorized.Use(middleware.AuthorizeJWT())
 		{
 			// User routes
 			userRoutes := authorized.Group("/users")
