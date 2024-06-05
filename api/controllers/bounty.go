@@ -7,14 +7,17 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type BountyController struct {
+	db            *gorm.DB
 	bountyService *services.BountyService
 }
 
-func NewBountyController(bountyService *services.BountyService) *BountyController {
+func NewBountyController(db *gorm.DB, bountyService *services.BountyService) *BountyController {
 	return &BountyController{
+		db:            db,
 		bountyService: bountyService,
 	}
 }
@@ -22,11 +25,36 @@ func NewBountyController(bountyService *services.BountyService) *BountyControlle
 func (uc *BountyController) CreateBounty(c *gin.Context) {
 	var newBounty models.Bounty
 
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found"})
+		return
+	}
+
+	// Convert userID to uint
+	userIDFloat64, ok := userID.(float64)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID type"})
+		return
+	}
+	userIDUint := uint(userIDFloat64)
+
+	// Ensure the user exists in the database
+	var user models.User
+	if err := uc.db.First(&user, userIDUint).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+		return
+	}
+
 	if err := c.ShouldBindJSON(&newBounty); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
 		return
 	}
-
+	newBounty.OwnerID = userIDUint
 	registeredBounty, err := uc.bountyService.CreateBounty(newBounty)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create bounty", "details": err.Error()})
