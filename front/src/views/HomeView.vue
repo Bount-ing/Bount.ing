@@ -1,22 +1,5 @@
 <template>
   <section class="min-h-screen flex flex-col items-center justify-center p-4">
-    <div v-if="loading" class="text-center text-2xl font-semibold text-gray-800">Loading...</div>
-    <div v-else class="w-full max-w-6xl rounded-2xl shadow-xl overflow-hidden">
-      <div class="relative">
-        <img src="/bount.ing.banner.png" alt="Bount.ing Banner" class="w-full h-64 object-cover">
-        <div class="absolute inset-0 bg-black opacity-30"></div>
-        <div class="absolute inset-0 flex items-center justify-center">
-          <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-white text-center">
-            Empower Open Source Innovation
-          </h1>
-        </div>
-      </div>
-      <div class="px-6 md:px-10 lg:px-16 py-8 space-y-6 text-center">
-        <p class="text-md md:text-lg lg:text-xl text-primary">
-          Enhance your coding skills, foster innovation, and contribute to the growth of open source projects while earning rewards.
-        </p>
-      </div>
-    </div>
     <div v-if="issues.length > 0" class="w-full mt-8 p-6 rounded-md shadow-md">
       <h2 class="text-2xl font-semibold text-primary mb-4">Available Issues</h2>
       <ul class="space-y-3">
@@ -30,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 import PrivateIssueListItem from '../components/PrivateIssueListItem.vue';
 import IssueListItem from '../components/IssueListItem.vue';
@@ -65,7 +48,6 @@ export default defineComponent({
     const userStore = useUserStore();
     const { authGithubHeader, authHeader, isLoggedIn } = storeToRefs(userStore);
 
-
     const fetchBounties = async () => {
       loading.value = true;
       const baseURL = import.meta.env.VITE_API_BASE_URL as string;
@@ -91,6 +73,7 @@ export default defineComponent({
           if (!acc[id]) {
             acc[id] = {
               amount: 0,
+              bounty_type: bounty.bounty_type,
               issueUrl: bounty.issue_github_url,
               currency: bounty.currency,
               issue_image_url: bounty.issue_image_url,
@@ -99,7 +82,18 @@ export default defineComponent({
               end_at: bounty.end_at
             };
           }
-          acc[id].amount += parseFloat(bounty.amount);
+          const startDate = new Date(bounty.start_at);
+          const endDate = new Date(bounty.end_at);
+          const timeElapsed = (currentDate.getTime() - startDate.getTime()) / (endDate.getTime() - startDate.getTime());
+
+          let adjustedAmount = parseFloat(bounty.amount);
+          if (bounty.bounty_type === 'crescendo') {
+            adjustedAmount *= timeElapsed;
+          } else if (bounty.bounty_type === 'decrescendo') {
+            adjustedAmount *= (1 - timeElapsed);
+          }
+
+          acc[id].amount += adjustedAmount;
           return acc;
         }, {});
 
@@ -165,7 +159,11 @@ export default defineComponent({
       }
     };
 
-    onMounted(fetchBounties);
+    onMounted(() => {
+      fetchBounties();
+      const interval = setInterval(fetchBounties, 3000); // Refresh every 3 seconds
+      onUnmounted(() => clearInterval(interval)); // Clear interval when component is unmounted
+    });
 
     return {
       issues,

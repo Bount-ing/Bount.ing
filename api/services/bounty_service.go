@@ -30,6 +30,9 @@ func (s *BountyService) FetchBountyById(id uint) (*models.Bounty, error) {
 
 // CreateBounty creates a new bounty in the database
 func (s *BountyService) CreateBounty(bounty models.Bounty) (*models.Bounty, error) {
+	if err := models.ValidateBountyType(bounty.BountyType); err != nil {
+		return nil, err
+	}
 	result := s.db.Create(&bounty)
 	return &bounty, result.Error
 }
