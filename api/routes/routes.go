@@ -87,7 +87,7 @@ func SetupRouter() *gin.Engine {
 					c.Header("Content-Type", "application/json")
 					c.JSON(200, nil)
 				})
-				bountyRoutes.GET("/bounties", bountyController.GetAllBounties)
+				bountyRoutes.GET("/", bountyController.GetAllBounties)
 				bountyRoutes.POST("/", bountyController.CreateBounty)
 				bountyRoutes.GET("/:id", bountyController.GetBounty)
 				bountyRoutes.PUT("/:id", bountyController.UpdateBounty)
