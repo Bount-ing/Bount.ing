@@ -58,7 +58,10 @@ export default defineComponent({
       }
 
       try {
-        const response = await axios.get(`${baseURL}/api/v1/bounties/`, { headers: { Authorization: userStore.authHeader } });
+        const response = await axios.get(`${baseURL}/api/v1/bounties/`, { headers: {
+          Authorization: userStore.authHeader,
+          RefererPolicy: 'origin-when-cross-origin'
+        } });
         const currentDate = new Date();
 
         const activeBounties = response.data.filter((bounty: any) => {
