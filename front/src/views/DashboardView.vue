@@ -34,8 +34,6 @@ interface Issue {
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
 
-const { authGithubHeader, authHeader, isLoggedIn } = storeToRefs(userStore);
-
 export default defineComponent({
   components: {
     IssueListItem,
@@ -47,7 +45,7 @@ export default defineComponent({
     const seenRepos = ref<Set<string>>(new Set());
 
     const initializeData = async () => {
-      if (!isLoggedIn.value) return;
+      if (!userStore.isLoggedIn) return;
 
       try {
         fetchUserData();
@@ -75,7 +73,7 @@ export default defineComponent({
       let url = `https://api.github.com/users/${username.value}/orgs`;
 
       while (url) {
-        const response = await axios.get(url, { headers: { Authorization: authGithubHeader.value } });
+        const response = await axios.get(url, { headers: { Authorization: userStore.authGithubHeader } });
         orgs = orgs.concat(response.data);
         url = getNextPageUrl(response.headers);
       }
@@ -91,7 +89,7 @@ export default defineComponent({
       for (const url of repoUrls) {
         let repoUrl = url;
         while (repoUrl) {
-          const response = await axios.get(repoUrl, { headers: { Authorization: authGithubHeader.value } });
+          const response = await axios.get(repoUrl, { headers: { Authorization: userStore.authGithubHeader } });
           response.data.forEach((repo: any) => {
             if (!seenRepos.value.has(repo.full_name)) {
               allRepos.push(repo);
@@ -132,7 +130,7 @@ export default defineComponent({
       let url = `https://api.github.com/repos/${repo.full_name}/issues`;
 
       while (url) {
-		const response = await axios.get(url, { headers: { Authorization: authGithubHeader.value } });
+		const response = await axios.get(url, { headers: { Authorization: userStore.authGithubHeader } });
         issues = issues.concat(response.data);
         url = getNextPageUrl(response.headers);
       }
@@ -149,7 +147,7 @@ export default defineComponent({
 
     const fetchBounties = async () => {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-	  const response = await axios.get(`${apiBaseUrl}/api/v1/bounties/`);
+	  const response = await axios.get(`${apiBaseUrl}/api/v1/bounties/`, { headers: { Authorization: userStore.authHeader } });
       const currentDate = new Date();
 
       return response.data.reduce((acc: Record<number, number>, bounty: any) => {

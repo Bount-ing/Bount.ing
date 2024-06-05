@@ -3,6 +3,7 @@ package middleware
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -29,7 +30,7 @@ func AuthorizeJWT() gin.HandlerFunc {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Method.Alg())
 			}
 			// Ensure that the signing method expected is HMAC and uses SHA-256
-			return []byte("your_secret_key"), nil // Replace "your_secret_key" with your actual key
+			return []byte(os.Getenv("JWT_SECRET_KEY")), nil // Replace "your_secret_key" with your actual key
 		})
 
 		if err != nil {
