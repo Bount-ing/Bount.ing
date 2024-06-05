@@ -160,7 +160,7 @@ export default defineComponent({
 
     onMounted(() => {
       fetchBounties();
-      const interval = setInterval(fetchBounties, 3000); // Refresh every 3 seconds
+      const interval = setInterval(fetchBounties, 60000); // Refresh every 60 seconds
       onUnmounted(() => clearInterval(interval)); // Clear interval when component is unmounted
     });
 
