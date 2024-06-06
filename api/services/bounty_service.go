@@ -76,12 +76,13 @@ func (s *BountyService) findOrCreateIssue(c *gin.Context, bounty models.Bounty) 
 	// Create the new issue in the database
 	issue = models.Issue{
 		GithubID:    githubIssue.ID,
+		GithubURL:   bounty.IssueGithubURL,
 		Title:       githubIssue.Title,
 		Description: githubIssue.Body,
 		Status:      githubIssue.State,
 	}
 
-	createdIssue, err := s.issueService.CreateIssue(issue)
+	createdIssue, err := s.issueService.CreateIssue(githubToken, issue)
 	if err != nil {
 		log.Printf("Failed to create issue in database: %s", err)
 		return nil, err
@@ -184,16 +185,6 @@ func (s *BountyService) extractGithubTokenFromContext(c *gin.Context) (string, e
 	}
 
 	return githubToken, nil
-}
-
-// fetchGitHubIssueDetails fetches issue details from GitHub
-
-// GitHubIssue represents the structure of a GitHub issue
-type GitHubIssue struct {
-	ID    int    `json:"id"`
-	Title string `json:"title"`
-	Body  string `json:"body"`
-	State string `json:"state"`
 }
 
 // UpdateBounty updates an existing bounty in the database

@@ -43,6 +43,7 @@ func SetupRouter() *gin.Engine {
 	loginController := controllers.NewLoginController(userService)
 	userController := controllers.NewUserController(userService)
 	bountyController := controllers.NewBountyController(db, bountyService)
+	issueController := controllers.NewIssueController(issueService, db)
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:  []string{"*"},
@@ -65,7 +66,7 @@ func SetupRouter() *gin.Engine {
 			public.GET("/oauth/github/callback", loginController.GithubCallback)
 			public.POST("/register", userController.RegisterUser)
 			public.GET("/bounties/", bountyController.GetAllBounties)
-
+			public.POST("/webhooks/github/issues/:issue_id", issueController.IssueGithubWebhook)
 		}
 
 		// Routes that require authentication

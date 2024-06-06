@@ -7,15 +7,18 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type IssueController struct {
 	issueService *services.IssueService
+	db           *gorm.DB
 }
 
-func NewIssueController(issueService *services.IssueService) *IssueController {
+func NewIssueController(issueService *services.IssueService, db *gorm.DB) *IssueController {
 	return &IssueController{
 		issueService: issueService,
+		db:           db,
 	}
 }
 
@@ -26,7 +29,7 @@ func (uc *IssueController) CreateIssue(c *gin.Context) {
 		return
 	}
 
-	registeredIssue, err := uc.issueService.CreateIssue(newIssue)
+	registeredIssue, err := uc.issueService.CreateIssue("", newIssue)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create issue", "details": err.Error()})
 		return
@@ -85,4 +88,46 @@ func (uc *IssueController) DeleteIssue(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Issue deleted successfully"})
+}
+
+func (uc *IssueController) IssueGithubWebhook(c *gin.Context) {
+	var payload map[string]interface{}
+	if err := c.BindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload"})
+		return
+	}
+
+	// Retrieve the issue ID from the GitHub payload
+	issueGithubID, ok := payload["issue"].(map[string]interface{})["id"].(float64)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload: missing issue ID"})
+		return
+	}
+
+	// Fetch the existing issue from the database using the GitHub ID
+	var issue models.Issue
+	if err := uc.db.Where("github_id = ?", int(issueGithubID)).First(&issue).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Issue not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch issue", "details": err.Error()})
+		}
+		return
+	}
+
+	// Update the issue with the new data from the webhook payload
+	if state, ok := payload["issue"].(map[string]interface{})["state"].(string); ok {
+		issue.Status = state
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload: missing issue state"})
+		return
+	}
+
+	// Save the updated issue back to the database
+	if err := uc.db.Save(&issue).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update issue", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "success", "issue": issue})
 }
