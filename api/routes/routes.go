@@ -58,6 +58,7 @@ func SetupRouter() *gin.Engine {
 	}))
 
 	// Versioning API
+	r.POST("/webhooks/github/issues/:issue_id", issueController.IssueGithubWebhook)
 	v1 := r.Group("/api/v1")
 	{
 		// Public routes
@@ -66,7 +67,6 @@ func SetupRouter() *gin.Engine {
 			public.GET("/oauth/github/callback", loginController.GithubCallback)
 			public.POST("/register", userController.RegisterUser)
 			public.GET("/bounties/", bountyController.GetAllBounties)
-			public.POST("/webhooks/github/issues/:issue_id", issueController.IssueGithubWebhook)
 		}
 
 		// Routes that require authentication
