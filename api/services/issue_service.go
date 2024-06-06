@@ -63,10 +63,10 @@ func (s *IssueService) CreateIssue(token string, issue models.Issue) (*models.Is
 		return nil, result.Error
 	}
 
-	err := s.subscribeToGitHubWebhook(token, issue)
+	/*err := s.subscribeToGitHubWebhook(token, issue)
 	if err != nil {
 		return nil, err
-	}
+	}*/
 
 	return &issue, nil
 }
