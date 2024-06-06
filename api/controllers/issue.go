@@ -97,8 +97,15 @@ func (uc *IssueController) IssueGithubWebhook(c *gin.Context) {
 		return
 	}
 
+	// Ensure the payload contains the "issue" key
+	issueData, ok := payload["issue"].(map[string]interface{})
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload: missing issue data"})
+		return
+	}
+
 	// Retrieve the issue ID from the GitHub payload
-	issueGithubID, ok := payload["issue"].(map[string]interface{})["id"].(float64)
+	issueGithubID, ok := issueData["id"].(float64)
 	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload: missing issue ID"})
 		return
@@ -116,7 +123,7 @@ func (uc *IssueController) IssueGithubWebhook(c *gin.Context) {
 	}
 
 	// Update the issue with the new data from the webhook payload
-	if state, ok := payload["issue"].(map[string]interface{})["state"].(string); ok {
+	if state, ok := issueData["state"].(string); ok {
 		issue.Status = state
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload: missing issue state"})
