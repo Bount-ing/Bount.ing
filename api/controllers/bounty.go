@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 	"open-bounties-api/models"
 	"open-bounties-api/services"
@@ -25,6 +26,7 @@ func NewBountyController(db *gorm.DB, bountyService *services.BountyService) *Bo
 func (uc *BountyController) CreateBounty(c *gin.Context) {
 	var newBounty models.Bounty
 
+	log.Print("Creating bounty")
 	userID, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found"})
@@ -55,7 +57,7 @@ func (uc *BountyController) CreateBounty(c *gin.Context) {
 		return
 	}
 	newBounty.OwnerID = userIDUint
-	registeredBounty, err := uc.bountyService.CreateBounty(newBounty)
+	registeredBounty, err := uc.bountyService.CreateBounty(c, newBounty)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create bounty", "details": err.Error()})
 		return

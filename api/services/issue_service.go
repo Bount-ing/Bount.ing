@@ -28,7 +28,6 @@ func (s *IssueService) FetchIssueById(id uint) (*models.Issue, error) {
 	return &issue, result.Error
 }
 
-// CreateIssue creates a new issue in the database
 func (s *IssueService) CreateIssue(issue models.Issue) (*models.Issue, error) {
 	result := s.db.Create(&issue)
 	return &issue, result.Error
