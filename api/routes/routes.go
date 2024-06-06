@@ -58,7 +58,13 @@ func SetupRouter() *gin.Engine {
 	}))
 
 	// Versioning API
-	r.POST("/webhooks/github/issues/:issue_id", issueController.IssueGithubWebhook)
+	webhooks := r.Group("/webhooks")
+	{
+		github := webhooks.Group("/github")
+		{
+			github.POST("/issues/:issue_id", issueController.IssueGithubWebhook)
+		}
+	}
 	v1 := r.Group("/api/v1")
 	{
 		// Public routes
