@@ -34,6 +34,7 @@ interface Issue {
   created_at?: string;
   updated_at?: string;
   is_private?: boolean;
+  state?: string;
 }
 
 export default defineComponent({
@@ -108,7 +109,8 @@ export default defineComponent({
             issue_image_url: issueTotals[id].issue_image_url,
             user_github_login: issueTotals[id].user_github_login,
             start_at: issueTotals[id].start_at,
-            end_at: issueTotals[id].end_at
+            end_at: issueTotals[id].end_at,
+            state: issueTotals[id].state,
           };
           return await fetchGitHubIssueData(issue);
         }));
@@ -116,7 +118,7 @@ export default defineComponent({
         issues.value = issues.value.filter((issue) => {
           const startDate = new Date(issue.start_at);
           const endDate = new Date(issue.end_at);
-          return currentDate > startDate && currentDate < endDate;
+          return currentDate > startDate && currentDate < endDate && issue.state === 'open';
         });
 
         issues.value = issues.value.sort((a, b) => b.amount - a.amount);
@@ -140,6 +142,7 @@ export default defineComponent({
         issue.description = response.data.body;
         issue.created_at = response.data.created_at;
         issue.updated_at = response.data.updated_at;
+        issue.state = response.data.state;
         return issue;
       } catch (error) {
         console.error('Error fetching GitHub issue data without token:', error);
@@ -153,6 +156,7 @@ export default defineComponent({
           issue.description = response.data.body;
           issue.created_at = response.data.created_at;
           issue.updated_at = response.data.updated_at;
+          issue.state = response.data.state;
           return issue;
         } catch (authError) {
           console.error('Error fetching GitHub issue data with token:', authError);
