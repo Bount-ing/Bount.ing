@@ -14,6 +14,8 @@ DATABASE = {
     'port': os.environ.get('POSTGRES_PORT', '5432')
 }
 
+base_url = os.environ.get('BASE_URL', 'http://0.0.0.0:3000')
+
 # Connect to the database
 def get_db_connection():
     conn = psycopg2.connect(**DATABASE)
@@ -55,30 +57,14 @@ def create_wanted_poster(issue, total_bounty, issue_image_url):
     repo_url = f"https://github.com/{owner}/{repo}"
     svg_content = f'''
     <svg width="338" height="213" viewBox="0 0 338 213" xmlns="http://www.w3.org/2000/svg">
-        <!-- Background with a mix of Matrix green and Cyberpunk neon colors -->
+        <!-- Background with a soft dark matrix effect -->
         <defs>
             <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" style="stop-color:#000000;stop-opacity:1" />
                 <stop offset="100%" style="stop-color:#0c0c0c;stop-opacity:1" />
             </linearGradient>
-            <linearGradient id="neonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#00FF00;stop-opacity:1" />
-                <stop offset="50%" style="stop-color:#00FFFF;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#FF00FF;stop-opacity:1" />
-            </linearGradient>
-            <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#FF00FF;stop-opacity:1">
-                    <animate attributeName="stop-color" values="#FF00FF;#FF1493;#FF00FF" dur="4s" repeatCount="indefinite" />
-                </stop>
-                <stop offset="50%" style="stop-color:#00FFFF;stop-opacity:1">
-                    <animate attributeName="stop-color" values="#00FFFF;#00CED1;#00FFFF" dur="4s" repeatCount="indefinite" begin="2s" />
-                </stop>
-                <stop offset="100%" style="stop-color:#00FF00;stop-opacity:1">
-                    <animate attributeName="stop-color" values="#00FF00;#7FFF00;#00FF00" dur="4s" repeatCount="indefinite" begin="4s" />
-                </stop>
-            </linearGradient>
-            <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
                 <feMerge>
                     <feMergeNode in="coloredBlur"/>
                     <feMergeNode in="SourceGraphic"/>
@@ -87,27 +73,31 @@ def create_wanted_poster(issue, total_bounty, issue_image_url):
         </defs>
         <rect width="100%" height="100%" fill="url(#bgGradient)" rx="15" ry="15" />
 
-        <!-- Title with changing neon colors and glow effect -->
-        <text x="50%" y="40" font-family="Orbitron, sans-serif" font-size="28" fill="url(#neonGradient)" text-anchor="middle" letter-spacing="2" filter="url(#neonGlow)">
+        <!-- Title with soft glow effect and blinking -->
+        <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
             WANTED
-                                    <animate attributeName="fill" values="url(#neonGradient);#00FFFF;#FF00FF;url(#neonGradient)" dur="7s" repeatCount="indefinite" />
-
+            <animate attributeName="opacity" values="1;1;0;0;0;0;1;1" dur="7s" repeatCount="indefinite" />
         </text>
-        <text x="50%" y="70" font-family="Orbitron, sans-serif" font-size="10" fill="url(#neonGradient)" text-anchor="middle">{owner}/{repo}</text>
-
-        <!-- Price Section -->
-        <text x="50%" y="120" font-family="Orbitron, sans-serif" font-size="24" fill="url(#neonGradient)" text-anchor="middle" filter="url(#neonGlow)">
+        <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
+            SOLVED
+            <animate attributeName="opacity" values="0;0;0;1;1;0;0;0" dur="7s" repeatCount="indefinite"/>
+        </text>
+        <text x="50%" y="70" font-family="ui-sans-serif, sans-serif" font-size="10" fill="#1abc9c" text-anchor="middle">{owner}/{repo}</text>
+        <a href="{base_url}/issues/{issue["id"]}" target="_blank">
+        <!-- Price Section with blinking -->
+        <text x="50%" y="145" font-family="ui-sans-serif, sans-serif" font-size="42" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
             {total_bounty} €
-                        <animate attributeName="fill" values="url(#neonGradient);#00FFFF;#FF00FF;url(#neonGradient)" dur="7s" repeatCount="indefinite" />
-
-
+            <animate attributeName="opacity" values="0;0;0;1;1;0;0;0" dur="7s" repeatCount="indefinite" />
         </text>
 
         <!-- Colored Issue Title -->
-        <text x="50%" y="180" font-family="Orbitron, sans-serif" font-size="16" fill="url(#titleGradient)" text-anchor="middle" filter="url(#neonGlow)">
+        <text x="50%" y="150" font-family="ui-sans-serif, sans-serif" font-size="18" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
             <tspan x="50%" dy="-1em">{issue['title'][:35]}</tspan>
             <tspan x="50%" dy="1.4em">{issue['title'][35:70]}</tspan>
+                        <animate attributeName="opacity" values="1;1;0;0;0;0;1;1" dur="7s" repeatCount="indefinite" />
+
         </text>
+        </a>
 
         <!-- Issue Image with circular clipping and link to repo -->
         <a href="{repo_url}" target="_blank">
@@ -125,20 +115,17 @@ def create_wanted_poster(issue, total_bounty, issue_image_url):
             <image x="233" y="15" width="90" height="90" href="/logo.png" clip-path="url(#clipCircleLogo)" />
         </a>
 
-        <!-- Futuristic Border with a neon glow -->
-        <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="url(#neonGradient)" stroke-width="4" stroke-dasharray="10,5" filter="url(#neonGlow)">
-            <animate attributeName="stroke-dashoffset" from="0" to="30" dur="2s" repeatCount="indefinite" />
+        <!-- Futuristic Border with a soft glow and blinking -->
+        <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="#1abc9c" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)">
+            <animate attributeName="stroke-dashoffset" from="30" to="0" dur="6s" repeatCount="indefinite" />
+        </rect>
+        <rect x="2" y="2" width="334" height="209" rx="15" ry="15" fill="none" stroke="#1abc9c" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)">
+            <animate attributeName="stroke-dashoffset" from="0" to="30" dur="6s" repeatCount="indefinite" />
         </rect>
     </svg>
     '''
-    html_content = f'''
-    <html>
-    <body style="background-color: #000000; display: flex; justify-content: center; align-items: center; height: 100vh;">
-        {svg_content}
-    </body>
-    </html>
-    '''
-    return html_content
+    return svg_content
+
 
 
 
@@ -151,6 +138,7 @@ def get_wanted_card(issue_id):
     issue = cursor.fetchone()
     if issue:
         issue_data = {
+            'id': issue_id,
             'url': issue[0],
             'title': issue[1],
             'body': issue[2]
