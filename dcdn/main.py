@@ -93,11 +93,11 @@ def create_wanted_poster(issue, total_bounty, issue_image_url, local_image_path)
         <!-- Title with soft glow effect -->
         <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
             <tspan id="wanted">WANTED</tspan>
-            <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.5;0.5;1" dur="6s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="1;1;0;0;0;0;1" dur="6s" repeatCount="indefinite" />
         </text>
         <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
             <tspan id="solved">SOLVED</tspan>
-            <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.5;0.5;1" dur="6s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0;0;0;1;1;1;0" dur="6s" repeatCount="indefinite" />
         </text>
 
         <!-- Repo and Owner -->
@@ -109,12 +109,13 @@ def create_wanted_poster(issue, total_bounty, issue_image_url, local_image_path)
         <text id="issueTitle" x="50%" y="180" font-family="ui-sans-serif, sans-serif" font-size="16" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
             <tspan x="50%" dy="-1em">{issue_title[:35]}</tspan>
             <tspan x="50%" dy="1.4em">{issue_title[35:70]}</tspan>
+            <animate attributeName="opacity" values="1;1;0;0;0;0;1" dur="6s" repeatCount="indefinite" />
         </text>
         
         <!-- Bounty Amount -->
         <text id="bounty" x="50%" y="120" font-family="ui-sans-serif, sans-serif" font-size="24" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)" display="none">
             {total_bounty} €
-            <set attributeName="display" to="inline" begin="3s" dur="6s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0;0;0;1;1;1;0" dur="6s" repeatCount="indefinite" />
         </text>
 
         <!-- Issue Image with circular clipping and link to repo -->
