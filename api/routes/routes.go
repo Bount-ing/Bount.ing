@@ -37,7 +37,8 @@ func SetupRouter() *gin.Engine {
 	// Initialize UserService with the database connection
 	userService := services.NewUserService(db)
 	repositoryService := services.NewRepositoryService(db)
-	issueService := services.NewIssueService(db, repositoryService)
+	claimService := services.NewClaimService(db)
+	issueService := services.NewIssueService(db, repositoryService, claimService)
 	bountyService := services.NewBountyService(db, issueService)
 
 	// Initialize controllers

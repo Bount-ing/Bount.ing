@@ -10,4 +10,5 @@ type User struct {
 	Username          string   `json:"username" gorm:"unique;not null"`
 	Email             string   `json:"email" gorm:"unique;not null"`
 	PublishedBounties []Bounty `json:"published_bounties" gorm:"foreignKey:OwnerID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Claims            []Claim  `json:"claims" gorm:"foreignKey:OwnerID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }

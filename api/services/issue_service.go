@@ -21,6 +21,7 @@ import (
 type IssueService struct {
 	db                *gorm.DB
 	repositoryService *RepositoryService
+	claimService      *ClaimService
 }
 
 type GitHubWebhookSubscriptionRequest struct {
@@ -45,10 +46,11 @@ type GitHubIssue struct {
 	URL   string `json:"url"`
 }
 
-func NewIssueService(db *gorm.DB, repositoryService *RepositoryService) *IssueService {
+func NewIssueService(db *gorm.DB, repositoryService *RepositoryService, claimService *ClaimService) *IssueService {
 	return &IssueService{
 		db:                db,
 		repositoryService: repositoryService,
+		claimService:      claimService,
 	}
 }
 
@@ -417,6 +419,7 @@ func (s *IssueService) UpdateIssueFromGithubPayload(c *gin.Context, issue *model
 		log.Printf("Failed to retrieve closing pull request: %s", err)
 	} else {
 		log.Printf("Pull Request that closed the issue: %s", prURL)
+		s.claimService.SolveClaimByPullRequest(prURL, *issue)
 	}
 
 	// Attempt to save the updated issue to the database
