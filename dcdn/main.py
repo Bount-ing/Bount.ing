@@ -93,11 +93,11 @@ def create_wanted_poster(issue, total_bounty, issue_image_url, local_image_path)
         <!-- Title with soft glow effect -->
         <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
             <tspan id="wanted">WANTED</tspan>
-            <animate attributeName="opacity" values="1;1;0;0;0;0;1" dur="6s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="1;0;0;0;0;1" dur="6s" repeatCount="indefinite" />
         </text>
         <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
             <tspan id="solved">SOLVED</tspan>
-            <animate attributeName="opacity" values="0;0;0;1;1;1;0" dur="6s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6s" repeatCount="indefinite" />
         </text>
 
         <!-- Repo and Owner -->
@@ -106,16 +106,16 @@ def create_wanted_poster(issue, total_bounty, issue_image_url, local_image_path)
         </text>
 
         <!-- Issue Title -->
-        <text id="issueTitle" x="50%" y="180" font-family="ui-sans-serif, sans-serif" font-size="16" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+        <text id="issueTitle" x="50%" y="150" font-family="ui-sans-serif, sans-serif" font-size="16" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
             <tspan x="50%" dy="-1em">{issue_title[:35]}</tspan>
             <tspan x="50%" dy="1.4em">{issue_title[35:70]}</tspan>
-            <animate attributeName="opacity" values="1;1;0;0;0;0;1" dur="6s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="1;0;0;0;0;1" dur="6s" repeatCount="indefinite" />
         </text>
         
         <!-- Bounty Amount -->
-        <text id="bounty" x="50%" y="120" font-family="ui-sans-serif, sans-serif" font-size="24" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)" display="none">
-            <tspan >{total_bounty} €</tspan>
-            <animate attributeName="opacity" values="0;0;0;1;1;1;0" dur="6s" repeatCount="indefinite" />
+        <text id="bounty" x="50%" y="150" font-family="ui-sans-serif, sans-serif" font-size="42" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+            <tspan id="total" >{total_bounty} €</tspan>
+            <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6s" repeatCount="indefinite" />
         </text>
 
         <!-- Issue Image with circular clipping and link to repo -->
@@ -135,8 +135,12 @@ def create_wanted_poster(issue, total_bounty, issue_image_url, local_image_path)
         </a>
 
         <!-- Futuristic Border with a soft glow and blinking -->
-        <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="#1abc9c" stroke-width="3" stroke-dasharray="5,3" filter="url(#softGlow)">
-            <animate attributeName="stroke-dashoffset" from="0" to="30" dur="6s" repeatCount="indefinite" />
+        <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="#1abc9c" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)">
+            <animate attributeName="stroke-dashoffset" values="0;30;0" dur="6s" repeatCount="indefinite" />
+        </rect>
+
+        <rect x="2" y="2" width="334" height="209" rx="15" ry="15" fill="none" stroke="#1abc9c" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)">
+            <animate attributeName="stroke-dashoffset" values="30;0;30" dur="6s" repeatCount="indefinite" />
         </rect>
     </svg>
     '''
