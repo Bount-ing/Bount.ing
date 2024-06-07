@@ -322,20 +322,26 @@ func (s *IssueService) findOrCreateRepo(c *gin.Context, issue models.Issue) (*mo
 		return nil, err
 	}
 
-	err = s.subscribeToGitHubWebhook(token, repo)
-	if err != nil {
-		log.Printf("Failed to subscribe to GitHub webhook: %s", err)
-	} else {
-		repo.GithubWebhookEnabled = true
-	}
-
 	createdRepo, err := s.repositoryService.CreateRepository(c, repo)
 	if err != nil {
 		log.Printf("Failed to create issue in database: %s", err)
 		return nil, err
 	}
 
-	return createdRepo, nil
+	err = s.subscribeToGitHubWebhook(token, *createdRepo)
+	if err != nil {
+		log.Printf("Failed to subscribe to GitHub webhook: %s", err)
+	} else {
+		createdRepo.GithubWebhookEnabled = true
+	}
+
+	updatedRepo, err := s.repositoryService.UpdateRepository(createdRepo.ID, *createdRepo)
+	if err != nil {
+		log.Printf("Failed to update repository: %s", err)
+		return nil, err
+	}
+
+	return updatedRepo, nil
 }
 
 func fetchGitHubRepoDetails(issueURL, token string) (*GitHubIssue, error) {
