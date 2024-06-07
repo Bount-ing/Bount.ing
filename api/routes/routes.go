@@ -36,14 +36,15 @@ func SetupRouter() *gin.Engine {
 
 	// Initialize UserService with the database connection
 	userService := services.NewUserService(db)
-	issueService := services.NewIssueService(db)
+	repositoryService := services.NewRepositoryService(db)
+	issueService := services.NewIssueService(db, repositoryService)
 	bountyService := services.NewBountyService(db, issueService)
 
 	// Initialize controllers
 	loginController := controllers.NewLoginController(userService)
 	userController := controllers.NewUserController(userService)
 	bountyController := controllers.NewBountyController(db, bountyService)
-	issueController := controllers.NewIssueController(issueService, db)
+	repoController := controllers.NewRepositoryController(db, repositoryService)
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:  []string{"*"},
@@ -62,7 +63,7 @@ func SetupRouter() *gin.Engine {
 	{
 		github := webhooks.Group("/github")
 		{
-			github.POST("/issues/:issue_id", issueController.IssueGithubWebhook)
+			github.POST("/repos/:repo_id", repoController.IssueGithubWebhook)
 		}
 	}
 	v1 := r.Group("/api/v1")

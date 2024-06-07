@@ -3,18 +3,23 @@ package services
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"open-bounties-api/models"
+	"os"
 	"strings"
 
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 	"gorm.io/gorm"
 )
 
 type IssueService struct {
-	db *gorm.DB
+	db                *gorm.DB
+	repositoryService *RepositoryService
 }
 
 type GitHubWebhookSubscriptionRequest struct {
@@ -39,8 +44,11 @@ type GitHubIssue struct {
 	URL   string `json:"url"`
 }
 
-func NewIssueService(db *gorm.DB) *IssueService {
-	return &IssueService{db: db}
+func NewIssueService(db *gorm.DB, repositoryService *RepositoryService) *IssueService {
+	return &IssueService{
+		db:                db,
+		repositoryService: repositoryService,
+	}
 }
 
 // FetchAllIssues returns all issues from the database
@@ -57,18 +65,62 @@ func (s *IssueService) FetchIssueById(id uint) (*models.Issue, error) {
 	return &issue, result.Error
 }
 
-func (s *IssueService) CreateIssue(token string, issue models.Issue) (*models.Issue, error) {
+func (s *IssueService) CreateIssue(c *gin.Context, issue models.Issue) (*models.Issue, error) {
+	log.Println("Creating Issue")
+
+	// Check if the repository exists in the database
+	repo, err := s.findOrCreateRepo(c, issue)
+	if err != nil {
+		log.Printf("Failed to find or create repo: %s", err)
+		return nil, err
+	}
+
+	// Set the RepositoryID in the issue
+	issue.RepositoryID = repo.ID
+
 	result := s.db.Create(&issue)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	/*err := s.subscribeToGitHubWebhook(token, issue)
-	if err != nil {
-		return nil, err
-	}*/
-
 	return &issue, nil
+}
+
+// extractGithubTokenFromContext extracts the GitHub token from the request context
+func (s *IssueService) extractGithubTokenFromContext(c *gin.Context) (string, error) {
+	tokenString := c.GetHeader("Authorization")
+	if tokenString == "" {
+		return "", errors.New("authorization header not found")
+	}
+
+	// Strip the "Bearer " prefix if it exists
+	if len(tokenString) > 7 && tokenString[:7] == "Bearer " {
+		tokenString = tokenString[7:]
+	}
+
+	claims := jwt.MapClaims{}
+	jwtKey := []byte(os.Getenv("JWT_SECRET_KEY"))
+
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return jwtKey, nil
+	})
+	if err != nil {
+		log.Printf("Error parsing token: %s", err)
+		if err == jwt.ErrSignatureInvalid {
+			return "", errors.New("invalid token signature")
+		}
+		return "", errors.New("invalid token")
+	}
+	if !token.Valid {
+		return "", errors.New("token is not valid")
+	}
+
+	githubToken, ok := claims["access_token"].(string)
+	if !ok {
+		return "", errors.New("GitHub token not found in token claims")
+	}
+
+	return githubToken, nil
 }
 
 func (s *IssueService) UpdateIssue(id uint, updatedData models.Issue) (*models.Issue, error) {
@@ -77,6 +129,11 @@ func (s *IssueService) UpdateIssue(id uint, updatedData models.Issue) (*models.I
 	if result.Error != nil {
 		return nil, result.Error
 	}
+
+	// Update the fields of the issue with the new data
+	issue.Title = updatedData.Title
+	issue.Description = updatedData.Description
+	issue.Status = updatedData.Status
 
 	saveResult := s.db.Save(&issue)
 	if saveResult.Error != nil {
@@ -95,16 +152,18 @@ func (s *IssueService) DeleteIssue(id uint) error {
 	return deleteResult.Error
 }
 
-func (s *IssueService) subscribeToGitHubWebhook(token string, issue models.Issue) error {
-	// parse owner and repo from the GitHub URL
-	owner, repo, err := parseOwnerAndRepoFromGitHubURL(issue.GithubURL)
+func (s *IssueService) subscribeToGitHubWebhook(token string, repo models.Repository) error {
+	// Parse owner and repo from the GitHub URL
+	owner, repo_name, err := parseOwnerAndRepoFromGitHubURL(repo.GithubURL)
 	if err != nil {
 		log.Printf("Failed to parse owner and repo from GitHub URL: %s", err)
 		return err
 	}
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/hooks", owner, repo)
+	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/hooks", owner, repo_name)
 	log.Printf("Subscribing to GitHub webhook at %s", url)
-	api_base_url := "https://api.bount.ing" //os.Getenv("API_BASE_URL")
+	apiBaseURL := "https://api.bount.ing" //os.Getenv("API_BASE_URL")
+	secret := os.Getenv("GITHUB_WEBHOOK_SECRET")
+
 	requestBody := struct {
 		Name   string   `json:"name"`
 		Active bool     `json:"active"`
@@ -113,6 +172,7 @@ func (s *IssueService) subscribeToGitHubWebhook(token string, issue models.Issue
 			URL         string `json:"url"`
 			ContentType string `json:"content_type"`
 			InsecureSSL string `json:"insecure_ssl"`
+			Secret      string `json:"secret"`
 		} `json:"config"`
 	}{
 		Name:   "web",
@@ -122,10 +182,12 @@ func (s *IssueService) subscribeToGitHubWebhook(token string, issue models.Issue
 			URL         string `json:"url"`
 			ContentType string `json:"content_type"`
 			InsecureSSL string `json:"insecure_ssl"`
+			Secret      string `json:"secret"`
 		}{
-			URL:         fmt.Sprintf("%s/webhooks/github/issues/%d", api_base_url, issue.ID),
+			URL:         fmt.Sprintf("%s/webhooks/github/repos/%d", apiBaseURL, repo.ID),
 			ContentType: "json",
 			InsecureSSL: "0",
+			Secret:      secret,
 		},
 	}
 
@@ -158,7 +220,6 @@ func (s *IssueService) subscribeToGitHubWebhook(token string, issue models.Issue
 		log.Printf("Failed to subscribe to GitHub webhook: %s. Response body: %s", resp.Status, bodyString)
 		return fmt.Errorf("failed to subscribe to GitHub webhook: %s. Response body: %s", resp.Status, bodyString)
 	}
-
 	return nil
 }
 
@@ -175,7 +236,7 @@ func parseOwnerAndRepoFromGitHubURL(url string) (string, string, error) {
 	return owner, repo, nil
 }
 
-func FetchIssueByGithubID(githubID int, token string) (*models.Issue, error) {
+func FetchRepoByGithubID(githubID int, token string) (*models.Issue, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/issues/%d", "owner", githubID)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
@@ -211,4 +272,101 @@ func FetchIssueByGithubID(githubID int, token string) (*models.Issue, error) {
 		Status:      githubIssue.State,
 	}
 	return &issue, nil
+}
+
+// findOrCreateRepo finds or creates a repository in the database
+func (s *IssueService) findOrCreateRepo(c *gin.Context, issue models.Issue) (*models.Repository, error) {
+	var repo models.Repository
+	urlParts := strings.SplitN(issue.GithubURL, "/", 6)
+	if len(urlParts) < 6 {
+		return nil, fmt.Errorf("invalid GitHub URL: %s", issue.GithubURL)
+	}
+	repoURL := urlParts[4]
+	err := s.db.Where("github_url = ?", repoURL).First(&repo).Error
+	if err == nil {
+		// Repo found in the database
+		return &repo, nil
+	}
+
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		// Some other error occurred
+		log.Printf("Database error: %s", err)
+		return nil, err
+	}
+
+	log.Printf("Repo not found in database, fetching from GitHub for URL: %s", issue.GithubURL)
+	githubToken, err := s.extractGithubTokenFromContext(c)
+	if err != nil {
+		log.Printf("Failed to extract GitHub token: %s", err)
+		return nil, err
+	}
+
+	githubRepo, err := fetchGitHubRepoDetails(issue.GithubURL, githubToken)
+	if err != nil {
+		log.Printf("Failed to fetch GitHub repo details: %s", err)
+		return nil, err
+	}
+
+	// Create the new repository in the database
+	repo = models.Repository{
+		GithubID:             githubRepo.ID,
+		GithubURL:            githubRepo.URL,
+		GithubWebhookEnabled: false,
+		Name:                 githubRepo.Repository.FullName,
+	}
+
+	// Extract GitHub token from context
+	token, err := s.extractGithubTokenFromContext(c)
+	if err != nil {
+		log.Printf("Failed to extract GitHub token: %s", err)
+		return nil, err
+	}
+
+	err = s.subscribeToGitHubWebhook(token, repo)
+	if err != nil {
+		log.Printf("Failed to subscribe to GitHub webhook: %s", err)
+	} else {
+		repo.GithubWebhookEnabled = true
+	}
+
+	createdRepo, err := s.repositoryService.CreateRepository(c, repo)
+	if err != nil {
+		log.Printf("Failed to create issue in database: %s", err)
+		return nil, err
+	}
+
+	return createdRepo, nil
+}
+
+func fetchGitHubRepoDetails(issueURL, token string) (*GitHubIssue, error) {
+	//  https://api.github.com/repos/Smojify/Smojify-Android/issues/35
+	tmpURL := strings.Split(issueURL, "/")
+	repoURL := fmt.Sprintf("https://api.github.com/repos/%s/%s", tmpURL[4], tmpURL[5])
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", repoURL, nil)
+	if err != nil {
+		log.Printf("Failed to create request: %s", err)
+		return nil, err
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("Failed to fetch repo details: %s", err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("Failed to fetch repo details: %s", resp.Status)
+		return nil, fmt.Errorf("failed to fetch repo details: %s", resp.Status)
+	}
+
+	var githubRepo GitHubIssue
+	if err := json.NewDecoder(resp.Body).Decode(&githubRepo); err != nil {
+		log.Printf("Failed to decode repo details: %s", err)
+		return nil, err
+	}
+
+	return &githubRepo, nil
 }

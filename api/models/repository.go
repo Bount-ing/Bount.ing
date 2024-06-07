@@ -6,7 +6,9 @@ import (
 
 type Repository struct {
 	gorm.Model
-	Name           string `json:"name" gorm:"not null"`
-	OrganizationID uint   `json:"organization_id"`
-	//Issues         []Issue `json:"issues" gorm:"foreignKey:RepositoryID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	GithubID             int     `json:"github_id" gorm:"not null;index"`
+	GithubURL            string  `json:"github_url" gorm:"not null"`
+	GithubWebhookEnabled bool    `json:"github_webhook_enabled" gorm:"not null"`
+	Name                 string  `json:"name" gorm:"not null"`
+	Issues               []Issue `json:"issues" gorm:"foreignKey:RepositoryID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }

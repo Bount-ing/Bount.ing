@@ -82,7 +82,7 @@ func (s *BountyService) findOrCreateIssue(c *gin.Context, bounty models.Bounty) 
 		Status:      githubIssue.State,
 	}
 
-	createdIssue, err := s.issueService.CreateIssue(githubToken, issue)
+	createdIssue, err := s.issueService.CreateIssue(c, issue)
 	if err != nil {
 		log.Printf("Failed to create issue in database: %s", err)
 		return nil, err
