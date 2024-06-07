@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"open-bounties-api/models"
@@ -410,6 +411,14 @@ func (s *IssueService) UpdateIssueFromGithubPayload(c *gin.Context, issue *model
 		issue.ClosedAt = "" // Default to an empty string if closed_at is not specified
 	}
 
+	// Call a function to get the closing pull request
+	prURL, err := s.GetClosingPullRequest(issueData)
+	if err != nil {
+		log.Printf("Failed to retrieve closing pull request: %s", err)
+	} else {
+		log.Printf("Pull Request that closed the issue: %s", prURL)
+	}
+
 	// Attempt to save the updated issue to the database
 	result, err := s.UpdateIssue(issue.ID, *issue)
 
@@ -421,5 +430,41 @@ func (s *IssueService) UpdateIssueFromGithubPayload(c *gin.Context, issue *model
 
 	// Successfully updated the issue
 	log.Printf("Updated issue: %v", result)
+
 	return nil
+}
+
+func (s *IssueService) GetClosingPullRequest(issueData map[string]interface{}) (string, error) {
+	log.Println("Getting closing pull request")
+	if timelineURL, ok := issueData["timeline_url"].(string); ok && timelineURL != "" {
+		log.Printf("Fetching timeline from URL: %s", timelineURL)
+		resp, err := http.Get(timelineURL)
+		if err != nil {
+			return "", fmt.Errorf("failed to fetch timeline: %v", err)
+		}
+		defer resp.Body.Close()
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return "", fmt.Errorf("failed to read response body: %v", err)
+		}
+
+		var events []map[string]interface{}
+		if err := json.Unmarshal(body, &events); err != nil {
+			return "", fmt.Errorf("failed to unmarshal JSON: %v", err)
+		}
+
+		for _, event := range events {
+			if event["event"] == "referenced" && event["commit_id"] == nil {
+				if source, ok := event["source"].(map[string]interface{}); ok {
+					if pullRequest, ok := source["pull_request"].(map[string]interface{}); ok {
+						if prURL, ok := pullRequest["html_url"].(string); ok {
+							return prURL, nil
+						}
+					}
+				}
+			}
+		}
+	}
+	return "", fmt.Errorf("no closing pull request found")
 }
