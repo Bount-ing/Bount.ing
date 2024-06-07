@@ -476,7 +476,7 @@ func (s *IssueService) GetClosingPullRequest(issueData map[string]interface{}) (
 
 		for _, event := range events {
 			if event.Event == "cross-referenced" {
-				if pr, ok := event.Source.PullRequest; ok {
+				if pr := event.Source.PullRequest; pr != nil {
 					return pr.HTMLURL, nil
 				}
 			}
