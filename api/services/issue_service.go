@@ -455,10 +455,15 @@ func (s *IssueService) GetClosingPullRequest(issueData map[string]interface{}) (
 		}
 
 		for _, event := range events {
+			log.Printf("Event: %v", event)
 			if event["event"] == "referenced" && event["commit_id"] == nil {
+				log.Println("Found referenced event")
 				if source, ok := event["source"].(map[string]interface{}); ok {
+					log.Printf("Source: %v", source)
 					if pullRequest, ok := source["pull_request"].(map[string]interface{}); ok {
+						log.Printf("Pull Request: %v", pullRequest)
 						if prURL, ok := pullRequest["html_url"].(string); ok {
+							log.Printf("Pull Request URL: %s", prURL)
 							return prURL, nil
 						}
 					}
