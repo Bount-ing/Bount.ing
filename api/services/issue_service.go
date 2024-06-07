@@ -434,20 +434,15 @@ func (s *IssueService) UpdateIssueFromGithubPayload(c *gin.Context, issue *model
 	return nil
 }
 
-// Structs for parsing JSON data
+// Structs for parsing JSON data// Struct for parsing JSON data
 type PullRequest struct {
-	HTMLURL  string `json:"html_url"`
-	MergeURL string `json:"url"`
-}
-
-type CrossReferencedEvent struct {
-	Event  string `json:"event"`
-	Source Source `json:"source"`
+	HTMLURL string `json:"html_url"`
 }
 
 type Source struct {
-	Issue       map[string]interface{} `json:"issue"`
-	PullRequest *PullRequest           `json:"pull_request"`
+	Issue struct {
+		PullRequest *PullRequest `json:"pull_request"`
+	} `json:"issue"`
 }
 
 type Event struct {
