@@ -378,13 +378,48 @@ func fetchGitHubRepoDetails(issueURL, token string) (*GitHubIssue, error) {
 }
 
 func (s *IssueService) UpdateIssueFromGithubPayload(c *gin.Context, issue *models.Issue, issueData map[string]interface{}) error {
-	// Update the issue with the new data from the webhook payload
-	issue.Title = issueData["title"].(string)
-	issue.Description = issueData["body"].(string)
-	issue.Status = issueData["state"].(string)
-	issue.ClosedAt = issueData["closed_at"].(string)
+	// Ensure all required fields are present and not nil, with default values if necessary
 
-	// Save the updated issue to the database
-	result := c.MustGet("db").(*gorm.DB).Save(issue)
-	return result.Error
+	log.Println("Updating Issue")
+	log.Printf("Issue Data: %v", issueData)
+	// Title
+	if title, ok := issueData["title"].(string); ok && title != "" {
+		issue.Title = title
+	} else {
+		issue.Title = "No Title Provided" // Default title or handle the absence of a title
+	}
+
+	// Description (Body)
+	if body, ok := issueData["body"].(string); ok && body != "" {
+		issue.Description = body
+	} else {
+		issue.Description = "No Description Provided" // Default description or handle the absence of a description
+	}
+
+	// Status (State)
+	if state, ok := issueData["state"].(string); ok && state != "" {
+		issue.Status = state
+	} else {
+		issue.Status = "open" // Default state, assuming it's open if not specified
+	}
+
+	// ClosedAt
+	if closedAt, ok := issueData["closed_at"].(string); ok && closedAt != "" {
+		issue.ClosedAt = closedAt
+	} else {
+		issue.ClosedAt = "" // Default to an empty string if closed_at is not specified
+	}
+
+	// Attempt to save the updated issue to the database
+	db := c.MustGet("db").(*gorm.DB)
+	result := db.Save(issue)
+
+	// Check for errors during the save operation
+	if result.Error != nil {
+		log.Printf("Failed to update issue: %v", result.Error) // Log the error
+		return result.Error                                    // Return the error to be handled by the caller
+	}
+
+	// Successfully updated the issue
+	return nil
 }

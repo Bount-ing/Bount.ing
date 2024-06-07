@@ -139,7 +139,6 @@ func (uc *RepositoryController) IssueGithubWebhook(c *gin.Context) {
 		log.Println("Invalid payload")
 		return
 	}
-	log.Printf("Received payload: %v", payload)
 
 	// Ensure the payload contains the "issue" key
 	issueData, ok := payload["issue"].(map[string]interface{})
