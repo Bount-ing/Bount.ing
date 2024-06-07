@@ -44,7 +44,7 @@ func SetupRouter() *gin.Engine {
 	loginController := controllers.NewLoginController(userService)
 	userController := controllers.NewUserController(userService)
 	bountyController := controllers.NewBountyController(db, bountyService)
-	repoController := controllers.NewRepositoryController(db, repositoryService)
+	repoController := controllers.NewRepositoryController(db, repositoryService, issueService)
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:  []string{"*"},

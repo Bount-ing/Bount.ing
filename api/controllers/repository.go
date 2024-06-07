@@ -19,12 +19,14 @@ import (
 
 type RepositoryController struct {
 	repositoryService *services.RepositoryService
+	issueService      *services.IssueService
 	db                *gorm.DB
 }
 
-func NewRepositoryController(db *gorm.DB, repositoryService *services.RepositoryService) *RepositoryController {
+func NewRepositoryController(db *gorm.DB, repositoryService *services.RepositoryService, issueService *services.IssueService) *RepositoryController {
 	return &RepositoryController{
 		repositoryService: repositoryService,
+		issueService:      issueService,
 		db:                db,
 	}
 }
@@ -169,20 +171,7 @@ func (uc *RepositoryController) IssueGithubWebhook(c *gin.Context) {
 	}
 
 	// Update the issue with the new data from the webhook payload
-	if state, ok := issueData["state"].(string); ok {
-		issue.Status = state
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload: missing issue state"})
-		log.Println("Invalid payload: missing issue state")
-		return
-	}
-
-	// Save the updated issue back to the database
-	if err := uc.db.Save(&issue).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update issue", "details": err.Error()})
-		log.Printf("Failed to update issue: %s", err)
-		return
-	}
+	uc.issueService.UpdateIssueFromGithubPayload(c, &issue, issueData)
 
 	c.JSON(http.StatusOK, gin.H{"status": "success", "issue": issue})
 }

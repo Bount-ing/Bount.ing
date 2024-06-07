@@ -376,3 +376,15 @@ func fetchGitHubRepoDetails(issueURL, token string) (*GitHubIssue, error) {
 
 	return &githubRepo, nil
 }
+
+func (s *IssueService) UpdateIssueFromGithubPayload(c *gin.Context, issue *models.Issue, issueData map[string]interface{}) error {
+	// Update the issue with the new data from the webhook payload
+	issue.Title = issueData["title"].(string)
+	issue.Description = issueData["body"].(string)
+	issue.Status = issueData["state"].(string)
+	issue.ClosedAt = issueData["closed_at"].(string)
+
+	// Save the updated issue to the database
+	result := c.MustGet("db").(*gorm.DB).Save(issue)
+	return result.Error
+}
