@@ -97,7 +97,7 @@ func (s *ClaimService) SolveClaimByPullRequest(url string, issue models.Issue) (
 
 	// Check if the user exists in the database
 	var user models.User
-	if err := s.db.Where("username = ?", prDetails.Author).First(&user).Error; err != nil {
+	if err := s.db.Where("username = ?", prDetails.User.Login).First(&user).Error; err != nil {
 		return false, err
 	}
 
