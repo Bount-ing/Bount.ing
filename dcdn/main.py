@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify, send_file, Response
 import psycopg2
+import requests
+import base64
 import io
 import os
 
@@ -15,6 +17,15 @@ DATABASE = {
 }
 
 base_url = os.environ.get('BASE_URL', 'http://0.0.0.0:3000')
+
+def image_to_base64(url):
+    response = requests.get(url)
+    return base64.b64encode(response.content).decode('utf-8')
+
+def local_image_to_base64(image_path):
+    with open(image_path, 'rb') as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
 
 # Connect to the database
 def get_db_connection():
@@ -52,14 +63,20 @@ def get_issue_image_url(issue_id):
     conn.close()
     return result[0] if result else None
 
-def create_wanted_poster(issue, total_bounty, issue_image_url):
+def create_wanted_poster(issue, total_bounty, issue_image_url, local_image_path):
     owner, repo = issue['url'].split('/')[-4], issue['url'].split('/')[-3]
     repo_url = f"https://github.com/{owner}/{repo}"
+    issue_title = issue['title']
+    
+    # Convert images to base64
+    external_image_base64 = image_to_base64(issue_image_url)
+    local_image_base64 = local_image_to_base64(local_image_path)
+
     svg_content = f'''
     <svg width="338" height="213" viewBox="0 0 338 213" xmlns="http://www.w3.org/2000/svg">
         <!-- Background with a soft dark matrix effect -->
         <defs>
-            <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%">
                 <stop offset="0%" style="stop-color:#000000;stop-opacity:1" />
                 <stop offset="100%" style="stop-color:#0c0c0c;stop-opacity:1" />
             </linearGradient>
@@ -73,38 +90,39 @@ def create_wanted_poster(issue, total_bounty, issue_image_url):
         </defs>
         <rect width="100%" height="100%" fill="url(#bgGradient)" rx="15" ry="15" />
 
-        <!-- Title with soft glow effect and blinking -->
+        <!-- Title with soft glow effect -->
         <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
-            WANTED
-            <animate attributeName="opacity" values="1;1;0;0;0;0;1;1" dur="7s" repeatCount="indefinite" />
+            <tspan id="wanted">WANTED</tspan>
+            <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.5;0.5;1" dur="6s" repeatCount="indefinite" />
         </text>
         <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
-            SOLVED
-            <animate attributeName="opacity" values="0;0;0;1;1;0;0;0" dur="7s" repeatCount="indefinite"/>
+            <tspan id="solved">SOLVED</tspan>
+            <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.5;0.5;1" dur="6s" repeatCount="indefinite" />
         </text>
-        <text x="50%" y="70" font-family="ui-sans-serif, sans-serif" font-size="10" fill="#1abc9c" text-anchor="middle">{owner}/{repo}</text>
-        <a href="{base_url}/issues/{issue["id"]}" target="_blank">
-        <!-- Price Section with blinking -->
-        <text x="50%" y="145" font-family="ui-sans-serif, sans-serif" font-size="42" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+
+        <!-- Repo and Owner -->
+        <text x="50%" y="70" font-family="ui-sans-serif, sans-serif" font-size="10" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+            {owner}/{repo}
+        </text>
+
+        <!-- Issue Title -->
+        <text id="issueTitle" x="50%" y="180" font-family="ui-sans-serif, sans-serif" font-size="16" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+            <tspan x="50%" dy="-1em">{issue_title[:35]}</tspan>
+            <tspan x="50%" dy="1.4em">{issue_title[35:70]}</tspan>
+        </text>
+        
+        <!-- Bounty Amount -->
+        <text id="bounty" x="50%" y="120" font-family="ui-sans-serif, sans-serif" font-size="24" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)" display="none">
             {total_bounty} €
-            <animate attributeName="opacity" values="0;0;0;1;1;0;0;0" dur="7s" repeatCount="indefinite" />
+            <set attributeName="display" to="inline" begin="3s" dur="6s" repeatCount="indefinite" />
         </text>
-
-        <!-- Colored Issue Title -->
-        <text x="50%" y="150" font-family="ui-sans-serif, sans-serif" font-size="18" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
-            <tspan x="50%" dy="-1em">{issue['title'][:35]}</tspan>
-            <tspan x="50%" dy="1.4em">{issue['title'][35:70]}</tspan>
-                        <animate attributeName="opacity" values="1;1;0;0;0;0;1;1" dur="7s" repeatCount="indefinite" />
-
-        </text>
-        </a>
 
         <!-- Issue Image with circular clipping and link to repo -->
         <a href="{repo_url}" target="_blank">
             <clipPath id="clipCircleIssue">
                 <circle cx="60" cy="60" r="30" />
             </clipPath>
-            <image x="30" y="30" width="60" height="60" href="{issue_image_url}" clip-path="url(#clipCircleIssue)" />
+            <image x="30" y="30" width="60" height="60" href="data:image/png;base64,{external_image_base64}" clip-path="url(#clipCircleIssue)" />
         </a>
 
         <!-- Logo with circular clipping and link to bounty page -->
@@ -112,14 +130,11 @@ def create_wanted_poster(issue, total_bounty, issue_image_url):
             <clipPath id="clipCircleLogo">
                 <circle cx="278" cy="60" r="45" />
             </clipPath>
-            <image x="233" y="15" width="90" height="90" href="/logo.png" clip-path="url(#clipCircleLogo)" />
+            <image x="233" y="15" width="90" height="90" href="data:image/png;base64,{local_image_base64}" clip-path="url(#clipCircleLogo)" />
         </a>
 
         <!-- Futuristic Border with a soft glow and blinking -->
-        <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="#1abc9c" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)">
-            <animate attributeName="stroke-dashoffset" from="30" to="0" dur="6s" repeatCount="indefinite" />
-        </rect>
-        <rect x="2" y="2" width="334" height="209" rx="15" ry="15" fill="none" stroke="#1abc9c" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)">
+        <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="#1abc9c" stroke-width="3" stroke-dasharray="5,3" filter="url(#softGlow)">
             <animate attributeName="stroke-dashoffset" from="0" to="30" dur="6s" repeatCount="indefinite" />
         </rect>
     </svg>
@@ -145,7 +160,7 @@ def get_wanted_card(issue_id):
         }
         total_bounty = get_total_bounties(issue_id)
         issue_image_url = get_issue_image_url(issue_id)  # Fetch the image URL from bounties table
-        svg_content = create_wanted_poster(issue_data, total_bounty, issue_image_url)
+        svg_content = create_wanted_poster(issue_data, total_bounty, issue_image_url, 'logo.png')
         return Response(svg_content, mimetype='image/svg+xml')
     return jsonify({'error': 'Issue not found'}), 404
 
