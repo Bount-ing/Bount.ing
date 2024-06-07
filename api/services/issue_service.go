@@ -434,6 +434,27 @@ func (s *IssueService) UpdateIssueFromGithubPayload(c *gin.Context, issue *model
 	return nil
 }
 
+// Structs for parsing JSON data
+type PullRequest struct {
+	HTMLURL  string `json:"html_url"`
+	MergeURL string `json:"url"`
+}
+
+type CrossReferencedEvent struct {
+	Event  string `json:"event"`
+	Source Source `json:"source"`
+}
+
+type Source struct {
+	Issue       map[string]interface{} `json:"issue"`
+	PullRequest *PullRequest           `json:"pull_request"`
+}
+
+type Event struct {
+	Event  string `json:"event"`
+	Source Source `json:"source"`
+}
+
 func (s *IssueService) GetClosingPullRequest(issueData map[string]interface{}) (string, error) {
 	if timelineURL, ok := issueData["timeline_url"].(string); ok && timelineURL != "" {
 		log.Printf("Fetching timeline from URL: %s", timelineURL)
