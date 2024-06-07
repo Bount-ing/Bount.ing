@@ -435,7 +435,6 @@ func (s *IssueService) UpdateIssueFromGithubPayload(c *gin.Context, issue *model
 }
 
 func (s *IssueService) GetClosingPullRequest(issueData map[string]interface{}) (string, error) {
-	log.Println("Getting closing pull request")
 	if timelineURL, ok := issueData["timeline_url"].(string); ok && timelineURL != "" {
 		log.Printf("Fetching timeline from URL: %s", timelineURL)
 		resp, err := http.Get(timelineURL)
@@ -449,24 +448,15 @@ func (s *IssueService) GetClosingPullRequest(issueData map[string]interface{}) (
 			return "", fmt.Errorf("failed to read response body: %v", err)
 		}
 
-		var events []map[string]interface{}
+		var events []Event
 		if err := json.Unmarshal(body, &events); err != nil {
 			return "", fmt.Errorf("failed to unmarshal JSON: %v", err)
 		}
 
 		for _, event := range events {
-			log.Printf("Event: %v", event)
-			if event["event"] == "referenced" && event["commit_id"] == nil {
-				log.Println("Found referenced event")
-				if source, ok := event["source"].(map[string]interface{}); ok {
-					log.Printf("Source: %v", source)
-					if pullRequest, ok := source["pull_request"].(map[string]interface{}); ok {
-						log.Printf("Pull Request: %v", pullRequest)
-						if prURL, ok := pullRequest["html_url"].(string); ok {
-							log.Printf("Pull Request URL: %s", prURL)
-							return prURL, nil
-						}
-					}
+			if event.Event == "cross-referenced" {
+				if pr, ok := event.Source.PullRequest; ok {
+					return pr.HTMLURL, nil
 				}
 			}
 		}
