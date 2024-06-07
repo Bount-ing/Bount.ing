@@ -1,0 +1,3 @@
+qrcode
+Flask
+psycopg2-binary
