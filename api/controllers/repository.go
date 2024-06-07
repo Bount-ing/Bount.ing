@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"open-bounties-api/models"
 	"open-bounties-api/services"
@@ -110,6 +111,7 @@ func (uc *RepositoryController) IssueGithubWebhook(c *gin.Context) {
 	signature := c.GetHeader("X-Hub-Signature-256")
 	if signature == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Signature header missing"})
+		log.Println("Signature header missing")
 		return
 	}
 
@@ -117,12 +119,14 @@ func (uc *RepositoryController) IssueGithubWebhook(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to read body"})
+		log.Println("Unable to read body")
 		return
 	}
 
 	// Verify the payload signature
 	if !verifyWebhookSignature(secret, string(body), signature) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid signature"})
+		log.Println("Invalid signature")
 		return
 	}
 
@@ -130,6 +134,7 @@ func (uc *RepositoryController) IssueGithubWebhook(c *gin.Context) {
 	var payload map[string]interface{}
 	if err := json.Unmarshal(body, &payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload"})
+		log.Println("Invalid payload")
 		return
 	}
 
@@ -137,6 +142,7 @@ func (uc *RepositoryController) IssueGithubWebhook(c *gin.Context) {
 	issueData, ok := payload["issue"].(map[string]interface{})
 	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload: missing issue data"})
+		log.Println("Invalid payload: missing issue data")
 		return
 	}
 
@@ -144,6 +150,7 @@ func (uc *RepositoryController) IssueGithubWebhook(c *gin.Context) {
 	issueGithubID, ok := issueData["id"].(float64)
 	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload: missing issue ID"})
+		log.Println("Invalid payload: missing issue ID")
 		return
 	}
 
@@ -152,8 +159,10 @@ func (uc *RepositoryController) IssueGithubWebhook(c *gin.Context) {
 	if err := uc.db.Where("github_id = ?", int(issueGithubID)).First(&issue).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Issue not found"})
+			log.Println("Issue not found")
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch issue", "details": err.Error()})
+			log.Printf("Failed to fetch issue: %s", err)
 		}
 		return
 	}
@@ -163,12 +172,14 @@ func (uc *RepositoryController) IssueGithubWebhook(c *gin.Context) {
 		issue.Status = state
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload: missing issue state"})
+		log.Println("Invalid payload: missing issue state")
 		return
 	}
 
 	// Save the updated issue back to the database
 	if err := uc.db.Save(&issue).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update issue", "details": err.Error()})
+		log.Printf("Failed to update issue: %s", err)
 		return
 	}
 
