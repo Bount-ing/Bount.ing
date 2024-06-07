@@ -52,6 +52,7 @@ def get_issue_image_url(issue_id):
 
 def create_wanted_poster(issue, total_bounty, issue_image_url):
     owner, repo = issue['url'].split('/')[-4], issue['url'].split('/')[-3]
+    repo_url = f"https://github.com/{owner}/{repo}"
     svg_content = f'''
     <svg width="338" height="213" viewBox="0 0 338 213" xmlns="http://www.w3.org/2000/svg">
         <!-- Background black with subtle gold gradient -->
@@ -87,17 +88,21 @@ def create_wanted_poster(issue, total_bounty, issue_image_url):
             <tspan x="50%" dy="1.2em">{issue['title'][60:90]}</tspan>
         </text>
 
-        <!-- Issue Image with circular clipping -->
-        <clipPath id="clipCircleIssue">
-            <circle cx="60" cy="60" r="30" />
-        </clipPath>
-        <image x="30" y="30" width="60" height="60" href="{issue_image_url}" clip-path="url(#clipCircleIssue)" />
+        <!-- Issue Image with circular clipping and link to repo -->
+        <a href="{repo_url}" target="_blank">
+            <clipPath id="clipCircleIssue">
+                <circle cx="60" cy="60" r="30" />
+            </clipPath>
+            <image x="30" y="30" width="60" height="60" href="{issue_image_url}" clip-path="url(#clipCircleIssue)" />
+        </a>
 
-        <!-- Logo with circular clipping -->
-        <clipPath id="clipCircleLogo">
-            <circle cx="278" cy="60" r="45" />
-        </clipPath>
-        <image x="233" y="15" width="90" height="90" href="/logo.png" clip-path="url(#clipCircleLogo)" />
+        <!-- Logo with circular clipping and link to bounty page -->
+        <a href="https://bount.ing" target="_blank">
+            <clipPath id="clipCircleLogo">
+                <circle cx="278" cy="60" r="45" />
+            </clipPath>
+            <image x="233" y="15" width="90" height="90" href="/logo.png" clip-path="url(#clipCircleLogo)" />
+        </a>
 
         <!-- Reward Section -->
         <text x="50%" y="160" font-family="Orbitron, sans-serif" font-size="18" fill="url(#goldGradient)" text-anchor="middle" filter="url(#neonGlow)">
@@ -108,7 +113,14 @@ def create_wanted_poster(issue, total_bounty, issue_image_url):
         <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="url(#goldGradient)" stroke-width="4" stroke-dasharray="10,5" filter="url(#neonGlow)" />
     </svg>
     '''
-    return svg_content
+    html_content = f'''
+    <html>
+    <body style="background-color: #0a0a0a; display: flex; justify-content: center; align-items: center; height: 100vh;">
+        {svg_content}
+    </body>
+    </html>
+    '''
+    return html_content
 
 
 
