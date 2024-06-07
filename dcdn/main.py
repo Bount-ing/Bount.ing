@@ -114,7 +114,7 @@ def create_wanted_poster(issue, total_bounty, issue_image_url, local_image_path)
         
         <!-- Bounty Amount -->
         <text id="bounty" x="50%" y="120" font-family="ui-sans-serif, sans-serif" font-size="24" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)" display="none">
-            {total_bounty} €
+            <tspan >{total_bounty} €</tspan>
             <animate attributeName="opacity" values="0;0;0;1;1;1;0" dur="6s" repeatCount="indefinite" />
         </text>
 
