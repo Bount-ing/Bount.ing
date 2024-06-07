@@ -66,6 +66,17 @@ def create_wanted_poster(issue, total_bounty, issue_image_url):
                 <stop offset="50%" style="stop-color:#00FFFF;stop-opacity:1" />
                 <stop offset="100%" style="stop-color:#FF00FF;stop-opacity:1" />
             </linearGradient>
+            <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#FF00FF;stop-opacity:1">
+                    <animate attributeName="stop-color" values="#FF00FF;#FF1493;#FF00FF" dur="4s" repeatCount="indefinite" />
+                </stop>
+                <stop offset="50%" style="stop-color:#00FFFF;stop-opacity:1">
+                    <animate attributeName="stop-color" values="#00FFFF;#00CED1;#00FFFF" dur="4s" repeatCount="indefinite" begin="2s" />
+                </stop>
+                <stop offset="100%" style="stop-color:#00FF00;stop-opacity:1">
+                    <animate attributeName="stop-color" values="#00FF00;#7FFF00;#00FF00" dur="4s" repeatCount="indefinite" begin="4s" />
+                </stop>
+            </linearGradient>
             <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
                 <feMerge>
@@ -79,15 +90,23 @@ def create_wanted_poster(issue, total_bounty, issue_image_url):
         <!-- Title with changing neon colors and glow effect -->
         <text x="50%" y="40" font-family="Orbitron, sans-serif" font-size="28" fill="url(#neonGradient)" text-anchor="middle" letter-spacing="2" filter="url(#neonGlow)">
             WANTED
-            <animate attributeName="fill" values="url(#neonGradient);#00FFFF;#FF00FF;url(#neonGradient)" dur="4s" repeatCount="indefinite" />
+                                    <animate attributeName="fill" values="url(#neonGradient);#00FFFF;#FF00FF;url(#neonGradient)" dur="7s" repeatCount="indefinite" />
+
         </text>
         <text x="50%" y="70" font-family="Orbitron, sans-serif" font-size="10" fill="url(#neonGradient)" text-anchor="middle">{owner}/{repo}</text>
 
-        <!-- Multiline Issue Title -->
-        <text x="50%" y="90" font-family="Orbitron, sans-serif" font-size="12" fill="#FFFFFF" text-anchor="middle">
-            <tspan x="50%" dy="1.2em">{issue['title'][:30]}</tspan>
-            <tspan x="50%" dy="1.2em">{issue['title'][30:60]}</tspan>
-            <tspan x="50%" dy="1.2em">{issue['title'][60:90]}</tspan>
+        <!-- Price Section -->
+        <text x="50%" y="120" font-family="Orbitron, sans-serif" font-size="24" fill="url(#neonGradient)" text-anchor="middle" filter="url(#neonGlow)">
+            {total_bounty} €
+                        <animate attributeName="fill" values="url(#neonGradient);#00FFFF;#FF00FF;url(#neonGradient)" dur="7s" repeatCount="indefinite" />
+
+
+        </text>
+
+        <!-- Colored Issue Title -->
+        <text x="50%" y="180" font-family="Orbitron, sans-serif" font-size="16" fill="url(#titleGradient)" text-anchor="middle" filter="url(#neonGlow)">
+            <tspan x="50%" dy="-1em">{issue['title'][:35]}</tspan>
+            <tspan x="50%" dy="1.4em">{issue['title'][35:70]}</tspan>
         </text>
 
         <!-- Issue Image with circular clipping and link to repo -->
@@ -105,12 +124,6 @@ def create_wanted_poster(issue, total_bounty, issue_image_url):
             </clipPath>
             <image x="233" y="15" width="90" height="90" href="/logo.png" clip-path="url(#clipCircleLogo)" />
         </a>
-
-        <!-- Reward Section -->
-        <text x="50%" y="160" font-family="Orbitron, sans-serif" font-size="18" fill="url(#neonGradient)" text-anchor="middle" filter="url(#neonGlow)">
-            {total_bounty} €
-            <animate attributeName="font-size" values="18;20;18" dur="1s" repeatCount="indefinite" />
-        </text>
 
         <!-- Futuristic Border with a neon glow -->
         <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="url(#neonGradient)" stroke-width="4" stroke-dasharray="10,5" filter="url(#neonGlow)">
