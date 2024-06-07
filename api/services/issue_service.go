@@ -411,15 +411,15 @@ func (s *IssueService) UpdateIssueFromGithubPayload(c *gin.Context, issue *model
 	}
 
 	// Attempt to save the updated issue to the database
-	db := c.MustGet("db").(*gorm.DB)
-	result := db.Save(issue)
+	result, err := s.UpdateIssue(issue.ID, *issue)
 
 	// Check for errors during the save operation
-	if result.Error != nil {
-		log.Printf("Failed to update issue: %v", result.Error) // Log the error
-		return result.Error                                    // Return the error to be handled by the caller
+	if err != nil {
+		log.Printf("Failed to update issue: %s", err)
+		return err
 	}
 
 	// Successfully updated the issue
+	log.Printf("Updated issue: %v", result)
 	return nil
 }
