@@ -456,31 +456,37 @@ type Event struct {
 }
 
 func (s *IssueService) GetClosingPullRequest(issueData map[string]interface{}) (string, error) {
-	if timelineURL, ok := issueData["timeline_url"].(string); ok && timelineURL != "" {
-		log.Printf("Fetching timeline from URL: %s", timelineURL)
-		resp, err := http.Get(timelineURL)
-		if err != nil {
-			return "", fmt.Errorf("failed to fetch timeline: %v", err)
-		}
-		defer resp.Body.Close()
+	timelineURL, ok := issueData["timeline_url"].(string)
+	if !ok || timelineURL == "" {
+		return "", fmt.Errorf("timeline_url not found or empty")
+	}
 
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return "", fmt.Errorf("failed to read response body: %v", err)
-		}
+	log.Printf("Fetching timeline from URL: %s", timelineURL)
+	resp, err := http.Get(timelineURL)
+	if err != nil {
+		return "", fmt.Errorf("failed to fetch timeline: %v", err)
+	}
+	defer resp.Body.Close()
 
-		var events []Event
-		if err := json.Unmarshal(body, &events); err != nil {
-			return "", fmt.Errorf("failed to unmarshal JSON: %v", err)
-		}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response body: %v", err)
+	}
 
-		for _, event := range events {
-			if event.Event == "cross-referenced" {
-				if pr := event.Source.PullRequest; pr != nil {
-					return pr.HTMLURL, nil
-				}
+	var events []Event
+	if err := json.Unmarshal(body, &events); err != nil {
+		return "", fmt.Errorf("failed to unmarshal JSON: %v", err)
+	}
+
+	for _, event := range events {
+		log.Printf("Event: %+v", event)
+		if event.Event == "cross-referenced" {
+			if pr := event.Source.Issue.PullRequest; pr != nil {
+				log.Printf("Found closing pull request: %s", pr.HTMLURL)
+				return pr.HTMLURL, nil
 			}
 		}
 	}
+
 	return "", fmt.Errorf("no closing pull request found")
 }
