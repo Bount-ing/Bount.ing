@@ -55,15 +55,16 @@ def create_wanted_poster(issue, total_bounty, issue_image_url):
     repo_url = f"https://github.com/{owner}/{repo}"
     svg_content = f'''
     <svg width="338" height="213" viewBox="0 0 338 213" xmlns="http://www.w3.org/2000/svg">
-        <!-- Background black with subtle gold gradient -->
+        <!-- Background with a mix of Matrix green and Cyberpunk neon colors -->
         <defs>
             <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#0a0a0a;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:1" />
+                <stop offset="0%" style="stop-color:#000000;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#0c0c0c;stop-opacity:1" />
             </linearGradient>
-            <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+            <linearGradient id="neonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#00FF00;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#00FFFF;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#FF00FF;stop-opacity:1" />
             </linearGradient>
             <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
@@ -75,11 +76,12 @@ def create_wanted_poster(issue, total_bounty, issue_image_url):
         </defs>
         <rect width="100%" height="100%" fill="url(#bgGradient)" rx="15" ry="15" />
 
-        <!-- Futuristic Title with Neon Glow -->
-        <text x="50%" y="40" font-family="Orbitron, sans-serif" font-size="28" fill="url(#goldGradient)" text-anchor="middle" letter-spacing="2" filter="url(#neonGlow)">
+        <!-- Title with changing neon colors and glow effect -->
+        <text x="50%" y="40" font-family="Orbitron, sans-serif" font-size="28" fill="url(#neonGradient)" text-anchor="middle" letter-spacing="2" filter="url(#neonGlow)">
             WANTED
+            <animate attributeName="fill" values="url(#neonGradient);#00FFFF;#FF00FF;url(#neonGradient)" dur="4s" repeatCount="indefinite" />
         </text>
-        <text x="50%" y="70" font-family="Orbitron, sans-serif" font-size="10" fill="url(#goldGradient)" text-anchor="middle">{owner}/{repo}</text>
+        <text x="50%" y="70" font-family="Orbitron, sans-serif" font-size="10" fill="url(#neonGradient)" text-anchor="middle">{owner}/{repo}</text>
 
         <!-- Multiline Issue Title -->
         <text x="50%" y="90" font-family="Orbitron, sans-serif" font-size="12" fill="#FFFFFF" text-anchor="middle">
@@ -105,17 +107,20 @@ def create_wanted_poster(issue, total_bounty, issue_image_url):
         </a>
 
         <!-- Reward Section -->
-        <text x="50%" y="160" font-family="Orbitron, sans-serif" font-size="18" fill="url(#goldGradient)" text-anchor="middle" filter="url(#neonGlow)">
+        <text x="50%" y="160" font-family="Orbitron, sans-serif" font-size="18" fill="url(#neonGradient)" text-anchor="middle" filter="url(#neonGlow)">
             {total_bounty} €
+            <animate attributeName="font-size" values="18;20;18" dur="1s" repeatCount="indefinite" />
         </text>
 
-        <!-- Futuristic Border with glowing effect -->
-        <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="url(#goldGradient)" stroke-width="4" stroke-dasharray="10,5" filter="url(#neonGlow)" />
+        <!-- Futuristic Border with a neon glow -->
+        <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="url(#neonGradient)" stroke-width="4" stroke-dasharray="10,5" filter="url(#neonGlow)">
+            <animate attributeName="stroke-dashoffset" from="0" to="30" dur="2s" repeatCount="indefinite" />
+        </rect>
     </svg>
     '''
     html_content = f'''
     <html>
-    <body style="background-color: #0a0a0a; display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <body style="background-color: #000000; display: flex; justify-content: center; align-items: center; height: 100vh;">
         {svg_content}
     </body>
     </html>
