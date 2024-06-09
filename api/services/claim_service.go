@@ -103,7 +103,7 @@ func (s *ClaimService) SolveClaimByPullRequest(url string, issue models.Issue) (
 
 	// Check if the claim exists, create if not
 	var claim models.Claim
-	result := s.db.Where("issue_id = ? AND user_id = ?", issue.ID, user.ID).First(&claim)
+	result := s.db.Where("issue_id = ? AND owner_id = ?", issue.ID, user.ID).First(&claim)
 	if result.Error != nil {
 		// Create a new claim if not found
 		claim = models.Claim{IssueID: issue.ID, OwnerID: user.ID, Status: "Open"}
