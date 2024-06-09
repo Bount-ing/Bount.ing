@@ -280,12 +280,13 @@ func FetchRepoByGithubID(githubID int, token string) (*models.Issue, error) {
 // findOrCreateRepo finds or creates a repository in the database
 func (s *IssueService) findOrCreateRepo(c *gin.Context, issue models.Issue) (*models.Repository, error) {
 	var repo models.Repository
-	urlParts := strings.SplitN(issue.GithubURL, "/", 6)
-	if len(urlParts) < 6 {
-		return nil, fmt.Errorf("invalid GitHub URL: %s", issue.GithubURL)
+	owner, repo_name, err := parseOwnerAndRepoFromGitHubURL(repo.GithubURL)
+	if err != nil {
+		log.Printf("Failed to parse owner and repo from GitHub URL: %s", err)
+		return nil, err
 	}
-	repoURL := urlParts[4]
-	err := s.db.Where("github_url = ?", repoURL).First(&repo).Error
+	repoURL := fmt.Sprintf("https://api.github.com/repos/%s/%s", owner, repo_name)
+	err = s.db.Where("github_url = ?", repoURL).First(&repo).Error
 	if err == nil {
 		// Repo found in the database
 		return &repo, nil
