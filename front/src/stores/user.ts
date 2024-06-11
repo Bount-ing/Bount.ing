@@ -6,7 +6,22 @@ interface User {
 	userid: string;
 	username: string;
 	avatar: string;
-  }
+	userBio?: string;
+	fullName?: string;
+	email?: string;
+	phoneNumber?: string;
+	location?: string;
+	aboutMe?: string;
+	interests?: string[];
+	recentPosts?: any[];
+	level?: number;
+	achievements?: any[];
+	activities?: any[];
+	bounties?: any[];
+	transactions?: any[];
+	paymentInfo?: any;
+}
+
 
 export const useUserStore = defineStore('user', () => {
 	const u = ref<User | null>(null);

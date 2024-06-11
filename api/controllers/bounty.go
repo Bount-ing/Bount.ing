@@ -108,12 +108,10 @@ func (uc *BountyController) UpdateBounty(c *gin.Context) {
 
 func (uc *BountyController) DeleteBounty(c *gin.Context) {
 	bountyIdStr := c.Param("id")
-	bountyId, _ := strconv.ParseUint(bountyIdStr, 10, 64) // Convert to uint64
-	err := uc.bountyService.DeleteBounty(uint(bountyId))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete bounty", "details": err.Error()})
-		return
+	bountyId, _ := strconv.ParseUint(bountyIdStr, 10, 64)
+
+	if err := uc.bountyService.CancelBounty(uint(bountyId)); err != nil {
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Bounty deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Bounty canceled successfully"})
 }

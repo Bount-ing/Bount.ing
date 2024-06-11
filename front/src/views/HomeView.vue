@@ -38,7 +38,7 @@ interface Issue {
 }
 
 export default defineComponent({
-  name: 'Home',
+  name: 'HomeView',
   components: {
     PrivateIssueListItem,
     IssueListItem

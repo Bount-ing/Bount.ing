@@ -12,6 +12,7 @@
             <router-link to="/" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-700">{{ $t('Home') }}</router-link>
             <router-link to="/dashboard" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('Dashboard') }}</router-link>
             <router-link to="/profile" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('Profile') }}</router-link>
+            <router-link to="/pricing" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('Pricing') }}</router-link>
             <router-link to="/about" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('About') }}</router-link>
             <router-link to="/help" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('F.A.Q.') }}</router-link>
             <router-link to="/contact" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('Contact') }}</router-link>
@@ -47,6 +48,7 @@
         <router-link to="/" class="block px-3 py-2 rounded-md text-base font-medium bg-gray-900 hover:bg-gray-700">{{ $t('Home') }}</router-link>
         <router-link to="/dashboard" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('Dashboard') }}</router-link>
         <router-link to="/profile" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('Profile') }}</router-link>
+        <router-link to="/pricing" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('Pricing') }}</router-link>
         <router-link to="/about" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('About') }}</router-link>
         <router-link to="/help" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('F.A.Q.') }}</router-link>
         <router-link to="/contact" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('Contact') }}</router-link>
