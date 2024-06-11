@@ -148,6 +148,12 @@ func (uc *RepositoryController) IssueGithubWebhook(c *gin.Context) {
 		return
 	}
 
+	//Check issue state
+	if issueData["state"] != "closed" {
+		c.JSON(http.StatusOK, gin.H{"status": "success", "message": "Issue is not closed"})
+		return
+	}
+
 	// Retrieve the issue ID from the GitHub payload
 	issueGithubID, ok := issueData["id"].(float64)
 	if !ok {

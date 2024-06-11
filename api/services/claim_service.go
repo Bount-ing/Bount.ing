@@ -6,8 +6,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"open-bounties-api/models"
 	"os"
+	"strings"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -115,7 +118,26 @@ func (s *ClaimService) SolveClaimByPullRequest(url string, issue models.Issue) (
 	// Retrieve all bounties for the issue, associate bounties to the claim
 	var bounties []models.Bounty
 	s.db.Where("issue_id = ?", issue.ID).Find(&bounties)
+
 	for _, bounty := range bounties {
+		if bounty.Status == "Paid" {
+			log.Printf("Bounty %d has already been paid", bounty.ID)
+			continue
+		}
+		pr_created_date, _ := time.Parse(time.RFC3339, prDetails.CreatedAt)
+		if pr_created_date.After(bounty.CreatedAt) {
+			log.Printf("Bounty %d was created after the PR", bounty.ID)
+			continue
+		}
+		if pr_created_date.Before(bounty.StartAt) {
+			log.Printf("Pull request was created before the bounty start date")
+			continue
+		}
+		if pr_created_date.After(bounty.EndAt) {
+			log.Printf("Pull request was created after the bounty end date")
+			continue
+		}
+		bounty.Status = "Paid"
 		s.db.Model(&claim).Association("Bounties").Append(&bounty)
 	}
 
@@ -133,7 +155,11 @@ func (s *ClaimService) SolveClaimByPullRequest(url string, issue models.Issue) (
 // fetchPRDetails fetches the details of a pull request from GitHub.
 func fetchPRDetails(url string) (*PRDetails, error) {
 	// Convert GitHub PR URL to API URL
-	apiURL := convertToAPIURL(url)
+	apiURL, err := convertToAPIURL(url)
+	if err != nil {
+		log.Printf("Failed to convert URL: %s", err)
+		return nil, err
+	}
 
 	// Create a new HTTP request
 	req, err := http.NewRequest("GET", apiURL, nil)
@@ -175,8 +201,25 @@ func fetchPRDetails(url string) (*PRDetails, error) {
 }
 
 // convertToAPIURL converts a GitHub PR URL to the corresponding API URL.
-func convertToAPIURL(url string) string {
-	return "https://api.github.com/repos/thdelmas/ContactRelatives/pulls/14"
+func convertToAPIURL(inputURL string) (string, error) {
+	parsedURL, err := url.Parse(inputURL)
+	if err != nil {
+		return "", err
+	}
+
+	// Split the path to get the repository details
+	parts := strings.Split(strings.Trim(parsedURL.Path, "/"), "/")
+	if len(parts) < 4 || parts[2] != "pull" {
+		return "", fmt.Errorf("invalid URL format: %s", inputURL)
+	}
+
+	// Extract owner, repo, and pull request number
+	owner := parts[0]
+	repo := parts[1]
+	prNumber := parts[3]
+
+	apiURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/pulls/%s", owner, repo, prNumber)
+	return apiURL, nil
 }
 
 func payUserAndUpdateBounties(user models.User, bounties []models.Bounty) error {
