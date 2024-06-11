@@ -37,7 +37,7 @@ func (ds *DiscordService) SendBountyCreationNotification(bounty models.Bounty, i
 					},
 					{
 						"name":  "Reward",
-						"value": fmt.Sprintf("%d €", bounty.Amount),
+						"value": fmt.Sprintf("%.2f €", bounty.Amount),
 					},
 					{
 						"name":  "Issue URL",
