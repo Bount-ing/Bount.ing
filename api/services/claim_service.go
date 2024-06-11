@@ -210,6 +210,7 @@ func convertToAPIURL(inputURL string) (string, error) {
 	// Split the path to get the repository details
 	parts := strings.Split(strings.Trim(parsedURL.Path, "/"), "/")
 	if len(parts) < 4 || parts[2] != "pull" {
+		log.Printf("Invalid URL format: %s", inputURL)
 		return "", fmt.Errorf("invalid URL format: %s", inputURL)
 	}
 
