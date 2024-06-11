@@ -15,15 +15,17 @@ import (
 )
 
 type BountyService struct {
-	db           *gorm.DB
-	issueService *IssueService
+	db             *gorm.DB
+	issueService   *IssueService
+	discordService *DiscordService
 }
 
 // NewBountyService creates a new BountyService
-func NewBountyService(db *gorm.DB, issueService *IssueService) *BountyService {
+func NewBountyService(db *gorm.DB, issueService *IssueService, discordService *DiscordService) *BountyService {
 	return &BountyService{
-		db:           db,
-		issueService: issueService,
+		db:             db,
+		issueService:   issueService,
+		discordService: discordService,
 	}
 }
 
@@ -147,6 +149,7 @@ func (s *BountyService) CreateBounty(c *gin.Context, bounty models.Bounty) (*mod
 	}
 
 	log.Println("Bounty created successfully")
+	s.bountyCreationHook(bounty)
 	return &bounty, nil
 }
 
@@ -210,4 +213,22 @@ func (s *BountyService) DeleteBounty(id uint) error {
 		return err
 	}
 	return nil
+}
+
+func (s *BountyService) bountyCreationHook(bounty models.Bounty) {
+	// Get the issue details
+	issue_id := bounty.IssueID
+	issue := models.Issue{}
+	if err := s.db.Where("id = ?", issue_id).First(&issue).Error; err != nil {
+		log.Printf("Failed to fetch issue details: %s", err)
+		return
+	}
+	user := models.User{}
+	if err := s.db.Where("id = ?", bounty.OwnerID).First(&user).Error; err != nil {
+		log.Printf("Failed to fetch user details: %s", err)
+		return
+	}
+
+	// Send a notification to discord
+	s.discordService.SendBountyCreationNotification(bounty, issue, user)
 }
