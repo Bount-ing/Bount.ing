@@ -120,7 +120,7 @@ func (s *ClaimService) SolveClaimByPullRequest(url string, issue models.Issue) (
 	s.db.Where("issue_id = ?", issue.ID).Find(&bounties)
 
 	for _, bounty := range bounties {
-		if bounty.Status != "Open" {
+		if bounty.Status != "open" {
 			log.Printf("Bounty %d is not open", bounty.ID)
 			continue
 		}
@@ -137,7 +137,7 @@ func (s *ClaimService) SolveClaimByPullRequest(url string, issue models.Issue) (
 			log.Printf("Pull request was created after the bounty end date")
 			continue
 		}
-		bounty.Status = "Waiting for payment"
+		bounty.Status = "waiting for payment"
 		s.db.Model(&claim).Association("Bounties").Append(&bounty)
 	}
 
@@ -225,7 +225,7 @@ func convertToAPIURL(inputURL string) (string, error) {
 func payUserAndUpdateBounties(user models.User, bounties []models.Bounty) error {
 	// Placeholder for payment logic
 	for _, bounty := range bounties {
-		if bounty.Status != "Waiting for payment" {
+		if bounty.Status != "waiting for payment" {
 			log.Printf("Bounty %d is not waiting for payment", bounty.ID)
 			continue
 		}
