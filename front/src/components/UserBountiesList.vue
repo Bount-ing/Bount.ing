@@ -32,7 +32,9 @@ export default {
         const response = await axios.get(`${baseURL}/api/v1/bounties/`, {
           headers: { Authorization: userStore.authHeader },
         });
-        filteredBounties.value = response.data.filter(bounty => bounty.owner_id === userStore.user.ID);
+        console.log('Bounties:', response.data);
+        console.log('User ID:', userStore.user.userid);
+        filteredBounties.value = response.data.filter(bounty => bounty.owner_id == userStore.user.userid);
       } catch (error) {
         console.error('Error fetching bounties:', error);
       }

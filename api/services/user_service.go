@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"open-bounties-api/models"
 
@@ -11,11 +12,15 @@ import (
 )
 
 type UserService struct {
-	db *gorm.DB
+	db             *gorm.DB
+	discordService *DiscordService
 }
 
-func NewUserService(db *gorm.DB) *UserService {
-	return &UserService{db: db}
+func NewUserService(db *gorm.DB, discordService *DiscordService) *UserService {
+	return &UserService{
+		db:             db,
+		discordService: discordService,
+	}
 }
 
 // FetchAllUsers returns all users from the database
@@ -35,7 +40,12 @@ func (s *UserService) FindUserById(id uint) (*models.User, error) {
 // CreateUser creates a new user in the database
 func (s *UserService) CreateUser(user models.User) (*models.User, error) {
 	result := s.db.Create(&user)
-	return &user, result.Error
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	log.Printf("User created: %v", user)
+	s.userCreationHook(user)
+	return &user, nil
 }
 
 func (s *UserService) UpdateUser(id uint, updatedData models.User) (*models.User, error) {
@@ -179,4 +189,9 @@ func (s *UserService) FindOrCreateUser(githubID int, githubLogin string, githubE
 	}
 
 	return &newUser, nil
+}
+
+func (s *UserService) userCreationHook(user models.User) {
+	// Send a notification to discord
+	s.discordService.SendUserCreationNotification(user)
 }

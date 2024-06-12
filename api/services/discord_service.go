@@ -75,3 +75,45 @@ func (ds *DiscordService) SendBountyCreationNotification(bounty models.Bounty, i
 		log.Println("Notification sent successfully!")
 	}
 }
+
+func (ds *DiscordService) SendUserCreationNotification(user models.User) {
+	webhookURL := os.Getenv("DISCORD_WEBHOOK_URL_RANDOM")
+	log.Printf("Sending notification to Discord channel for new bounty %d", user.ID)
+
+	// Create the message payload
+	messagePayload := map[string]interface{}{
+		"username": "Oracle@Bount.ing",
+		"embeds": []map[string]interface{}{
+			{
+				"title": fmt.Sprintf("Someone joined the party"),
+			},
+		},
+	}
+
+	// Marshal the payload to JSON
+	payloadBytes, err := json.Marshal(messagePayload)
+	if err != nil {
+		log.Fatalf("Error marshaling payload: %v", err)
+	}
+
+	// Create the request
+	req, err := http.NewRequest("POST", webhookURL, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		log.Fatalf("Error creating request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	// Send the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalf("Error sending request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+		log.Printf("Received non-OK response from Discord: %s", resp.Status)
+	} else {
+		log.Println("Notification sent successfully!")
+	}
+}

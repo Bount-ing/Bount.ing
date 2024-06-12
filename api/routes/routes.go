@@ -36,7 +36,7 @@ func SetupRouter() *gin.Engine {
 
 	// Initialize UserService with the database connection
 	discordService := services.NewDiscordService()
-	userService := services.NewUserService(db)
+	userService := services.NewUserService(db, discordService)
 	repositoryService := services.NewRepositoryService(db)
 	claimService := services.NewClaimService(db)
 	issueService := services.NewIssueService(db, repositoryService, claimService)

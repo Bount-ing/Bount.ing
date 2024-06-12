@@ -232,3 +232,19 @@ func (s *BountyService) bountyCreationHook(bounty models.Bounty) {
 	// Send a notification to discord
 	s.discordService.SendBountyCreationNotification(bounty, issue, user)
 }
+
+func (s *BountyService) CancelBounty(bountyID uint) error {
+	// get the bounty from db
+	var dbBounty models.Bounty
+	if err := s.db.Where("id = ?", bountyID).First(&dbBounty).Error; err != nil {
+		log.Printf("Failed to fetch bounty details: %s", err)
+		return err
+	}
+
+	dbBounty.Status = "cancelled"
+	if err := s.db.Save(&dbBounty).Error; err != nil {
+		log.Printf("Failed to update bounty status: %s", err)
+		return err
+	}
+	return nil
+}
