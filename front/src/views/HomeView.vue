@@ -68,7 +68,8 @@ export default defineComponent({
         const activeBounties = response.data.filter((bounty: any) => {
           const startDate = new Date(bounty.start_at);
           const endDate = new Date(bounty.end_at);
-          return currentDate > startDate && currentDate < endDate;
+          const status = bounty.status;
+          return currentDate > startDate && currentDate < endDate && status === 'open';
         });
 
         const issueTotals = activeBounties.reduce((acc: Record<string, any>, bounty: any) => {
