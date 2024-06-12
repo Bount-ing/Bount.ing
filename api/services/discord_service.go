@@ -50,8 +50,6 @@ func (ds *DiscordService) SendBountyCreationNotification(bounty models.Bounty, i
 			},
 		},
 	}
-	log.Printf("Message payload: %v", messagePayload)
-	return
 
 	// Marshal the payload to JSON
 	payloadBytes, err := json.Marshal(messagePayload)
