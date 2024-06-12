@@ -44,6 +44,9 @@ func (ds *DiscordService) SendBountyCreationNotification(bounty models.Bounty, i
 						"value": issue.GithubURL,
 					},
 				},
+				"thumbnail": map[string]string{
+					"url": bounty.IssueImageURL,
+				},
 				"image": map[string]string{
 					"url": fmt.Sprintf("https://dcdn.bount.ing/issues/%d/wanted_card.svg", bounty.ID),
 				},
