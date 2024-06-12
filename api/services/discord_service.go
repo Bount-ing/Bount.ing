@@ -22,7 +22,7 @@ func (ds *DiscordService) SendBountyCreationNotification(bounty models.Bounty, i
 	webhookURL := os.Getenv("DISCORD_WEBHOOK_URL_BOUNTIES")
 	log.Printf("Sending notification to Discord channel for new bounty %d", bounty.ID)
 
-	// Create the message payload
+	// Create the message payload with image
 	messagePayload := map[string]interface{}{
 		"username": "Oracle@Bount.ing",
 		"embeds": []map[string]interface{}{
@@ -43,6 +43,12 @@ func (ds *DiscordService) SendBountyCreationNotification(bounty models.Bounty, i
 						"name":  "Issue URL",
 						"value": issue.GithubURL,
 					},
+				},
+				"thumbnail": map[string]string{
+					"url": bounty.IssueImageURL,
+				},
+				"image": map[string]string{
+					"url": fmt.Sprintf("https://dcdn.bount.ing/issues/%d/wanted_card.svg", bounty.ID),
 				},
 			},
 		},
