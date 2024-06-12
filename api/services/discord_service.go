@@ -24,7 +24,7 @@ func (ds *DiscordService) SendBountyCreationNotification(bounty models.Bounty, i
 
 	// Create the message payload with image
 	messagePayload := map[string]interface{}{
-		"username": "Oracle@Bount.ing",
+		"username": "Oracle",
 		"embeds": []map[string]interface{}{
 			{
 				"title":       fmt.Sprintf("A new mission is available"),
@@ -44,15 +44,14 @@ func (ds *DiscordService) SendBountyCreationNotification(bounty models.Bounty, i
 						"value": issue.GithubURL,
 					},
 				},
-				"thumbnail": map[string]string{
-					"url": bounty.IssueImageURL,
-				},
 				"image": map[string]string{
 					"url": fmt.Sprintf("https://dcdn.bount.ing/issues/%d/wanted_card.svg", bounty.ID),
 				},
 			},
 		},
 	}
+	log.Printf("Message payload: %v", messagePayload)
+	return
 
 	// Marshal the payload to JSON
 	payloadBytes, err := json.Marshal(messagePayload)
