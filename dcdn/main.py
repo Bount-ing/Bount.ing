@@ -6,6 +6,8 @@ import os
 import cairosvg
 from PIL import Image
 from io import BytesIO
+import imageio.v2 as imageio
+from utils import image_to_base64, local_image_to_base64, interpolate_color
 
 app = Flask(__name__)
 
@@ -20,13 +22,7 @@ DATABASE = {
 
 base_url = os.environ.get('BASE_URL', 'http://0.0.0.0:3000')
 
-def image_to_base64(url):
-    response = requests.get(url)
-    return base64.b64encode(response.content).decode('utf-8')
 
-def local_image_to_base64(image_path):
-    with open(image_path, 'rb') as image_file:
-        return base64.b64encode(image_file.read()).decode('utf-8')
 
 
 # Connect to the database
@@ -168,22 +164,24 @@ def get_issue_card(issue_id):
         svg_content = create_issue_card(issue_data, total_bounty, issue_image_url, 'logo.png')
         return Response(svg_content, mimetype='image/svg+xml')
     return jsonify({'error': 'Issue not found'}), 404
-def create_bounty_card(bounty, issue, local_image_path):
+
+def create_bounty_card(bounty, issue, local_image_path, options):
     owner, repo = issue['url'].split('/')[-4], issue['url'].split('/')[-3]
     repo_url = f"https://github.com/{owner}/{repo}"
-    bounty_amount = bounty['amount']
-    
-    # Convert images to base64 for embedding
     external_image_base64 = image_to_base64(issue["image_url"])
     local_image_base64 = local_image_to_base64(local_image_path)
+    opacity_logo_value = (float(options["opacity_1"]) + float(options["opacity_2"]))
+    opacity_logos = f"%.1f" % opacity_logo_value
+    
 
+    
     svg_content = f'''
-        <svg width="338" height="213" viewBox="0 0 338 213" xmlns="http://www.w3.org/2000/svg">
+    <svg width="338" height="213" viewBox="0 0 338 213" xmlns="http://www.w3.org/2000/svg">
         <!-- Background with a soft dark matrix effect -->
-        <defs>
-            <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%">
-                <stop offset="0%" style="stop-color:#000000;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#0c0c0c;stop-opacity:1" />
+                <defs>
+            <linearGradient id="bgGradient" x1="0%" y1="0%" y2="100%" x2="0%">
+                <stop offset="99%" style="stop-color:#000000;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#{options["color"]};stop-opacity:1" />
             </linearGradient>
             <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
@@ -193,37 +191,38 @@ def create_bounty_card(bounty, issue, local_image_path):
                 </feMerge>
             </filter>
         </defs>
-        <rect width="100%" height="100%" fill="url(#bgGradient)" rx="15" ry="15" style="background-color: rgba(0, 0, 0, 0)" />
+        <rect width="100%" height="100%" fill="url(#bgGradient)" rx="15" ry="15" />
 
         <!-- Title with soft glow effect -->
-        <text x="50%" y="30" font-family="ui-sans-serif, sans-serif" font-size="21" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
+        <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#{options["color"]}" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)" style="opacity: {options["opacity_1"]}">
             <tspan id="wanted">WANTED</tspan>
         </text>
-        <text x="50%" y="50" font-family="ui-sans-serif, sans-serif" font-size="21" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
+        <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#{options["color"]}" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)" style="opacity: {options["opacity_2"]}">
             <tspan id="solved">SOLVED</tspan>
+            <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6s" repeatCount="indefinite" />
         </text>
 
         <!-- Repo and Owner -->
-        <text x="50%" y="70" font-family="ui-sans-serif, sans-serif" font-size="10" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+        <text x="50%" y="70" font-family="ui-sans-serif, sans-serif" font-size="10" fill="#{options["color"]}" text-anchor="middle" filter="url(#softGlow)" style="opacity: {opacity_logos}">
             {owner}
         </text>
-        <text x="50%" y="85" font-family="ui-sans-serif, sans-serif" font-size="10" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+        <text x="50%" y="85" font-family="ui-sans-serif, sans-serif" font-size="10" fill="#{options["color"]}" text-anchor="middle" filter="url(#softGlow)" style="opacity: {opacity_logos}">
             {repo}
         </text>
 
         <!-- Issue Title -->
-        <text id="issueTitle" x="50%" y="145" font-family="ui-sans-serif, sans-serif" font-size="16" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+        <text id="issueTitle" x="50%" y="150" font-family="ui-sans-serif, sans-serif" font-size="16" fill="#{options["color"]}" text-anchor="middle" filter="url(#softGlow)" style="opacity: {options["opacity_1"]}">
             <tspan x="50%" dy="-1em">{issue["title"][:35]}</tspan>
             <tspan x="50%" dy="1.4em">{issue["title"][35:70]}</tspan>
         </text>
         
         <!-- Bounty Amount -->
-        <text id="bounty" x="50%" y="185" font-family="ui-sans-serif, sans-serif" font-size="25" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
-            <tspan id="total" >Up to {bounty["amount"]} €</tspan>
+        <text id="bounty" x="50%" y="150" font-family="ui-sans-serif, sans-serif" font-size="42" fill="#{options["color"]}" text-anchor="middle" filter="url(#softGlow)" style="opacity: {options["opacity_2"]}">
+            <tspan id="total" >{bounty["amount"]} €</tspan>
         </text>
 
         <!-- Issue Image with circular clipping and link to repo -->
-        <a href="{repo_url}" target="_blank">
+        <a href="{repo_url}" target="_blank" style="opacity: {opacity_logos}">
             <clipPath id="clipCircleIssue">
                 <circle cx="60" cy="60" r="30" />
             </clipPath>
@@ -231,7 +230,7 @@ def create_bounty_card(bounty, issue, local_image_path):
         </a>
 
         <!-- Logo with circular clipping and link to bounty page -->
-        <a href="https://bount.ing" target="_blank">
+        <a href="https://bount.ing" target="_blank" style="opacity: {opacity_logos}">
             <clipPath id="clipCircleLogo">
                 <circle cx="278" cy="60" r="45" />
             </clipPath>
@@ -239,26 +238,49 @@ def create_bounty_card(bounty, issue, local_image_path):
         </a>
 
         <!-- Futuristic Border with a soft glow and blinking -->
-        <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="#1abc9c" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)">
+        <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="#{options["color"]}" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)" style="opacity: {opacity_logos}">
+            <animate attributeName="stroke-dashoffset" values="0;30;0" dur="6s" repeatCount="indefinite" />
         </rect>
 
-        <rect x="2" y="2" width="334" height="209" rx="15" ry="15" fill="none" stroke="#1abc9c" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)">
+        <rect x="2" y="2" width="334" height="209" rx="15" ry="15" fill="none" stroke="#{options["color"]}" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)" style="opacity: {opacity_logos}">
+            <animate attributeName="stroke-dashoffset" values="30;0;30" dur="6s" repeatCount="indefinite" />
         </rect>
     </svg>
     '''
-
-    # Save the SVG content to a file
-    svg_file_path = 'bounty_card.svg'
+    # SVG saving and conversion to PNG
+    svg_file_path = f'bounty_card_{options["name"]}.svg'
+    png_file_path = f'bounty_card_{options["name"]}.png'
     with open(svg_file_path, 'w', encoding='utf-8') as f:
         f.write(svg_content)
-    
-    # Convert the SVG file to a PNG file
-    png_file_path = 'bounty_card.png'
     cairosvg.svg2png(url=svg_file_path, write_to=png_file_path)
-    
+    os.remove(svg_file_path)  # Remove the SVG to avoid confusion
     return png_file_path
 
-@app.route('/bounties/<int:bounty_id>/card.png', methods=['GET'])
+def generate_frames(bounty, issue, local_image_path, frame_modifiers, path):
+    frames = []
+    for i, modifier in enumerate(frame_modifiers):
+        frame_path = create_bounty_card(bounty, issue, local_image_path, modifier)
+        print(f"Creating frame {i} at path {frame_path}")
+        try:
+            frame = imageio.imread(frame_path)
+            frames.append(frame)
+        except Exception as e:
+            print(f"Failed to read image {frame_path}: {str(e)}", flush=True)
+    
+    print(f"Total frames created: {len(frames)}")
+    # Copy frames array and reverse it to create the reverse animation
+    reverse_frames = frames.copy()
+    reverse_frames.reverse()
+    frames.extend(reverse_frames)
+    try:
+        imageio.mimsave(path, frames, format='GIF', duration=len(frames)*2.1, loop=0)
+        print(f"Saved GIF to {path}", flush=True)
+    except Exception as e:
+        print(f"Failed to save GIF: {str(e)}", flush=True)
+
+
+
+@app.route('/bounties/<int:bounty_id>/card.gif', methods=['GET'])
 def get_bounty_card(bounty_id):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -294,9 +316,45 @@ def get_bounty_card(bounty_id):
         # Assume get_issue_image_url fetches the image URL based on the issue ID
         
         # Create the SVG content using the issue data and bounty details
-        png_file_path = create_bounty_card(bounty_data, issue, 'logo.png')
+        file_path = f'bounty_card_{bounty_id}.gif'  # Ensure this path is correctly formed
+        # progressive black green red
+        # Define the colors to transition between
+        color_steps = [
+            "e74c3c",  # Red
+            "f39c12",  # Orange
+            "000", # Black
+            "f1c40f",  # Yellow
+            "1abc9c",  # Green
+        ]
+
+        # Number of frames
+        num_frames = 20
+        frames_per_segment = num_frames // (len(color_steps) - 1)
+        frame_modifiers = []
+
+        # Create the frame modifiers
         
-        return send_file(png_file_path, mimetype='image/png')
+        for segment in range(len(color_steps) - 1):
+            start_color = color_steps[segment]
+            end_color = color_steps[segment + 1]
+            for i in range(frames_per_segment):
+                factor = i / (frames_per_segment - 1)
+                color = interpolate_color(start_color, end_color, factor)
+                total_index = segment * frames_per_segment + i
+                opacity_1 = 0.75 * (1 - ((total_index*1.5) / num_frames))
+                opacity_2 = 0.75 * ((total_index * 0.5) / num_frames)
+
+                frame_modifiers.append({
+                    "name": f"frame{total_index + 1}",
+                    "color": color,
+                    "opacity_1": f"{opacity_1:.1f}",
+                    "opacity_2": f"{opacity_2:.1f}"
+                })
+
+
+
+        generate_frames(bounty_data, issue, 'logo.png', frame_modifiers, file_path)
+        return send_file(file_path, mimetype='image/png')
     
     return jsonify({'error': 'Bounty not found'}), 404
 
