@@ -173,7 +173,7 @@ def create_bounty_card(bounty, issue, local_image_path, options):
     opacity_logo_value = (float(options["opacity_1"]) + float(options["opacity_2"]))
     opacity_logos = f"%.1f" % opacity_logo_value
     
-
+    dark_red = "DB0000"
     
     svg_content = f'''
     <svg width="338" height="213" viewBox="0 0 338 213" xmlns="http://www.w3.org/2000/svg">
@@ -194,7 +194,7 @@ def create_bounty_card(bounty, issue, local_image_path, options):
         <rect width="100%" height="100%" fill="url(#bgGradient)" rx="15" ry="15" />
 
         <!-- Title with soft glow effect -->
-        <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#{options["color"]}" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)" style="opacity: {options["opacity_1"]}">
+        <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#{dark_red}" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)" style="opacity: {options["opacity_1"]}">
             <tspan id="wanted">WANTED</tspan>
         </text>
         <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#{options["color"]}" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)" style="opacity: {options["opacity_2"]}">
@@ -211,14 +211,14 @@ def create_bounty_card(bounty, issue, local_image_path, options):
         </text>
 
         <!-- Issue Title -->
-        <text id="issueTitle" x="50%" y="150" font-family="ui-sans-serif, sans-serif" font-size="16" fill="#{options["color"]}" text-anchor="middle" filter="url(#softGlow)" style="opacity: {options["opacity_1"]}">
+        <text id="issueTitle" x="50%" y="140" font-family="ui-sans-serif, sans-serif" font-size="16" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)" style="opacity: {opacity_logos}">
             <tspan x="50%" dy="-1em">{issue["title"][:35]}</tspan>
             <tspan x="50%" dy="1.4em">{issue["title"][35:70]}</tspan>
         </text>
         
         <!-- Bounty Amount -->
-        <text id="bounty" x="50%" y="150" font-family="ui-sans-serif, sans-serif" font-size="42" fill="#{options["color"]}" text-anchor="middle" filter="url(#softGlow)" style="opacity: {options["opacity_2"]}">
-            <tspan id="total" >{bounty["amount"]} €</tspan>
+        <text id="bounty" x="50%" y="175" font-family="ui-sans-serif, sans-serif" font-size="21" fill="#{dark_red}" text-anchor="middle" filter="url(#softGlow)" style="opacity: {options["opacity_2"]}">
+            <tspan id="total" >Up to {bounty["amount"]} €</tspan>
         </text>
 
         <!-- Issue Image with circular clipping and link to repo -->
@@ -273,7 +273,7 @@ def generate_frames(bounty, issue, local_image_path, frame_modifiers, path):
     reverse_frames.reverse()
     frames.extend(reverse_frames)
     try:
-        imageio.mimsave(path, frames, format='GIF', duration=len(frames)*2.1, loop=0)
+        imageio.mimsave(path, frames, format='GIF', duration=len(frames)*2.4, loop=0)
         print(f"Saved GIF to {path}", flush=True)
     except Exception as e:
         print(f"Failed to save GIF: {str(e)}", flush=True)
@@ -320,11 +320,9 @@ def get_bounty_card(bounty_id):
         # progressive black green red
         # Define the colors to transition between
         color_steps = [
-            "e74c3c",  # Red
-            "f39c12",  # Orange
+            "1abc9c",  # logo
             "000", # Black
-            "f1c40f",  # Yellow
-            "1abc9c",  # Green
+            "1abc9c",  # logo
         ]
 
         # Number of frames
@@ -341,9 +339,8 @@ def get_bounty_card(bounty_id):
                 factor = i / (frames_per_segment - 1)
                 color = interpolate_color(start_color, end_color, factor)
                 total_index = segment * frames_per_segment + i
-                opacity_1 = 0.75 * (1 - ((total_index*1.5) / num_frames))
-                opacity_2 = 0.75 * ((total_index * 0.5) / num_frames)
-
+                opacity_1 = 0.9 * (1 - ((total_index*1.25) / num_frames))
+                opacity_2 = 0.9 * ((total_index * 0.85) / num_frames)
                 frame_modifiers.append({
                     "name": f"frame{total_index + 1}",
                     "color": color,
