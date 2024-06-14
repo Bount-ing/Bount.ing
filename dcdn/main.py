@@ -2,8 +2,10 @@ from flask import Flask, request, jsonify, send_file, Response
 import psycopg2
 import requests
 import base64
-import io
 import os
+import cairosvg
+from PIL import Image
+from io import BytesIO
 
 app = Flask(__name__)
 
@@ -63,7 +65,7 @@ def get_issue_image_url(issue_id):
     conn.close()
     return result[0] if result else None
 
-def create_wanted_poster(issue, total_bounty, issue_image_url, local_image_path):
+def create_issue_card(issue, total_bounty, issue_image_url, local_image_path):
     owner, repo = issue['url'].split('/')[-4], issue['url'].split('/')[-3]
     repo_url = f"https://github.com/{owner}/{repo}"
     issue_title = issue['title']
@@ -148,10 +150,8 @@ def create_wanted_poster(issue, total_bounty, issue_image_url, local_image_path)
 
 
 
-
-
-@app.route('/issues/<int:issue_id>/wanted_card.svg', methods=['GET'])
-def get_wanted_card(issue_id):
+@app.route('/issues/<int:issue_id>/card.svg', methods=['GET'])
+def get_issue_card(issue_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT github_url, title, description FROM issues WHERE id = %s", (issue_id,))
@@ -165,9 +165,140 @@ def get_wanted_card(issue_id):
         }
         total_bounty = get_total_bounties(issue_id)
         issue_image_url = get_issue_image_url(issue_id)  # Fetch the image URL from bounties table
-        svg_content = create_wanted_poster(issue_data, total_bounty, issue_image_url, 'logo.png')
+        svg_content = create_issue_card(issue_data, total_bounty, issue_image_url, 'logo.png')
         return Response(svg_content, mimetype='image/svg+xml')
     return jsonify({'error': 'Issue not found'}), 404
+def create_bounty_card(bounty, issue, local_image_path):
+    owner, repo = issue['url'].split('/')[-4], issue['url'].split('/')[-3]
+    repo_url = f"https://github.com/{owner}/{repo}"
+    bounty_amount = bounty['amount']
+    
+    # Convert images to base64 for embedding
+    external_image_base64 = image_to_base64(issue["image_url"])
+    local_image_base64 = local_image_to_base64(local_image_path)
+
+    svg_content = f'''
+        <svg width="338" height="213" viewBox="0 0 338 213" xmlns="http://www.w3.org/2000/svg">
+        <!-- Background with a soft dark matrix effect -->
+        <defs>
+            <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%">
+                <stop offset="0%" style="stop-color:#000000;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#0c0c0c;stop-opacity:1" />
+            </linearGradient>
+            <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bgGradient)" rx="15" ry="15" style="background-color: rgba(0, 0, 0, 0)" />
+
+        <!-- Title with soft glow effect -->
+        <text x="50%" y="30" font-family="ui-sans-serif, sans-serif" font-size="21" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
+            <tspan id="wanted">WANTED</tspan>
+        </text>
+        <text x="50%" y="50" font-family="ui-sans-serif, sans-serif" font-size="21" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
+            <tspan id="solved">SOLVED</tspan>
+        </text>
+
+        <!-- Repo and Owner -->
+        <text x="50%" y="70" font-family="ui-sans-serif, sans-serif" font-size="10" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+            {owner}
+        </text>
+        <text x="50%" y="85" font-family="ui-sans-serif, sans-serif" font-size="10" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+            {repo}
+        </text>
+
+        <!-- Issue Title -->
+        <text id="issueTitle" x="50%" y="145" font-family="ui-sans-serif, sans-serif" font-size="16" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+            <tspan x="50%" dy="-1em">{issue["title"][:35]}</tspan>
+            <tspan x="50%" dy="1.4em">{issue["title"][35:70]}</tspan>
+        </text>
+        
+        <!-- Bounty Amount -->
+        <text id="bounty" x="50%" y="185" font-family="ui-sans-serif, sans-serif" font-size="25" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+            <tspan id="total" >Up to {bounty["amount"]} €</tspan>
+        </text>
+
+        <!-- Issue Image with circular clipping and link to repo -->
+        <a href="{repo_url}" target="_blank">
+            <clipPath id="clipCircleIssue">
+                <circle cx="60" cy="60" r="30" />
+            </clipPath>
+            <image x="30" y="30" width="60" height="60" href="data:image/png;base64,{external_image_base64}" clip-path="url(#clipCircleIssue)" />
+        </a>
+
+        <!-- Logo with circular clipping and link to bounty page -->
+        <a href="https://bount.ing" target="_blank">
+            <clipPath id="clipCircleLogo">
+                <circle cx="278" cy="60" r="45" />
+            </clipPath>
+            <image x="233" y="15" width="90" height="90" href="data:image/png;base64,{local_image_base64}" clip-path="url(#clipCircleLogo)" />
+        </a>
+
+        <!-- Futuristic Border with a soft glow and blinking -->
+        <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="#1abc9c" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)">
+        </rect>
+
+        <rect x="2" y="2" width="334" height="209" rx="15" ry="15" fill="none" stroke="#1abc9c" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)">
+        </rect>
+    </svg>
+    '''
+
+    # Save the SVG content to a file
+    svg_file_path = 'bounty_card.svg'
+    with open(svg_file_path, 'w', encoding='utf-8') as f:
+        f.write(svg_content)
+    
+    # Convert the SVG file to a PNG file
+    png_file_path = 'bounty_card.png'
+    cairosvg.svg2png(url=svg_file_path, write_to=png_file_path)
+    
+    return png_file_path
+
+@app.route('/bounties/<int:bounty_id>/card.png', methods=['GET'])
+def get_bounty_card(bounty_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Retrieve the bounty details along with the related issue from the database
+    cursor.execute("""
+        SELECT b.amount, b.issue_id, i.github_url, i.title, i.description
+        FROM bounties b
+        JOIN issues i ON b.issue_id = i.id
+        WHERE b.id = %s
+    """, (bounty_id,))
+    
+    bounty = cursor.fetchone()
+    if bounty:
+        bounty_amount, issue_id, issue_github_url, issue_title, issue_description = bounty
+        
+        # Prepare the data structure for the issue
+        issue_image_url = get_issue_image_url(issue_id)
+
+        issue = {
+            'id': issue_id,
+            'url': issue_github_url,
+            'image_url': issue_image_url,
+            'title': issue_title,
+            'body': issue_description
+        }
+
+        bounty_data = {
+            'id': bounty_id,
+            'amount': bounty_amount
+        }
+
+        # Assume get_issue_image_url fetches the image URL based on the issue ID
+        
+        # Create the SVG content using the issue data and bounty details
+        png_file_path = create_bounty_card(bounty_data, issue, 'logo.png')
+        
+        return send_file(png_file_path, mimetype='image/png')
+    
+    return jsonify({'error': 'Bounty not found'}), 404
 
 @app.route('/logo.png', methods=['GET'])
 def get_logo():

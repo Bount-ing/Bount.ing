@@ -37,7 +37,7 @@ func (ds *DiscordService) SendBountyCreationNotification(bounty models.Bounty, i
 					},
 					{
 						"name":  "Reward",
-						"value": fmt.Sprintf("%.2f €", bounty.Amount),
+						"value": fmt.Sprintf("Up to %.2f €", bounty.Amount),
 					},
 					{
 						"name":  "Issue URL",
@@ -48,7 +48,7 @@ func (ds *DiscordService) SendBountyCreationNotification(bounty models.Bounty, i
 					"url": bounty.IssueImageURL,
 				},
 				"image": map[string]string{
-					"url": fmt.Sprintf("https://dcdn.bount.ing/issues/%d/wanted_card.svg", bounty.ID),
+					"url": fmt.Sprintf("https://dcdn.bount.ing/bounties/%d/card.png", bounty.ID),
 				},
 			},
 		},
