@@ -89,29 +89,29 @@ def create_issue_card(issue, total_bounty, issue_image_url, local_image_path):
         <rect width="100%" height="100%" fill="url(#bgGradient)" rx="15" ry="15" />
 
         <!-- Title with soft glow effect -->
-        <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
+        <text x="50%" y="40" font-family="Nimbus Mono L" font-size="28" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
             <tspan id="wanted">WANTED</tspan>
             <animate attributeName="opacity" values="1;0;0;0;0;1" dur="6s" repeatCount="indefinite" />
         </text>
-        <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
+        <text x="50%" y="40" font-family="Nimbus Mono L" font-size="28" fill="#1abc9c" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)">
             <tspan id="solved">SOLVED</tspan>
             <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6s" repeatCount="indefinite" />
         </text>
 
         <!-- Repo and Owner -->
-        <text x="50%" y="70" font-family="ui-sans-serif, sans-serif" font-size="10" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+        <text x="50%" y="70" font-family="Nimbus Mono L" font-size="10" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
             {owner}/{repo}
         </text>
 
         <!-- Issue Title -->
-        <text id="issueTitle" x="50%" y="150" font-family="ui-sans-serif, sans-serif" font-size="16" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+        <text id="issueTitle" x="50%" y="150" font-family="Nimbus Mono L" font-size="16" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
             <tspan x="50%" dy="-1em">{issue_title[:35]}</tspan>
             <tspan x="50%" dy="1.4em">{issue_title[35:70]}</tspan>
             <animate attributeName="opacity" values="1;0;0;0;0;1" dur="6s" repeatCount="indefinite" />
         </text>
         
         <!-- Bounty Amount -->
-        <text id="bounty" x="50%" y="150" font-family="ui-sans-serif, sans-serif" font-size="42" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
+        <text id="bounty" x="50%" y="150" font-family="Nimbus Mono L" font-size="42" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
             <tspan id="total" >{total_bounty} €</tspan>
             <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6s" repeatCount="indefinite" />
         </text>
@@ -194,30 +194,30 @@ def create_bounty_card(bounty, issue, local_image_path, options):
         <rect width="100%" height="100%" fill="url(#bgGradient)" rx="15" ry="15" />
 
         <!-- Title with soft glow effect -->
-        <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#{dark_red}" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)" style="opacity: {options["opacity_1"]}">
+        <text x="50%" y="40" font-family="Nimbus Mono L" font-size="28" fill="#{dark_red}" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)" style="opacity: {options["opacity_1"]}">
             <tspan id="wanted">WANTED</tspan>
         </text>
-        <text x="50%" y="40" font-family="ui-sans-serif, sans-serif" font-size="28" fill="#{options["color"]}" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)" style="opacity: {options["opacity_2"]}">
+        <text x="50%" y="40" font-family="Nimbus Mono L" font-size="28" fill="#{options["color"]}" text-anchor="middle" letter-spacing="2" filter="url(#softGlow)" style="opacity: {options["opacity_2"]}">
             <tspan id="solved">SOLVED</tspan>
             <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6s" repeatCount="indefinite" />
         </text>
 
         <!-- Repo and Owner -->
-        <text x="50%" y="70" font-family="ui-sans-serif, sans-serif" font-size="10" fill="#{options["color"]}" text-anchor="middle" filter="url(#softGlow)" style="opacity: {opacity_logos}">
+        <text x="50%" y="70" font-family="Nimbus Mono L" font-size="10" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)" style="opacity: {opacity_logos}">
             {owner}
         </text>
-        <text x="50%" y="85" font-family="ui-sans-serif, sans-serif" font-size="10" fill="#{options["color"]}" text-anchor="middle" filter="url(#softGlow)" style="opacity: {opacity_logos}">
+        <text x="50%" y="85" font-family="Nimbus Mono L" font-size="10" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)" style="opacity: {opacity_logos}">
             {repo}
         </text>
 
         <!-- Issue Title -->
-        <text id="issueTitle" x="50%" y="140" font-family="ui-sans-serif, sans-serif" font-size="16" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)" style="opacity: {opacity_logos}">
+        <text id="issueTitle" x="50%" y="130" font-family="Nimbus Mono L" font-size="14" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)" style="opacity: {opacity_logos}">
             <tspan x="50%" dy="-1em">{issue["title"][:35]}</tspan>
             <tspan x="50%" dy="1.4em">{issue["title"][35:70]}</tspan>
         </text>
         
         <!-- Bounty Amount -->
-        <text id="bounty" x="50%" y="175" font-family="ui-sans-serif, sans-serif" font-size="21" fill="#{dark_red}" text-anchor="middle" filter="url(#softGlow)" style="opacity: {options["opacity_2"]}">
+        <text id="bounty" x="50%" y="175" font-family="Nimbus Mono L" font-size="21" fill="#{dark_red}" text-anchor="middle" filter="url(#softGlow)" style="opacity: {options["opacity_2"]}">
             <tspan id="total" >Up to {bounty["amount"]} €</tspan>
         </text>
 
@@ -238,11 +238,11 @@ def create_bounty_card(bounty, issue, local_image_path, options):
         </a>
 
         <!-- Futuristic Border with a soft glow and blinking -->
-        <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="#{options["color"]}" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)" style="opacity: {opacity_logos}">
+        <rect x="5" y="5" width="328" height="203" rx="15" ry="15" fill="none" stroke="#{dark_red}" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)" style="opacity: {opacity_logos}">
             <animate attributeName="stroke-dashoffset" values="0;30;0" dur="6s" repeatCount="indefinite" />
         </rect>
 
-        <rect x="2" y="2" width="334" height="209" rx="15" ry="15" fill="none" stroke="#{options["color"]}" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)" style="opacity: {opacity_logos}">
+        <rect x="2" y="2" width="334" height="209" rx="15" ry="15" fill="none" stroke="#1abc9c" stroke-width="1" stroke-dasharray="5,3" filter="url(#softGlow)" style="opacity: {opacity_logos}">
             <animate attributeName="stroke-dashoffset" values="30;0;30" dur="6s" repeatCount="indefinite" />
         </rect>
     </svg>
@@ -339,8 +339,8 @@ def get_bounty_card(bounty_id):
                 factor = i / (frames_per_segment - 1)
                 color = interpolate_color(start_color, end_color, factor)
                 total_index = segment * frames_per_segment + i
-                opacity_1 = 0.9 * (1 - ((total_index*1.25) / num_frames))
-                opacity_2 = 0.9 * ((total_index * 0.85) / num_frames)
+                opacity_1 = 0.91 * (1 - ((total_index*1.25) / num_frames))
+                opacity_2 = 0.91 * ((total_index * 0.85) / num_frames)
                 frame_modifiers.append({
                     "name": f"frame{total_index + 1}",
                     "color": color,
