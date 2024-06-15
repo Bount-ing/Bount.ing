@@ -5,3 +5,4 @@ psycopg2-binary
 cairosvg
 pillow
 imageio
+redis

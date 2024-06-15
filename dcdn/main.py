@@ -6,8 +6,14 @@ import os
 import cairosvg
 from PIL import Image
 from io import BytesIO
+import redis
 import imageio.v2 as imageio
 from utils import image_to_base64, local_image_to_base64, interpolate_color
+import hashlib
+
+redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
+
+CACHE_DURATION = 3 * 60 * 60  # 3 hours in seconds
 
 app = Flask(__name__)
 
@@ -23,7 +29,12 @@ DATABASE = {
 base_url = os.environ.get('BASE_URL', 'http://0.0.0.0:3000')
 
 
-
+def get_cache_key(data):
+    """
+    Generate a unique cache key based on the incoming request data.
+    Using hashlib to create a SHA-256 hash of the data string.
+    """
+    return hashlib.sha256(data.encode()).hexdigest()
 
 # Connect to the database
 def get_db_connection():
@@ -148,6 +159,12 @@ def create_issue_card(issue, total_bounty, issue_image_url, local_image_path):
 
 @app.route('/issues/<int:issue_id>/card.svg', methods=['GET'])
 def get_issue_card(issue_id):
+    url = request.url
+    cache_key = get_cache_key(url)
+    # Check if the image already exists in the cache
+    if (cached_image := redis_client.get(cache_key)):
+        svg_content = cached_image
+        return Response(svg_content, mimetype='image/svg+xml')
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT github_url, title, description FROM issues WHERE id = %s", (issue_id,))
@@ -162,6 +179,7 @@ def get_issue_card(issue_id):
         total_bounty = get_total_bounties(issue_id)
         issue_image_url = get_issue_image_url(issue_id)  # Fetch the image URL from bounties table
         svg_content = create_issue_card(issue_data, total_bounty, issue_image_url, 'logo.png')
+        redis_client.setex(cache_key, CACHE_DURATION, svg_content)
         return Response(svg_content, mimetype='image/svg+xml')
     return jsonify({'error': 'Issue not found'}), 404
 
@@ -282,6 +300,12 @@ def generate_frames(bounty, issue, local_image_path, frame_modifiers, path):
 
 @app.route('/bounties/<int:bounty_id>/card.gif', methods=['GET'])
 def get_bounty_card(bounty_id):
+    url = request.url
+    cache_key = get_cache_key(url)
+    # Check if the image already exists in the cache
+    if (cached_image := redis_client.get(cache_key)):
+        gif_content = cached_image
+        return Response(gif_content, mimetype='image/gif')
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -351,7 +375,11 @@ def get_bounty_card(bounty_id):
 
 
         generate_frames(bounty_data, issue, 'logo.png', frame_modifiers, file_path)
-        return send_file(file_path, mimetype='image/png')
+        gif_content = open(file_path, 'rb').read()
+        redis_client.setex(cache_key, CACHE_DURATION, gif_content)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        return Response(gif_content, mimetype='image/gif')
     
     return jsonify({'error': 'Bounty not found'}), 404
 
