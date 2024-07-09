@@ -144,7 +144,7 @@ func (s *ClaimService) SolveClaimByPullRequest(url string, issue models.Issue) (
 	}
 
 	// Pay the user and update the bounties status to paid
-	if err := payUserAndUpdateBounties(user, bounties); err != nil {
+	if err := s.payUserAndUpdateBounties(user, bounties); err != nil {
 		return false, err
 	}
 
