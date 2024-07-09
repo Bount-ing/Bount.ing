@@ -5,7 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"open-bounties-api/models"
@@ -118,7 +118,7 @@ func (uc *RepositoryController) IssueGithubWebhook(c *gin.Context) {
 	}
 
 	// Read the payload
-	body, err := ioutil.ReadAll(c.Request.Body)
+	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to read body"})
 		log.Println("Unable to read body")

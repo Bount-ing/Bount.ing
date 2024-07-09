@@ -79,13 +79,6 @@ func SetupRouter() *gin.Engine {
 			public.GET("/bounties/", bountyController.GetAllBounties)
 		}
 
-		// NOTE: Requires UserId set to context. Is a new variable because it may break other endpoits
-		// TODO: Merge endpoints that require authentication
-		auth := v1.Group("/", middleware.AuthorizeJWT())
-		{
-			auth.POST("/user/stripe", userController.ConnectStripe)
-		}
-
 		// Routes that require authentication
 		authorized := v1.Group("/")
 		authorized.Use(middleware.AuthorizeJWT())
@@ -96,6 +89,7 @@ func SetupRouter() *gin.Engine {
 				userRoutes.GET("/:id", userController.GetUser)
 				userRoutes.PUT("/:id", userController.UpdateUser)
 				userRoutes.DELETE("/:id", userController.DeleteUser)
+				userRoutes.POST("/stripe", userController.ConnectStripe)
 			}
 
 			// Bounty routes
