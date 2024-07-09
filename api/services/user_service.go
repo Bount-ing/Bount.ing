@@ -73,6 +73,10 @@ func (s *UserService) UpdateUserStripeID(id uint, stripeUserId string) (*models.
 		return nil, result.Error
 	}
 	user.StipeAccountID = stripeUserId
+	saveResult := s.db.Save(&user)
+	if saveResult.Error != nil {
+		return nil, saveResult.Error
+	}
 	return &user, nil
 }
 
