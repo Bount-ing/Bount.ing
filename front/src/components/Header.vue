@@ -9,19 +9,22 @@
             <span class="ml-3 text-3xl font-bold text-primary tracking-tight">Bount.ing</span>
           </router-link>
           <div class="hidden md:flex space-x-4 ml-10">
-            <router-link to="/" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-700">Home</router-link>
-            <router-link to="/dashboard" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Dashboard</router-link>
-            <router-link to="/profile" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Profile</router-link>
-            <router-link to="/about" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">About</router-link>
-            <router-link to="/help" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">F.A.Q.</router-link>
-            <router-link to="/contact" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Contact</router-link>
+            <router-link to="/" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-700">{{ $t('Home') }}</router-link>
+            <router-link to="/dashboard" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('Dashboard') }}</router-link>
+            <router-link to="/profile" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('Profile') }}</router-link>
+            <router-link to="/pricing" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('Pricing') }}</router-link>
+            <router-link to="/about" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('About') }}</router-link>
+            <router-link to="/help" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('F.A.Q.') }}</router-link>
+            <router-link to="/contact" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('Contact') }}</router-link>
           </div>
         </div>
 
-        <!-- Authentication buttons -->
-        <div class="hidden md:block">
-          <router-link v-if="!isLoggedIn" to="/login" class="px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Login</router-link>
-          <button v-else @click="logout" class="px-3 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-light">Logout</button>
+        <!-- Language dropdown and Authentication buttons -->
+        <div class="hidden md:flex items-center space-x-4">
+          <!-- Language Dropdown Component -->
+          <LanguageDropdown :inline="false" />
+          <router-link v-if="!isLoggedIn" to="/login" class="px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">{{ $t('Login') }}</router-link>
+          <button v-else @click="logout" class="px-3 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-light">{{ $t('Logout') }}</button>
         </div>
 
         <div class="hidden md:block" v-if="isLoggedIn">
@@ -31,7 +34,7 @@
         <!-- Mobile menu button -->
         <div class="md:hidden bg-gray-700 p-2 rounded-lg">
           <button @click="isOpen = !isOpen" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-600">
-            <span class="sr-only">Open main menu</span>
+            <span class="sr-only">{{ $t('Open main menu') }}</span>
             <svg v-if="!isOpen" class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-16 6h16"/>
             </svg>
@@ -46,14 +49,17 @@
     <!-- Mobile Menu -->
     <div v-if="isOpen" class="md:hidden">
       <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-        <router-link to="/" class="block px-3 py-2 rounded-md text-base font-medium bg-gray-900 hover:bg-gray-700">Home</router-link>
-        <router-link to="/dashboard" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Dashboard</router-link>
-        <router-link to="/profile" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Profile</router-link>
-        <router-link to="/about" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">About</router-link>
-        <router-link to="/help" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">F.A.Q.</router-link>
-        <router-link to="/contact" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Contact</router-link>
-        <router-link v-if="!isLoggedIn" to="/login" class="block px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Login</router-link>
-        <button v-else @click="logout" class="block px-3 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-light">Logout</button>
+        <router-link to="/" class="block px-3 py-2 rounded-md text-base font-medium bg-gray-900 hover:bg-gray-700">{{ $t('Home') }}</router-link>
+        <router-link to="/dashboard" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('Dashboard') }}</router-link>
+        <router-link to="/profile" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('Profile') }}</router-link>
+        <router-link to="/pricing" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('Pricing') }}</router-link>
+        <router-link to="/about" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('About') }}</router-link>
+        <router-link to="/help" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('F.A.Q.') }}</router-link>
+        <router-link to="/contact" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('Contact') }}</router-link>
+        <router-link v-if="!isLoggedIn" to="/login" class="block px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">{{ $t('Login') }}</router-link>
+        <button v-else @click="logout" class="block px-3 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-light">{{ $t('Logout') }}</button>
+        <!-- Language Dropdown Component for mobile -->
+        <LanguageDropdown :inline="true" />
       </div>
     </div>
   </nav>
@@ -64,16 +70,16 @@ import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '../stores/user';
 import ConnectStripe from './StripeConnect.vue'
+import LanguageDropdown from '../components/LanguageDropdown.vue';
 
-const user = useUserStore()
-const { isLoggedIn } = storeToRefs(user)
+const user = useUserStore();
+const { isLoggedIn } = storeToRefs(user);
 const isOpen = ref(false);
 
 const logout = () => {
   user.logout();
   isLoggedIn.value = false;
 };
-
 </script>
 
 <style scoped>

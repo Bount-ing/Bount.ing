@@ -25,3 +25,21 @@ services:
       - "3000:3000"
     depends_on:
       - api
+
+  dcdn:
+    restart: always
+    build: ./dcdn
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+    environment:
+      POSTGRES_DB: bountydb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+
+  redis:
+    image: redis:6.0.9
+    ports:
+      - "6379:6379"
+

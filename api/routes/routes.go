@@ -24,20 +24,29 @@ func SetupRouter() *gin.Engine {
 	dsn := "host=db user=user password=password dbname=bountydb port=5432 sslmode=disable TimeZone=Europe/Paris"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Organization{})
+	db.AutoMigrate(&models.Repository{})
+	db.AutoMigrate(&models.Issue{})
 	db.AutoMigrate(&models.Bounty{})
+	db.AutoMigrate(&models.Claim{})
 
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
 	// Initialize UserService with the database connection
-	userService := services.NewUserService(db)
-	bountyService := services.NewBountyService(db)
+	discordService := services.NewDiscordService()
+	userService := services.NewUserService(db, discordService)
+	repositoryService := services.NewRepositoryService(db)
+	claimService := services.NewClaimService(db)
+	issueService := services.NewIssueService(db, repositoryService, claimService)
+	bountyService := services.NewBountyService(db, issueService, discordService)
 
 	// Initialize controllers
 	loginController := controllers.NewLoginController(userService)
 	userController := controllers.NewUserController(userService)
-	bountyController := controllers.NewBountyController(bountyService)
+	bountyController := controllers.NewBountyController(db, bountyService)
+	repoController := controllers.NewRepositoryController(db, repositoryService, issueService)
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:  []string{"*"},
@@ -52,6 +61,13 @@ func SetupRouter() *gin.Engine {
 	}))
 
 	// Versioning API
+	webhooks := r.Group("/webhooks")
+	{
+		github := webhooks.Group("/github")
+		{
+			github.POST("/repos/:repo_id", repoController.IssueGithubWebhook)
+		}
+	}
 	v1 := r.Group("/api/v1")
 	{
 		// Public routes
@@ -60,6 +76,7 @@ func SetupRouter() *gin.Engine {
 			public.GET("/oauth/github/callback", loginController.GithubCallback)
 			public.GET("/oauth/stripe/callback", loginController.StripeCallback)
 			public.POST("/register", userController.RegisterUser)
+			public.GET("/bounties/", bountyController.GetAllBounties)
 		}
 
 		// NOTE: Requires UserId set to context. Is a new variable because it may break other endpoits
@@ -71,7 +88,7 @@ func SetupRouter() *gin.Engine {
 
 		// Routes that require authentication
 		authorized := v1.Group("/")
-		// authorized.Use(middleware.AuthorizeJWT())
+		authorized.Use(middleware.AuthorizeJWT())
 		{
 			// User routes
 			userRoutes := authorized.Group("/users")
@@ -91,7 +108,6 @@ func SetupRouter() *gin.Engine {
 					c.Header("Content-Type", "application/json")
 					c.JSON(200, nil)
 				})
-				bountyRoutes.GET("/", bountyController.GetAllBounties)
 				bountyRoutes.POST("/", bountyController.CreateBounty)
 				bountyRoutes.GET("/:id", bountyController.GetBounty)
 				bountyRoutes.PUT("/:id", bountyController.UpdateBounty)

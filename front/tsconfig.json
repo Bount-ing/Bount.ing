@@ -10,6 +10,20 @@
   ],
   "compilerOptions": {
     "typeRoots": ["./node_modules/@types", "./src"],
-    "types": ["node"]
-  }
+    "types": ["node"],
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "jsx": "preserve",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "exclude": ["node_modules"]
 }

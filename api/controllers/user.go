@@ -28,15 +28,41 @@ func (uc *UserController) RegisterUser(c *gin.Context) {
 
 func (uc *UserController) GetUser(c *gin.Context) {
 	userIdStr := c.Param("id")
-	userId, _ := strconv.ParseUint(userIdStr, 10, 64) // Convert to uint64
+	if userIdStr == "me" {
+		userId, exists := c.Get("userID")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found"})
+			return
+		}
 
-	user, err := uc.userService.FindUserById(uint(userId))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found", "details": err.Error()})
-		return
+		// Make sure userId is of expected type, assuming uint64 here
+		userIdUInt, ok := userId.(uint)
+		if !ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format"})
+			return
+		}
+
+		user, err := uc.userService.FindUserById(userIdUInt)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found", "details": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, user)
+
+	} else {
+		userId, err := strconv.ParseUint(userIdStr, 10, 64) // Convert to uint64
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format", "details": err.Error()})
+			return
+		}
+
+		user, err := uc.userService.FindUserById(uint(userId))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found", "details": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, user)
 	}
-
-	c.JSON(http.StatusOK, user)
 }
 
 func (uc *UserController) UpdateUser(c *gin.Context) {

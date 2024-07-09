@@ -6,7 +6,22 @@ interface User {
 	userid: string;
 	username: string;
 	avatar: string;
-  }
+	userBio?: string;
+	fullName?: string;
+	email?: string;
+	phoneNumber?: string;
+	location?: string;
+	aboutMe?: string;
+	interests?: string[];
+	recentPosts?: any[];
+	level?: number;
+	achievements?: any[];
+	activities?: any[];
+	bounties?: any[];
+	transactions?: any[];
+	paymentInfo?: any;
+}
+
 
 export const useUserStore = defineStore('user', () => {
 	const u = ref<User | null>(null);
@@ -66,9 +81,9 @@ export const useUserStore = defineStore('user', () => {
 
 	function parseJwt(token: string) {
 		if (!token) throw new Error("Token is required");
-		var base64Url = token.split('.')[1];
-		var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-		var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+		const base64Url = token.split('.')[1];
+		const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+		const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
 			return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
 		}).join(''));
 

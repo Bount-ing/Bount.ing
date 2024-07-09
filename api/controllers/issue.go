@@ -7,15 +7,18 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type IssueController struct {
 	issueService *services.IssueService
+	db           *gorm.DB
 }
 
-func NewIssueController(issueService *services.IssueService) *IssueController {
+func NewIssueController(issueService *services.IssueService, db *gorm.DB) *IssueController {
 	return &IssueController{
 		issueService: issueService,
+		db:           db,
 	}
 }
 
@@ -26,7 +29,7 @@ func (uc *IssueController) CreateIssue(c *gin.Context) {
 		return
 	}
 
-	registeredIssue, err := uc.issueService.CreateIssue(newIssue)
+	registeredIssue, err := uc.issueService.CreateIssue(c, newIssue)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create issue", "details": err.Error()})
 		return

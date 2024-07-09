@@ -4,9 +4,9 @@
         <img :src="issue.image_url || issueImage" alt="Repo Image" class="w-20 h-20 rounded-full mr-4">
         <div class="flex flex-col">
           <span class="text-sm md:text-md font-bold text-primary">{{ repoOwner }} / {{ repoName }}</span>
-          <span class="text-lg md:text-md font-bold text-primary">Private Issue</span>
-          <p class="text-info">Details are confidential.</p>
-          <p class="text-info">You need to be logged in and granted to see it.</p>
+          <span class="text-lg md:text-md font-bold text-primary">{{ $t('Private Issue') }}</span>
+          <p class="text-info">{{ $t('Details are confidential.') }}</p>
+          <p class="text-info">{{ $t('You need to be logged in and granted to see it.') }}</p>
         </div>
       </div>
       <div class="flex flex-col justify-center items-center md:items-end space-y-2 mt-4 md:mt-0">

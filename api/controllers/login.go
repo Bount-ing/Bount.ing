@@ -96,6 +96,7 @@ func (ctl *LoginController) GithubCallback(c *gin.Context) {
 
 	}
 	log.Printf("Verified user: %v", u)
+	go ctl.syncGithubInfo(githubToken.AccessToken)
 
 	jwtToken, err := generateJWT(u.ID, githubToken.AccessToken)
 	if err != nil {
@@ -107,6 +108,12 @@ func (ctl *LoginController) GithubCallback(c *gin.Context) {
 	log.Printf("Generated JWT: %s", jwtToken)
 
 	c.Redirect(http.StatusFound, fmt.Sprintf("%s?token=%s", AppRedirULR, jwtToken))
+}
+
+func (ctl *LoginController) syncGithubInfo(accessToken string) {
+	// Fetch all bounties created by the user
+	// Retrieve all bountie's issues from github
+	// update the issues in the database
 }
 
 func generateJWT(userId uint, accessToken string) (string, error) {

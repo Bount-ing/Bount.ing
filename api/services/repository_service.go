@@ -3,6 +3,7 @@ package services
 import (
 	"open-bounties-api/models"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -29,7 +30,7 @@ func (s *RepositoryService) FetchRepositoryById(id uint) (*models.Repository, er
 }
 
 // CreateRepository creates a new repository in the database
-func (s *RepositoryService) CreateRepository(repository models.Repository) (*models.Repository, error) {
+func (s *RepositoryService) CreateRepository(c *gin.Context, repository models.Repository) (*models.Repository, error) {
 	result := s.db.Create(&repository)
 	return &repository, result.Error
 }

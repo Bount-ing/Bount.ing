@@ -1,24 +1,7 @@
 <template>
   <section class="min-h-screen flex flex-col items-center justify-center p-4">
-    <div v-if="loading" class="text-center text-2xl font-semibold text-gray-800">Loading...</div>
-    <div v-else class="w-full max-w-6xl rounded-2xl shadow-xl overflow-hidden">
-      <div class="relative">
-        <img src="/bount.ing.banner.png" alt="Bount.ing Banner" class="w-full h-64 object-cover">
-        <div class="absolute inset-0 bg-black opacity-30"></div>
-        <div class="absolute inset-0 flex items-center justify-center">
-          <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-white text-center">
-            Empower Open Source Innovation
-          </h1>
-        </div>
-      </div>
-      <div class="px-6 md:px-10 lg:px-16 py-8 space-y-6 text-center">
-        <p class="text-md md:text-lg lg:text-xl text-primary">
-          Enhance your coding skills, foster innovation, and contribute to the growth of open source projects while earning rewards.
-        </p>
-      </div>
-    </div>
     <div v-if="issues.length > 0" class="w-full mt-8 p-6 rounded-md shadow-md">
-      <h2 class="text-2xl font-semibold text-primary mb-4">Available Issues</h2>
+      <h2 class="text-2xl font-semibold text-primary mb-4">{{ $t('Available Issues') }}</h2>
       <ul class="space-y-3">
         <li v-for="issue in issues" :key="issue.id" class="issue-item rounded-lg shadow-lg border border-primary">
           <PrivateIssueListItem v-if="issue.is_private" :issue="issue" :bounty="issue.amount" />
@@ -30,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 import PrivateIssueListItem from '../components/PrivateIssueListItem.vue';
 import IssueListItem from '../components/IssueListItem.vue';
@@ -51,10 +34,11 @@ interface Issue {
   created_at?: string;
   updated_at?: string;
   is_private?: boolean;
+  state?: string;
 }
 
 export default defineComponent({
-  name: 'Home',
+  name: 'HomeView',
   components: {
     PrivateIssueListItem,
     IssueListItem
@@ -63,8 +47,6 @@ export default defineComponent({
     const issues = ref<Issue[]>([]);
     const loading = ref(true);
     const userStore = useUserStore();
-    const { authGithubHeader, authHeader, isLoggedIn } = storeToRefs(userStore);
-
 
     const fetchBounties = async () => {
       loading.value = true;
@@ -77,13 +59,17 @@ export default defineComponent({
       }
 
       try {
-        const response = await axios.get(`${baseURL}/api/v1/bounties/`);
+        const response = await axios.get(`${baseURL}/api/v1/bounties/`, { headers: {
+          Authorization: userStore.authHeader,
+          RefererPolicy: 'origin-when-cross-origin'
+        } });
         const currentDate = new Date();
 
         const activeBounties = response.data.filter((bounty: any) => {
           const startDate = new Date(bounty.start_at);
           const endDate = new Date(bounty.end_at);
-          return currentDate > startDate && currentDate < endDate;
+          const status = bounty.status;
+          return currentDate > startDate && currentDate < endDate && status === 'open';
         });
 
         const issueTotals = activeBounties.reduce((acc: Record<string, any>, bounty: any) => {
@@ -91,6 +77,7 @@ export default defineComponent({
           if (!acc[id]) {
             acc[id] = {
               amount: 0,
+              bounty_type: bounty.bounty_type,
               issueUrl: bounty.issue_github_url,
               currency: bounty.currency,
               issue_image_url: bounty.issue_image_url,
@@ -99,7 +86,18 @@ export default defineComponent({
               end_at: bounty.end_at
             };
           }
-          acc[id].amount += parseFloat(bounty.amount);
+          const startDate = new Date(bounty.start_at);
+          const endDate = new Date(bounty.end_at);
+          const timeElapsed = (currentDate.getTime() - startDate.getTime()) / (endDate.getTime() - startDate.getTime());
+
+          let adjustedAmount = parseFloat(bounty.amount);
+          if (bounty.bounty_type === 'crescendo') {
+            adjustedAmount *= timeElapsed;
+          } else if (bounty.bounty_type === 'decrescendo') {
+            adjustedAmount *= (1 - timeElapsed);
+          }
+
+          acc[id].amount += adjustedAmount;
           return acc;
         }, {});
 
@@ -112,7 +110,8 @@ export default defineComponent({
             issue_image_url: issueTotals[id].issue_image_url,
             user_github_login: issueTotals[id].user_github_login,
             start_at: issueTotals[id].start_at,
-            end_at: issueTotals[id].end_at
+            end_at: issueTotals[id].end_at,
+            state: issueTotals[id].state,
           };
           return await fetchGitHubIssueData(issue);
         }));
@@ -120,7 +119,7 @@ export default defineComponent({
         issues.value = issues.value.filter((issue) => {
           const startDate = new Date(issue.start_at);
           const endDate = new Date(issue.end_at);
-          return currentDate > startDate && currentDate < endDate;
+          return currentDate > startDate && currentDate < endDate && issue.state === 'open';
         });
 
         issues.value = issues.value.sort((a, b) => b.amount - a.amount);
@@ -144,6 +143,7 @@ export default defineComponent({
         issue.description = response.data.body;
         issue.created_at = response.data.created_at;
         issue.updated_at = response.data.updated_at;
+        issue.state = response.data.state;
         return issue;
       } catch (error) {
         console.error('Error fetching GitHub issue data without token:', error);
@@ -151,12 +151,13 @@ export default defineComponent({
         // If unauthenticated request fails, try with token (assuming it is a private issue)
         const token = ''; // Replace with the appropriate way to get the auth token
         try {
-          const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}`, { headers:  { Authorization: authGithubHeader.value } });
+          const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}`, { headers:  { Authorization: userStore.authGithubHeader } });
           // Merge fetched data with existing issue data
           issue.title = response.data.title;
           issue.description = response.data.body;
           issue.created_at = response.data.created_at;
           issue.updated_at = response.data.updated_at;
+          issue.state = response.data.state;
           return issue;
         } catch (authError) {
           console.error('Error fetching GitHub issue data with token:', authError);
@@ -165,7 +166,11 @@ export default defineComponent({
       }
     };
 
-    onMounted(fetchBounties);
+    onMounted(() => {
+      fetchBounties();
+      const interval = setInterval(fetchBounties, 60000); // Refresh every 60 seconds
+      onUnmounted(() => clearInterval(interval)); // Clear interval when component is unmounted
+    });
 
     return {
       issues,

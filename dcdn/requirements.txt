@@ -1,0 +1,8 @@
+qrcode
+requests
+Flask
+psycopg2-binary
+cairosvg
+pillow
+imageio
+redis
