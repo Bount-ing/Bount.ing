@@ -3,7 +3,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/stripe/stripe-go/v74"
+	"github.com/stripe/stripe-go/v74/invoice"
 	"gorm.io/gorm"
 )
 
@@ -182,7 +184,7 @@ func fetchPRDetails(url string) (*PRDetails, error) {
 	defer resp.Body.Close()
 
 	// Read and parse the response body
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
@@ -223,16 +225,48 @@ func convertToAPIURL(inputURL string) (string, error) {
 	return apiURL, nil
 }
 
-func payUserAndUpdateBounties(user models.User, bounties []models.Bounty) error {
+func (c ClaimService) payUserAndUpdateBounties(user models.User, bounties []models.Bounty) error {
+	var owner models.User
 	// Placeholder for payment logic
 	for _, bounty := range bounties {
 		if bounty.Status != "waiting for payment" {
 			log.Printf("Bounty %d is not waiting for payment", bounty.ID)
 			continue
 		}
-		bounty.Status = "Paid"
+		if owner.ID != bounty.OwnerID {
+			status := c.db.First(&owner, bounty.OwnerID)
+			if status.Error != nil {
+				return status.Error
+			}
+		}
+		// TODO: Check if amount is in cents
+		_, err := createInvoice(owner.StipeAccountID, user.StipeAccountID, bounty.IssueGithubURL, int64(bounty.Amount))
+		if err != nil {
+			return err
+		}
+		bounty.Status = "pending finalization"
 		log.Printf("Paid bounty %d to user %s", bounty.ID, user.Username)
 		log.Printf("Bounty ID: %d, Issue ID: %d, Owner ID: %d, Amount: %f, Status: %s, Created At: %s, Updated At: %s", bounty.ID, bounty.IssueID, bounty.OwnerID, bounty.Amount, bounty.Status, bounty.CreatedAt, bounty.UpdatedAt)
 	}
 	return nil
+}
+
+// createInvoice Creates an Invoice that takes a fee of 8%
+// Recives IDs of the sender and destination accounts, title of the issue and the amount of the bounty
+func createInvoice(sender, dest, title string, amount int64) (*stripe.Invoice, error) {
+	params := stripe.InvoiceParams{
+		Customer:             stripe.String(sender),
+		ApplicationFeeAmount: stripe.Int64(amount * 8 / 100),
+		AutoAdvance:          stripe.Bool(false),
+		Description:          stripe.String("[Bount.ing] Bounty claimed for issue: " + title),
+		TransferData: &stripe.InvoiceTransferDataParams{
+			Amount:      stripe.Int64(amount),
+			Destination: stripe.String(dest),
+		},
+	}
+	i, err := invoice.New(&params)
+	if err != nil {
+		return nil, err
+	}
+	return i, nil
 }
