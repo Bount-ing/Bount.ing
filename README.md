@@ -15,3 +15,18 @@ Make sure you have the following installed on your system:
 
 - `docker`
 - `docker-compose`
+
+### Download the repo
+
+```
+git clone git@github.com:Bount-ing/Bount.ing.git &&
+cd Bount.ing
+```
+
+### Set up Env
+
+Fill the files in `api/.env` and `front/.env`
+
+### Run the docker
+
+`sudo docker-compose build  && sudo docker-compose up -d && sudo docker-compose logs -f`
