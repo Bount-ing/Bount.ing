@@ -239,12 +239,16 @@ func (c ClaimService) payUserAndUpdateBounties(user models.User, bounties []mode
 				return status.Error
 			}
 		}
-		// TODO: Check if amount is in cents
-		_, err := createInvoice(owner.StipeAccountID, user.StipeAccountID, bounty.IssueGithubURL, int64(bounty.Amount))
+		i, err := createInvoice(owner.StipeAccountID, user.StipeAccountID, bounty.IssueGithubURL, int64(bounty.Amount * 100))
 		if err != nil {
 			return err
 		}
 		bounty.Status = "pending finalization"
+		bounty.StripeInvoiceID = i.ID
+		status := c.db.Save(&bounty)
+		if status.Error != nil {
+			return status.Error
+		}
 		log.Printf("Paid bounty %d to user %s", bounty.ID, user.Username)
 		log.Printf("Bounty ID: %d, Issue ID: %d, Owner ID: %d, Amount: %f, Status: %s, Created At: %s, Updated At: %s", bounty.ID, bounty.IssueID, bounty.OwnerID, bounty.Amount, bounty.Status, bounty.CreatedAt, bounty.UpdatedAt)
 	}
