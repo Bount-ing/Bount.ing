@@ -239,11 +239,11 @@ func (c ClaimService) payUserAndUpdateBounties(user models.User, bounties []mode
 				return status.Error
 			}
 		}
-		i, err := createInvoice(owner.StipeAccountID, user.StipeAccountID, bounty.IssueGithubURL, int64(bounty.Amount * 100))
+		i, err := createInvoice(owner.StipeAccountID, user.StipeAccountID, bounty.IssueGithubURL, int64(bounty.Amount*100))
 		if err != nil {
 			return err
 		}
-		bounty.Status = "pending finalization"
+		bounty.Status = "unconfirmed"
 		bounty.StripeInvoiceID = i.ID
 		status := c.db.Save(&bounty)
 		if status.Error != nil {
@@ -256,13 +256,13 @@ func (c ClaimService) payUserAndUpdateBounties(user models.User, bounties []mode
 }
 
 // createInvoice Creates an Invoice that takes a fee of 8%
-// Recives IDs of the sender and destination accounts, title of the issue and the amount of the bounty
-func createInvoice(sender, dest, title string, amount int64) (*stripe.Invoice, error) {
+// Recives IDs of the sender and destination accounts, url of the issue and the amount of the bounty
+func createInvoice(sender, dest, url string, amount int64) (*stripe.Invoice, error) {
 	params := stripe.InvoiceParams{
 		Customer:             stripe.String(sender),
 		ApplicationFeeAmount: stripe.Int64(amount * 8 / 100),
 		AutoAdvance:          stripe.Bool(false),
-		Description:          stripe.String("[Bount.ing] Bounty claimed for issue: " + title),
+		Description:          stripe.String("[Bount.ing] Bounty claimed for issue: " + url),
 		TransferData: &stripe.InvoiceTransferDataParams{
 			Amount:      stripe.Int64(amount),
 			Destination: stripe.String(dest),
