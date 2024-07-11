@@ -88,6 +88,16 @@ func (uc *BountyController) GetBounty(c *gin.Context) {
 	c.JSON(http.StatusOK, bounty)
 }
 
+func (ctl *BountyController) GetAllUnconfirmedBounties(c *gin.Context) {
+	bounties, err := ctl.bountyService.FetchAllUncofirmedBounties()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, bounties)
+}
+
+
 func (uc *BountyController) UpdateBounty(c *gin.Context) {
 	bountyIdStr := c.Param("id")
 	bountyId, _ := strconv.ParseUint(bountyIdStr, 10, 64) // Convert to uint64
