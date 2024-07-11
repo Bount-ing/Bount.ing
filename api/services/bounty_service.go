@@ -38,6 +38,15 @@ func (s *BountyService) FetchAllBounties() ([]models.Bounty, error) {
 	return bounties, nil
 }
 
+// FetchAllUncofirmedBounties returns all unconfirmed bounties from the database
+func (s *BountyService) FetchAllUncofirmedBounties() ([]models.Bounty, error) {
+	var bounties []models.Bounty
+	if err := s.db.Find(&bounties).Where("status = unconfirmed").Error; err != nil {
+		return nil, err
+	}
+	return bounties, nil
+}
+
 // FetchBountyByID retrieves a bounty by its ID from the database
 func (s *BountyService) FetchBountyById(id uint) (*models.Bounty, error) {
 	var bounty models.Bounty
