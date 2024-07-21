@@ -22,7 +22,7 @@
 		const baseURL = import.meta.env.VITE_API_BASE_URL;
 		if (token) {
 			try {
-				await axios.post(`${baseURL}/user/stripe?id=${id}`, config: { headers: { Authorization: userStore.authHeader() } })
+				await axios.post(`${baseURL}/user/stripe?id=${id}`, { headers: { Authorization: userStore.authHeader() } })
 				router.push('/');
 			} catch (error) {
 				console.error('Login failed:', error);
