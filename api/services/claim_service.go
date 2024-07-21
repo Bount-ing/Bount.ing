@@ -239,6 +239,7 @@ func (c ClaimService) payUserAndUpdateBounties(user models.User, bounties []mode
 				return status.Error
 			}
 		}
+		// Amount must be in cents
 		i, err := createInvoice(owner.StipeAccountID, user.StipeAccountID, bounty.IssueGithubURL, int64(bounty.Amount*100))
 		if err != nil {
 			return err
