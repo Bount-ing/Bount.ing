@@ -133,7 +133,6 @@ func generateJWT(userId uint, accessToken string) (string, error) {
 
 // Constants for API URLs and client settings
 const (
-	StripeSecret   = "STRIPE_CLIENT_SECRET"
 	StripeRedirect = "STRIPE_REDIRECT_URL"
 )
 
