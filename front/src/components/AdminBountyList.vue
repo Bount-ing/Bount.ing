@@ -5,7 +5,7 @@
         v-for="bounty in unconfirmedBounties"
         :key="bounty.ID"
         :bounty="bounty"
-        @confirm-bounty="confirmBounty(bounty.ID)"
+        @confirm-bounty="finalizeBounty(bounty.ID)"
         @cancel-bounty="cancelBounty(bounty.ID)"
       />
     </div>
@@ -30,7 +30,7 @@ export default {
 
     const fetchBounties = async () => {
       try {
-        const response = await axios.get(`${baseURL}/api/v1/bounties/unconfirmed/`, {
+        const response = await axios.get(`${baseURL}/api/v1/bounties/admin/unconfirmed/`, {
           headers: { Authorization: userStore.authHeader },
         });
         console.log('Bounties:', response.data);
@@ -41,12 +41,15 @@ export default {
       }
     };
 
-    const confirmBounty = async (bountyId) => {
+    const finalizeBounty = async (bountyId) => {
       if (!bountyId) {
         console.error('Bounty ID is undefined or invalid.');
         return;
       }
       try {
+        await axios.put(`${baseURL}/api/v1/bounties/admin/finalize/${bountyId}`, {
+          headers: { Authorization: userStore.authHeader },
+        });
         unconfirmedBounties.value = unconfirmedBounties.value.filter(bounty => bounty.ID !== bountyId);
       } catch (error) {
         console.error('Error confirming bounty:', error);
@@ -59,12 +62,9 @@ export default {
         return;
       }
       try {
-		  // TODO: Change to cancel payment instead of deleting
-		  // Or maybe changing the state to pedning again
-
-        //await axios.delete(`${baseURL}/api/v1/bounties/${bountyId}`, {
-        //  headers: { Authorization: userStore.authHeader },
-        //});
+        await axios.delete(`${baseURL}/api/v1/bounties/${bountyId}`, {
+          headers: { Authorization: userStore.authHeader },
+        });
         unconfirmedBounties.value = unconfirmedBounties.value.filter(bounty => bounty.ID !== bountyId);
       } catch (error) {
         console.error('Error canceling bounty:', error);
@@ -73,7 +73,7 @@ export default {
 
     onMounted(fetchBounties);
 
-    return { unconfirmedBounties, cancelBounty, confirmBounty };
+    return { unconfirmedBounties, cancelBounty, finalizeBounty };
   },
 };
 </script>
