@@ -107,9 +107,10 @@ func SetupRouter() *gin.Engine {
 				bountyRoutes.PUT("/:id", bountyController.UpdateBounty)
 				bountyRoutes.DELETE("/:id", bountyController.DeleteBounty)
 
-				admin := bountyRoutes.Group("/", middleware.Admin(userService))
+				admin := bountyRoutes.Group("/admin", middleware.Admin(userService))
 				{
 					admin.GET("/unconfirmed", bountyController.GetAllUnconfirmedBounties)
+					admin.PUT("/finalize/:id", bountyController.FinalizeBounty)
 				}
 			}
 
