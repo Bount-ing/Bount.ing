@@ -97,7 +97,6 @@ func (ctl *BountyController) GetAllUnconfirmedBounties(c *gin.Context) {
 	c.JSON(http.StatusOK, bounties)
 }
 
-
 func (uc *BountyController) UpdateBounty(c *gin.Context) {
 	bountyIdStr := c.Param("id")
 	bountyId, _ := strconv.ParseUint(bountyIdStr, 10, 64) // Convert to uint64
@@ -124,4 +123,14 @@ func (uc *BountyController) DeleteBounty(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Bounty canceled successfully"})
+}
+
+func (uc *BountyController) FinalizeBounty(c *gin.Context) {
+	bountyIdStr := c.Param("id")
+	bountyId, _ := strconv.ParseUint(bountyIdStr, 10, 64)
+
+	if err := uc.bountyService.FinalizeBounty(uint(bountyId)); err != nil {
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Bounty finalized successfully"})
 }
