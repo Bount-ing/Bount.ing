@@ -28,11 +28,19 @@ export default {
     const unconfirmedBounties = ref([]);
     const baseURL = import.meta.env.VITE_API_BASE_URL;
 
+	  if (!baseURL) {
+		  console.error("API base URL is not set.");
+		  loading.value = false;
+		  return;
+	  }
+
+
     const fetchBounties = async () => {
       try {
-        const response = await axios.get(`${baseURL}/api/v1/bounties/admin/unconfirmed/`, {
-          headers: { Authorization: userStore.authHeader },
-        });
+        const response = await axios.get(`${baseURL}/api/v1/admin/bounties/unconfirmed`, { headers: {
+          Authorization: userStore.authHeader,
+          RefererPolicy: 'origin-when-cross-origin'
+        } });
         console.log('Bounties:', response.data);
         console.log('User ID:', userStore.user.userid);
         unconfirmedBounties.value = response.data
@@ -47,8 +55,9 @@ export default {
         return;
       }
       try {
-        await axios.put(`${baseURL}/api/v1/bounties/admin/finalize/${bountyId}`, {
+        await axios.put(`${baseURL}/api/v1/admin/bounties/finalize/${bountyId}`, {
           headers: { Authorization: userStore.authHeader },
+          RefererPolicy: 'origin-when-cross-origin'
         });
         unconfirmedBounties.value = unconfirmedBounties.value.filter(bounty => bounty.ID !== bountyId);
       } catch (error) {
@@ -64,6 +73,7 @@ export default {
       try {
         await axios.delete(`${baseURL}/api/v1/bounties/${bountyId}`, {
           headers: { Authorization: userStore.authHeader },
+          RefererPolicy: 'origin-when-cross-origin'
         });
         unconfirmedBounties.value = unconfirmedBounties.value.filter(bounty => bounty.ID !== bountyId);
       } catch (error) {
