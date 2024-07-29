@@ -83,6 +83,7 @@ func SetupRouter() *gin.Engine {
 		authorized := v1.Group("/")
 		authorized.Use(middleware.AuthorizeJWT())
 		{
+			admin := authorized.Group("/admin", middleware.Admin(userService))
 			// User routes
 			userRoutes := authorized.Group("/users")
 			{
@@ -107,10 +108,10 @@ func SetupRouter() *gin.Engine {
 				bountyRoutes.PUT("/:id", bountyController.UpdateBounty)
 				bountyRoutes.DELETE("/:id", bountyController.DeleteBounty)
 
-				admin := bountyRoutes.Group("/admin", middleware.Admin(userService))
+				adminBounties := admin.Group("/bounties")
 				{
-					admin.GET("/unconfirmed", bountyController.GetAllUnconfirmedBounties)
-					admin.PUT("/finalize/:id", bountyController.FinalizeBounty)
+					adminBounties.GET("/unconfirmed", bountyController.GetAllUnconfirmedBounties)
+					adminBounties.PUT("/finalize/:id", bountyController.FinalizeBounty)
 				}
 			}
 
