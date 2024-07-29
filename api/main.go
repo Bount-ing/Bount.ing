@@ -14,7 +14,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
-	stripe.Key = os.Getenv("STRIPE_SECREY_KEY")
+	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 	r := routes.SetupRouter()
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
