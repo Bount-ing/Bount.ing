@@ -43,3 +43,9 @@ services:
     ports:
       - "6379:6379"
 
+  adminer:
+    image: adminer
+    ports:
+      - 9090:8080
+    depends_on:
+      - db
