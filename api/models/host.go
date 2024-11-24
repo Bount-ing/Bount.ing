@@ -8,10 +8,13 @@ import (
 
 type Host struct {
 	gorm.Model
-	Name         string
-	HostType     string
-	HostConfig   string
-	Repositories []HostRepository
+	Name           string
+	Address        string
+	Port           int
+	Type           string
+	Version        string
+	OrganizationID uint
+	Repositories   []HostRepository
 }
 
 func init() {

@@ -8,7 +8,10 @@ import (
 
 type Organization struct {
 	gorm.Model
-	Name string `json:"name" gorm:"unique;not null"`
+	Name         string
+	Members      []User
+	Repositories []Repository
+	Hosts        []Host
 }
 
 func init() {

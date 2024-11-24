@@ -68,9 +68,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useUserStore } from '../stores/user';
-import ConnectStripe from './StripeConnect.vue'
-import LanguageDropdown from '../components/LanguageDropdown.vue';
+import { useUserStore } from '../../stores/user';
+import ConnectStripe from '../StripeConnect.vue'
+import LanguageDropdown from '../LanguageDropdown.vue';
 
 const user = useUserStore();
 const { isLoggedIn } = storeToRefs(user);

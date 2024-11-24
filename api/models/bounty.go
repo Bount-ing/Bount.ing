@@ -20,20 +20,20 @@ const (
 
 type Bounty struct {
 	gorm.Model
-	Amount          float64   `json:"amount" gorm:"not null"`
-	BountyType      string    `json:"bounty_type" gorm:"default:'flat'"`
-	Currency        string    `json:"currency" gorm:"default:'EUR'"`
-	IssueGithubID   int       `json:"issue_github_id" gorm:"not null"`
-	IssueGithubURL  string    `json:"issue_github_url" gorm:"not null"`
-	IssueImageURL   string    `json:"issue_image_url" gorm:"not null"`
-	StartAt         time.Time `json:"start_at" gorm:"not null"`
-	EndAt           time.Time `json:"end_at" gorm:"not null"`
-	OwnerID         uint      `json:"owner_id" gorm:"not null"`
-	FinalizedAt     time.Time `json:"finalized_at"`
-	IssueID         uint      `json:"issue_id" gorm:"not null"`
-	StripeInvoiceID string    `json:"stripe_invoice_id"`
-	Claims          []Claim   `json:"claims" gorm:"many2many:bounty_claims;"`
-	Status          string    `json:"status" gorm:"default:'open'"`
+	Amount          float64
+	BountyType      string
+	Currency        string
+	IssueGithubID   int
+	IssueGithubURL  string
+	IssueImageURL   string
+	StartAt         time.Time
+	EndAt           time.Time
+	OwnerID         uint
+	FinalizedAt     time.Time
+	IssueID         uint
+	StripeInvoiceID string
+	Claims          []Claim
+	Status          string
 }
 
 func ValidateBountyType(bt string) error {

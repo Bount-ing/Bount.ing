@@ -10,6 +10,8 @@ import { createPinia } from 'pinia'
 import i18n from '../i18n';
 import  createGtag  from 'vue-gtag-next';
 import type GtagPluginOptions from 'vue-gtag-next'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+
 
 
 import App from './App.vue'
@@ -17,7 +19,10 @@ import router from './router'
 
 const app = createApp(App)
 
-app.use(createPinia())
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
+export default pinia;
+app.use(pinia)
 app.use(router)
 app.use(i18n);
 

@@ -1,5 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import LoginLayout from '@/layouts/LoginLayout.vue'
+import UserSignIn from '@/views/UserSignIn.vue'
+import UserSignUp from '@/views/UserSignUp.vue'
+import UserSetPassword from '@/views/UserSetPassword.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,7 +11,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'Bount.ing',
-      component: HomeView
+      component: LoginLayout,
     },
     {
       path: '/about',
@@ -71,7 +75,32 @@ const router = createRouter({
       path: "/connect/stripe",
       name: "ConnectStripe",
       component: () => import('../views/ConnectStripeView.vue')
+    },
+    {
+      path: '/',
+      component: LoginLayout,
+      children: [
+        {
+          path: 'signin',
+          name: 'userSignin',
+          meta: { skipIfLoggedIn: true },
+          component: UserSignIn
+        },
+        {
+          path: 'signup',
+          name: 'userSignup',
+          meta: { skipIfLoggedIn: true },
+          component: UserSignUp
+        },
+        {
+          path: 'signup/verify/:mailb64/:code',
+          name: 'userSetPassword',
+          meta: { skipIfLoggedIn: true },
+          component: UserSetPassword
+        }
+      ]
     }
+
   ]
 })
 
