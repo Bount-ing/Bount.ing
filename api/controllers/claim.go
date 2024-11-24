@@ -1,88 +1,68 @@
 package controllers
 
 import (
-	"net/http"
-	"open-bounties-api/models"
-	"open-bounties-api/services"
-	"strconv"
+	"log"
 
-	"github.com/gin-gonic/gin"
+	"github.com/bount-ing/bount.ing/api/db"
+	"github.com/bount-ing/bount.ing/api/models"
 )
 
-type ClaimController struct {
-	claimService *services.ClaimService
+func CreateClaim(claim models.Claim) error {
+	err := db.DB.Create(&claim)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return err.Error
+	}
+	return nil
 }
 
-func NewClaimController(claimService *services.ClaimService) *ClaimController {
-	return &ClaimController{
-		claimService: claimService,
+func GetClaim(claimID string) (models.Claim, error) {
+	var claim models.Claim
+
+	err := db.DB.First(&claim, claimID)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return claim, err.Error
 	}
+	return claim, nil
 }
 
-func (uc *ClaimController) CreateClaim(c *gin.Context) {
-	var newClaim models.Claim
-	if err := c.ShouldBindJSON(&newClaim); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
-		return
+func GetClaims() ([]models.Claim, error) {
+	var claims []models.Claim
+
+	err := db.DB.Find(&claims)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return claims, err.Error
 	}
 
-	registeredClaim, err := uc.claimService.CreateClaim(newClaim)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create claim", "details": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, registeredClaim)
+	return claims, nil
 }
 
-func (ctl *ClaimController) GetAllClaims(c *gin.Context) {
-	claims, err := ctl.claimService.FetchAllClaims()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+func UpdateClaim(claim models.Claim) error {
+	err := db.DB.Save(&claim)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return err.Error
 	}
-	c.JSON(http.StatusOK, claims)
+	return nil
 }
 
-func (uc *ClaimController) GetClaim(c *gin.Context) {
-	claimIdStr := c.Param("id")
-	claimId, _ := strconv.ParseUint(claimIdStr, 10, 64) // Convert to uint64
-
-	claim, err := uc.claimService.FetchClaimById(uint(claimId))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Claim not found", "details": err.Error()})
-		return
+func DeleteClaim(claimID string) error {
+	var claim models.Claim
+	err := db.DB.First(&claim, claimID)
+	if err.Error != nil {
+		log.Print(err.Error)
+		return err.Error
 	}
-
-	c.JSON(http.StatusOK, claim)
-}
-
-func (uc *ClaimController) UpdateClaim(c *gin.Context) {
-	claimIdStr := c.Param("id")
-	claimId, _ := strconv.ParseUint(claimIdStr, 10, 64) // Convert to uint64
-	var updateClaim models.Claim
-	if err := c.ShouldBindJSON(&updateClaim); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
-		return
+	err = db.DB.Delete(&claim)
+	if err.Error != nil {
+		log.Print(err.Error)
+		return err.Error
 	}
-
-	updatedClaim, err := uc.claimService.UpdateClaim(uint(claimId), updateClaim)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update claim", "details": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, updatedClaim)
-}
-
-func (uc *ClaimController) DeleteClaim(c *gin.Context) {
-	claimIdStr := c.Param("id")
-	claimId, _ := strconv.ParseUint(claimIdStr, 10, 64) // Convert to uint64
-	err := uc.claimService.DeleteClaim(uint(claimId))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete claim", "details": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Claim deleted successfully"})
+	return nil
 }

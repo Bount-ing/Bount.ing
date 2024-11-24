@@ -1,15 +1,32 @@
 package models
 
 import (
+	"time"
+
 	"gorm.io/gorm"
+
+	"github.com/bount-ing/bount.ing/api/db"
 )
 
 type User struct {
 	gorm.Model
-	GithubID          int      `json:"github_id"`
-	Username          string   `json:"username" gorm:"unique;not null"`
-	Email             string   `json:"email" gorm:"unique;not null"`
-	PublishedBounties []Bounty `json:"published_bounties" gorm:"foreignKey:OwnerID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	Claims            []Claim  `json:"claims" gorm:"foreignKey:OwnerID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	StipeAccountID    string   `json:"stripe_id"`
+
+	Email    string
+	Password string
+	Admin    bool
+
+	Verified                bool
+	VerifCode               string
+	VerifCodeExpirationTime time.Time
+
+	GithubID int
+	Username string
+
+	PublishedBounties []Bounty
+	Claims            []Claim
+	StipeAccountID    string
+}
+
+func init() {
+	db.DB.AutoMigrate(&User{})
 }

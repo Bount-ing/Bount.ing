@@ -1,110 +1,168 @@
 package controllers
 
 import (
-	"net/http"
-	"open-bounties-api/models"
-	"strconv"
+	"encoding/base64"
+	"errors"
+	"fmt"
+	"log"
+	"os"
+	"strings"
+	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/bount-ing/bount.ing/api/db"
+	"github.com/bount-ing/bount.ing/api/models"
+	"github.com/bount-ing/bount.ing/api/tools"
+	"gorm.io/gorm"
 )
 
-// Assuming UserController and userService are defined as shown previously
+var (
+	ErrUserEmailAlreadyExist = errors.New("a user with this mail already exists")
+	ErrUserAlreadyVerified   = errors.New("this user has already been activated")
+	ErrUserHasNoPasswd       = errors.New("user has no password")
+	ErrUserVerifCodeExpired  = errors.New("verification code is expired")
+)
 
-func (uc *UserController) RegisterUser(c *gin.Context) {
-	var newUser models.User
-	if err := c.ShouldBindJSON(&newUser); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
-		return
+func CreateUser(user models.User) error {
+
+	user.Email = strings.ToLower(user.Email)
+
+	var exists bool
+	err := db.DB.Model(user).
+		Select("count(*) > 0").
+		Where("email = ?", user.Email).
+		Find(&exists).
+		Error
+	if exists {
+		return ErrUserEmailAlreadyExist
+	} else if err != nil {
+		return err
 	}
 
-	registeredUser, err := uc.userService.CreateUser(newUser)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user", "details": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, registeredUser)
-}
-
-func (uc *UserController) GetUser(c *gin.Context) {
-	userIdStr := c.Param("id")
-	if userIdStr == "me" {
-		userId, exists := c.Get("userID")
-		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found"})
-			return
-		}
-
-		// Make sure userId is of expected type, assuming uint64 here
-		userIdUInt, ok := userId.(uint)
-		if !ok {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format"})
-			return
-		}
-
-		user, err := uc.userService.FindUserById(userIdUInt)
+	nGens := 0
+	for {
+		var n int64
+		user.VerifCode, err = tools.RandomString(16)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found", "details": err.Error()})
-			return
-		}
-		c.JSON(http.StatusOK, user)
-
-	} else {
-		userId, err := strconv.ParseUint(userIdStr, 10, 64) // Convert to uint64
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format", "details": err.Error()})
-			return
+			nGens += 1
+			if nGens == 3 {
+				return err
+			}
+			continue
 		}
 
-		user, err := uc.userService.FindUserById(uint(userId))
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found", "details": err.Error()})
-			return
+		err = db.DB.Model(&models.User{}).Where("verif_code = ?", user.VerifCode).Count(&n).Error
+		if err != nil && err != gorm.ErrRecordNotFound {
+			return err
+		} else if n > 0 {
+			continue
 		}
-		c.JSON(http.StatusOK, user)
-	}
-}
-
-func (uc *UserController) UpdateUser(c *gin.Context) {
-	userIdStr := c.Param("id")
-	userId, _ := strconv.ParseUint(userIdStr, 10, 64) // Convert to uint64
-	var updateUser models.User
-	if err := c.ShouldBindJSON(&updateUser); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
-		return
+		break
 	}
 
-	updatedUser, err := uc.userService.UpdateUser(uint(userId), updateUser)
+	user.VerifCodeExpirationTime = time.Now()
+
+	if dbc := db.DB.Create(&user); dbc.Error != nil {
+		return dbc.Error
+	}
+
+	mailb64 := base64.StdEncoding.EncodeToString([]byte(user.Email))
+	log.Println(mailb64)
+
+	userValidationLink := fmt.Sprintf("%s/signup/verify/%s/%s",
+		os.Getenv("APP_BASE_URL"),
+		mailb64,
+		user.VerifCode,
+	)
+	mailContent := fmt.Sprintf(
+		`<h3>Welcome to Bount.ing !</h3>
+		<br/>
+		<br/>
+		<a href="%s" class="cta-button"> Click here to activate your account! </a>
+		<br/>
+		<br/>
+		<br/>
+		`,
+		userValidationLink,
+	)
+	err = tools.SendEmail(user.Email, "user creation", mailContent)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user", "details": err.Error()})
-		return
+		db.DB.Delete(&user)
+		return err
 	}
 
-	c.JSON(http.StatusOK, updatedUser)
+	return nil
 }
 
-func (uc *UserController) DeleteUser(c *gin.Context) {
-	userIdStr := c.Param("id")
-	userId, _ := strconv.ParseUint(userIdStr, 10, 64) // Convert to uint64
-	err := uc.userService.DeleteUser(uint(userId))
+func CreateUserPassword(pwd, code string) error {
+	if len(pwd) == 0 {
+		return ErrUserHasNoPasswd
+	}
+
+	err := CheckUserVerifCode(code)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user", "details": err.Error()})
-		return
+		return err
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+	dbc := db.DB.Model(&models.User{}).Where("verif_code = ?", code).Updates(
+		map[string]interface{}{
+			"password":  pwd,
+			"activated": true,
+		},
+	)
+	return dbc.Error
 }
 
-func (ctl *UserController) ConnectStripe(c *gin.Context) {
-	stripeId := c.Query("id")
-	userId, ok := c.Get("userID")
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unautheticated user"})
-		return
+func CheckUserVerifCode(verifCode string) error {
+	var user models.User
+	dbc := db.DB.Where("verif_code = ?", verifCode).Take(&user)
+	if dbc.Error != nil {
+		return dbc.Error
 	}
-	if id, ok := userId.(uint); ok {
-		ctl.userService.UpdateUserStripeID(id, stripeId)
-		c.JSON(http.StatusOK, gin.H{"message": "User updated successfully"})
+
+	if user.Verified {
+		return ErrUserAlreadyVerified
 	}
-	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user", "details": "Unexpected userID type"})
+	now := time.Now()
+	limit := user.VerifCodeExpirationTime.Add(72 * time.Hour)
+	if now.After(limit) {
+		return ErrUserVerifCodeExpired
+	}
+
+	return nil
+}
+
+func GetAllUsers() ([]models.User, error) {
+	var users []models.User
+
+	dbc := db.DB.Find(&users)
+	if dbc.Error == gorm.ErrRecordNotFound {
+		return users, nil
+	}
+
+	return users, dbc.Error
+}
+
+func GetUserByID(id uint) (models.User, error) {
+	var user models.User
+
+	dbc := db.DB.First(&user, id)
+	if dbc.Error == gorm.ErrRecordNotFound {
+		return user, nil
+	}
+	return user, dbc.Error
+}
+
+func UpdateUserStripeID(id uint, stripeUserId string) error {
+	var user models.User
+
+	result := db.DB.First(&user, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	user.StipeAccountID = stripeUserId
+	saveResult := db.DB.Save(&user)
+	if saveResult.Error != nil {
+		return saveResult.Error
+	}
+	return nil
 }

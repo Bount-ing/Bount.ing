@@ -1,5 +1,5 @@
 # Use golang base image from Docker Hub
-FROM golang:1.18-alpine as builder
+FROM golang:1.23-alpine as builder
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -o open-bounties-api .
+RUN go build -o bounting-api .
 
 # Start a new stage from scratch
 FROM alpine:latest  
@@ -22,12 +22,11 @@ FROM alpine:latest
 WORKDIR /root/
 
 # Copy the Pre-built binary file from the previous stage
-COPY --from=builder /app/open-bounties-api .
-COPY --from=builder /app/.env .
+COPY --from=builder /app/bounting-api .
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
 
 # Command to run the executable
-CMD ["./open-bounties-api"]
+CMD ["./bounting-api"]
 

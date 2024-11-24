@@ -1,91 +1,56 @@
 package controllers
 
 import (
-	"net/http"
-	"open-bounties-api/models"
-	"open-bounties-api/services"
-	"strconv"
+	"log"
 
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	"github.com/bount-ing/bount.ing/api/db"
+	"github.com/bount-ing/bount.ing/api/models"
 )
 
-type IssueController struct {
-	issueService *services.IssueService
-	db           *gorm.DB
+func CreateIssue(issue models.Issue) error {
+	err := db.DB.Create(&issue)
+	if err.Error != nil {
+		log.Print(err.Error)
+		return err.Error
+	}
+	return nil
 }
 
-func NewIssueController(issueService *services.IssueService, db *gorm.DB) *IssueController {
-	return &IssueController{
-		issueService: issueService,
-		db:           db,
+func GetIssue(issueID string) (models.Issue, error) {
+	var issue models.Issue
+	err := db.DB.First(&issue, issueID)
+	if err.Error != nil {
+		log.Print(err.Error)
+		return issue, err.Error
 	}
+	return issue, nil
 }
 
-func (uc *IssueController) CreateIssue(c *gin.Context) {
-	var newIssue models.Issue
-	if err := c.ShouldBindJSON(&newIssue); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
-		return
+func GetIssues() ([]models.Issue, error) {
+	var issues []models.Issue
+	err := db.DB.Find(&issues)
+	if err.Error != nil {
+		log.Print(err.Error)
+		return issues, err.Error
 	}
-
-	registeredIssue, err := uc.issueService.CreateIssue(c, newIssue)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create issue", "details": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, registeredIssue)
+	return issues, nil
 }
 
-func (ctl *IssueController) GetAllIssues(c *gin.Context) {
-	issues, err := ctl.issueService.FetchAllIssues()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+func UpdateIssue(issue models.Issue) error {
+	err := db.DB.Save(&issue)
+	if err.Error != nil {
+		log.Print(err.Error)
+		return err.Error
 	}
-	c.JSON(http.StatusOK, issues)
+	return nil
 }
 
-func (uc *IssueController) GetIssue(c *gin.Context) {
-	issueIdStr := c.Param("id")
-	issueId, _ := strconv.ParseUint(issueIdStr, 10, 64) // Convert to uint64
-
-	issue, err := uc.issueService.FetchIssueById(uint(issueId))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Issue not found", "details": err.Error()})
-		return
+func DeleteIssue(issueID string) error {
+	var issue models.Issue
+	err := db.DB.First(&issue, issueID)
+	if err.Error != nil {
+		log.Print(err.Error)
+		return err.Error
 	}
-
-	c.JSON(http.StatusOK, issue)
-}
-
-func (uc *IssueController) UpdateIssue(c *gin.Context) {
-	issueIdStr := c.Param("id")
-	issueId, _ := strconv.ParseUint(issueIdStr, 10, 64) // Convert to uint64
-	var updateIssue models.Issue
-	if err := c.ShouldBindJSON(&updateIssue); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
-		return
-	}
-
-	updatedIssue, err := uc.issueService.UpdateIssue(uint(issueId), updateIssue)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update issue", "details": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, updatedIssue)
-}
-
-func (uc *IssueController) DeleteIssue(c *gin.Context) {
-	issueIdStr := c.Param("id")
-	issueId, _ := strconv.ParseUint(issueIdStr, 10, 64) // Convert to uint64
-	err := uc.issueService.DeleteIssue(uint(issueId))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete issue", "details": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Issue deleted successfully"})
+	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/bount-ing/bount.ing/api/db"
 	"gorm.io/gorm"
 )
 
@@ -28,6 +29,7 @@ type Bounty struct {
 	StartAt         time.Time `json:"start_at" gorm:"not null"`
 	EndAt           time.Time `json:"end_at" gorm:"not null"`
 	OwnerID         uint      `json:"owner_id" gorm:"not null"`
+	FinalizedAt     time.Time `json:"finalized_at"`
 	IssueID         uint      `json:"issue_id" gorm:"not null"`
 	StripeInvoiceID string    `json:"stripe_invoice_id"`
 	Claims          []Claim   `json:"claims" gorm:"many2many:bounty_claims;"`
@@ -41,4 +43,8 @@ func ValidateBountyType(bt string) error {
 	default:
 		return errors.New("invalid bounty type")
 	}
+}
+
+func init() {
+	db.DB.AutoMigrate(&Bounty{})
 }

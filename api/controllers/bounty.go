@@ -2,135 +2,111 @@ package controllers
 
 import (
 	"log"
-	"net/http"
-	"open-bounties-api/models"
-	"open-bounties-api/services"
-	"strconv"
 
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	"github.com/bount-ing/bount.ing/api/db"
+	"github.com/bount-ing/bount.ing/api/models"
 )
 
-type BountyController struct {
-	db            *gorm.DB
-	bountyService *services.BountyService
+func CreateBounty(bounty models.Bounty) error {
+
+	err := db.DB.Create(&bounty)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return err.Error
+	}
+
+	return nil
 }
 
-func NewBountyController(db *gorm.DB, bountyService *services.BountyService) *BountyController {
-	return &BountyController{
-		db:            db,
-		bountyService: bountyService,
+func GetBounty(bountyID string) (models.Bounty, error) {
+	var bounty models.Bounty
+
+	err := db.DB.First(&bounty, bountyID)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return bounty, err.Error
 	}
+
+	return bounty, nil
 }
 
-func (uc *BountyController) CreateBounty(c *gin.Context) {
-	var newBounty models.Bounty
+func GetBounties() ([]models.Bounty, error) {
+	var bounties []models.Bounty
 
-	log.Print("Creating bounty")
-	userID, exists := c.Get("userID")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found"})
-		return
+	err := db.DB.Find(&bounties)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return bounties, err.Error
 	}
 
-	// Convert userID to uint
-	userIDFloat64, ok := userID.(float64)
-	if !ok {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID type"})
-		return
-	}
-	userIDUint := uint(userIDFloat64)
-
-	// Ensure the user exists in the database
-	var user models.User
-	if err := uc.db.First(&user, userIDUint).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
-		return
-	}
-
-	if err := c.ShouldBindJSON(&newBounty); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
-		return
-	}
-	newBounty.OwnerID = userIDUint
-	registeredBounty, err := uc.bountyService.CreateBounty(c, newBounty)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create bounty", "details": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, registeredBounty)
+	return bounties, nil
 }
 
-func (ctl *BountyController) GetAllBounties(c *gin.Context) {
-	bounties, err := ctl.bountyService.FetchAllBounties()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+func UpdateBounty(bounty models.Bounty) error {
+	err := db.DB.Save(&bounty)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return err.Error
 	}
-	c.JSON(http.StatusOK, bounties)
+
+	return nil
 }
 
-func (uc *BountyController) GetBounty(c *gin.Context) {
-	bountyIdStr := c.Param("id")
-	bountyId, _ := strconv.ParseUint(bountyIdStr, 10, 64) // Convert to uint64
+func DeleteBounty(bountyID string) error {
+	var bounty models.Bounty
 
-	bounty, err := uc.bountyService.FetchBountyById(uint(bountyId))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Bounty not found", "details": err.Error()})
-		return
+	err := db.DB.First(&bounty, bountyID)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return err.Error
 	}
 
-	c.JSON(http.StatusOK, bounty)
+	err = db.DB.Delete(&bounty)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return err.Error
+	}
+
+	return nil
 }
 
-func (ctl *BountyController) GetAllUnconfirmedBounties(c *gin.Context) {
-	bounties, err := ctl.bountyService.FetchAllUncofirmedBounties()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+func FinalizeBounty(bountyID string) error {
+	var bounty models.Bounty
+
+	err := db.DB.First(&bounty, bountyID)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return err.Error
 	}
-	c.JSON(http.StatusOK, bounties)
+
+	bounty.FinalizedAt = db.DB.NowFunc()
+
+	err = db.DB.Save(&bounty)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return err.Error
+	}
+
+	return nil
 }
 
-func (uc *BountyController) UpdateBounty(c *gin.Context) {
-	bountyIdStr := c.Param("id")
-	bountyId, _ := strconv.ParseUint(bountyIdStr, 10, 64) // Convert to uint64
-	var updateBounty models.Bounty
-	if err := c.ShouldBindJSON(&updateBounty); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
-		return
+func GetAllUnconfirmedBounties() ([]models.Bounty, error) {
+	var bounties []models.Bounty
+
+	err := db.DB.Where("finalized = ?", false).Find(&bounties)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return bounties, err.Error
 	}
 
-	updatedBounty, err := uc.bountyService.UpdateBounty(uint(bountyId), updateBounty)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update bounty", "details": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, updatedBounty)
-}
-
-func (uc *BountyController) DeleteBounty(c *gin.Context) {
-	bountyIdStr := c.Param("id")
-	bountyId, _ := strconv.ParseUint(bountyIdStr, 10, 64)
-
-	if err := uc.bountyService.CancelBounty(uint(bountyId)); err != nil {
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Bounty canceled successfully"})
-}
-
-func (uc *BountyController) FinalizeBounty(c *gin.Context) {
-	bountyIdStr := c.Param("id")
-	bountyId, _ := strconv.ParseUint(bountyIdStr, 10, 64)
-
-	if err := uc.bountyService.FinalizeBounty(uint(bountyId)); err != nil {
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Bounty finalized successfully"})
+	return bounties, nil
 }

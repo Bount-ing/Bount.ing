@@ -23,6 +23,7 @@
     "@vuepic/vue-datepicker": "^8.7.0",
     "axios": "^1.7.2",
     "chart.js": "^4.4.3",
+    "i18n": "^0.15.1",
     "pinia": "^2.1.7",
     "tailwind": "^4.0.0",
     "tsc": "^2.0.4",

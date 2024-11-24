@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"net/http"
-	"open-bounties-api/services"
 
+	"github.com/bount-ing/bount.ing/api/controllers"
 	"github.com/gin-gonic/gin"
 )
 
-func Admin(s *services.UserService) gin.HandlerFunc {
+func Admin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, ok := c.Get("userID")
 		if !ok {
@@ -17,7 +17,7 @@ func Admin(s *services.UserService) gin.HandlerFunc {
 		if !ok {
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
-		u, err := s.FindUserById(uint(id))
+		u, err := controllers.GetUserByID(uint(id))
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}

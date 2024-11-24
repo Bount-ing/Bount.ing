@@ -2,6 +2,8 @@ package models
 
 import (
 	"gorm.io/gorm"
+
+	"github.com/bount-ing/bount.ing/api/db"
 )
 
 type Repository struct {
@@ -11,4 +13,8 @@ type Repository struct {
 	GithubWebhookEnabled bool    `json:"github_webhook_enabled" gorm:"not null"`
 	Name                 string  `json:"name" gorm:"not null"`
 	Issues               []Issue `json:"issues" gorm:"foreignKey:RepositoryID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+}
+
+func init() {
+	db.DB.AutoMigrate(&Repository{})
 }

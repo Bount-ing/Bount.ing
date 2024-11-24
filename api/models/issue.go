@@ -2,6 +2,8 @@ package models
 
 import (
 	"gorm.io/gorm"
+
+	"github.com/bount-ing/bount.ing/api/db"
 )
 
 type Issue struct {
@@ -15,4 +17,8 @@ type Issue struct {
 	ClosedAt     string   `json:"closed_at"`
 	Bounties     []Bounty `json:"bounties" gorm:"foreignKey:IssueID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Claims       []Claim  `json:"claims" gorm:"foreignKey:IssueID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+}
+
+func init() {
+	db.DB.AutoMigrate(&Issue{})
 }
