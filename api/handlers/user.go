@@ -22,10 +22,12 @@ var (
 func CreateUser(ctx *gin.Context) {
 	var user models.User
 
+	log.Println("Creating new user")
 	if err := ctx.ShouldBindJSON(&user); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"reason": err.Error()})
 		return
 	}
+	log.Println(user)
 
 	if err := controllers.CreateUser(user); err != nil {
 		log.Printf("Error when creating new user:", err)

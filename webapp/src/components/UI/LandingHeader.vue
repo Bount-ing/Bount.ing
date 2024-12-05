@@ -8,23 +8,16 @@
             <img src="/bount.ing.logo.png" class="h-12 w-12 bg-black rounded-3xl" alt="Bount.ing Logo" />
             <span class="ml-3 text-3xl font-bold text-primary tracking-tight">Bount.ing</span>
           </router-link>
-          <div class="hidden md:flex space-x-4 ml-10">
-            <router-link to="/" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-700">{{ $t('Home') }}</router-link>
-            <router-link to="/dashboard" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('Dashboard') }}</router-link>
-            <router-link to="/profile" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('Profile') }}</router-link>
-            <router-link to="/pricing" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('Pricing') }}</router-link>
-            <router-link to="/about" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('About') }}</router-link>
-            <router-link to="/help" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('F.A.Q.') }}</router-link>
-            <router-link to="/contact" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">{{ $t('Contact') }}</router-link>
-          </div>
+
         </div>
 
         <!-- Language dropdown and Authentication buttons -->
         <div class="hidden md:flex items-center space-x-4">
           <!-- Language Dropdown Component -->
-          <LanguageDropdown :inline="false" />
-          <router-link v-if="!isLoggedIn" to="/login" class="px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">{{ $t('Login') }}</router-link>
+          <router-link v-if="!isLoggedIn" to="/signin" class="px-3 py-2 rounded-md text-sm font-medium border text-info-light border-info hover:border-success-light">Sign In</router-link>
+          <router-link v-if="!isLoggedIn" to="/signup" class="px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Sign Up</router-link>
           <button v-else @click="logout" class="px-3 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-light">{{ $t('Logout') }}</button>
+          <LanguageDropdown :inline="false" />
         </div>
 
         <div class="hidden md:block" v-if="isLoggedIn">
@@ -49,13 +42,6 @@
     <!-- Mobile Menu -->
     <div v-if="isOpen" class="md:hidden">
       <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-        <router-link to="/" class="block px-3 py-2 rounded-md text-base font-medium bg-gray-900 hover:bg-gray-700">{{ $t('Home') }}</router-link>
-        <router-link to="/dashboard" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('Dashboard') }}</router-link>
-        <router-link to="/profile" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('Profile') }}</router-link>
-        <router-link to="/pricing" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('Pricing') }}</router-link>
-        <router-link to="/about" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('About') }}</router-link>
-        <router-link to="/help" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('F.A.Q.') }}</router-link>
-        <router-link to="/contact" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">{{ $t('Contact') }}</router-link>
         <router-link v-if="!isLoggedIn" to="/login" class="block px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">{{ $t('Login') }}</router-link>
         <button v-else @click="logout" class="block px-3 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-light">{{ $t('Logout') }}</button>
         <!-- Language Dropdown Component for mobile -->

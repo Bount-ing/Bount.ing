@@ -9,9 +9,9 @@ import (
 type Organization struct {
 	gorm.Model
 	Name         string
-	Members      []User
-	Repositories []Repository
-	Hosts        []Host
+	Members      []User       `gorm:"many2many:organization_members;"`
+	Repositories []Repository `gorm:"foreignKey:OrganizationID"`
+	Hosts        []Host       `gorm:"foreignKey:OrganizationID"`
 }
 
 func init() {

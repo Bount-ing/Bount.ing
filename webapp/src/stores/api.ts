@@ -19,7 +19,7 @@ api.interceptors.request.use(
         const navi = useNaviStore();
 
         if (userStore.isLoggedIn && config.headers) {
-            config.headers['Authorization'] = `Bearer ${userStore.bearerToken}`;
+            config.headers['Authorization'] = `${userStore.authHeader}`;
         }
         navi.SetLoading();
         return config;

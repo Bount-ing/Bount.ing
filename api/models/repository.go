@@ -12,7 +12,9 @@ type Repository struct {
 	GithubURL            string
 	GithubWebhookEnabled bool
 	Name                 string
-	Issues               []Issue
+	Issues               []Issue `gorm:"foreignKey:RepositoryID"`
+	OrganizationID       uint
+	HostID               uint
 }
 
 func init() {

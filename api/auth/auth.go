@@ -30,9 +30,9 @@ var (
 	accessTokenDuration = 15 * time.Minute
 )
 
-func Login(mail, password string) (models.User, error) {
+func Login(email, password string) (models.User, error) {
 	var user models.User
-	if dbc := db.DB.Where("mail = ?", mail).First(&user); dbc.Error != nil {
+	if dbc := db.DB.Where("email = ?", email).First(&user); dbc.Error != nil {
 		if dbc.Error == gorm.ErrRecordNotFound {
 			return user, ErrInvalidCredentials
 		}

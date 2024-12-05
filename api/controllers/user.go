@@ -105,8 +105,8 @@ func CreateUserPassword(pwd, code string) error {
 
 	dbc := db.DB.Model(&models.User{}).Where("verif_code = ?", code).Updates(
 		map[string]interface{}{
-			"password":  pwd,
-			"activated": true,
+			"password": pwd,
+			"verified": true,
 		},
 	)
 	return dbc.Error

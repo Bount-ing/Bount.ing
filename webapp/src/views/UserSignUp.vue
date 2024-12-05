@@ -10,8 +10,8 @@ const userExists = ref(false)
 const userCreated = ref(false)
 
 const registerUser = () => {
-	api.post('/register', {
-		mail: userMail.value
+	api.post('/v1/signup', {
+		email: userMail.value
 	})
 		.then((response) => {
 			userCreated.value = true

@@ -2,6 +2,7 @@ package tools
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -14,6 +15,7 @@ func SendEmail(to, subject, content string) error {
 	m.SetHeader("To", to)
 	m.SetHeader("Subject", subject)
 
+	log.Printf("Sending mail to %s from %s", to, os.Getenv("NOREPLY_MAIL_ADDRESS"))
 	m.SetBody("text/html", fmt.Sprintf(MailTemplate, content, time.Now().Year()))
 
 	d := mail.NewDialer("smtp.gmail.com",

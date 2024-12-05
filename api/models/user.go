@@ -22,9 +22,11 @@ type User struct {
 	GithubID int
 	Username string
 
-	PublishedBounties []Bounty
-	Claims            []Claim
+	PublishedBounties []Bounty `gorm:"foreignKey:OwnerID"`
+	Claims            []Claim  `gorm:"foreignKey:OwnerID"`
 	StipeAccountID    string
+
+	RefreshTokens []RefreshToken `gorm:"foreignKey:UserID"`
 }
 
 func init() {

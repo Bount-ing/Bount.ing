@@ -15,8 +15,8 @@ type Issue struct {
 	Status       string
 	RepositoryID uint
 	ClosedAt     string
-	Bounties     []Bounty
-	Claims       []Claim
+	Bounties     []Bounty `gorm:"foreignKey:IssueID"`
+	Claims       []Claim  `gorm:"foreignKey:IssueID"`
 }
 
 func init() {

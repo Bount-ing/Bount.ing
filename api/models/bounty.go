@@ -32,7 +32,7 @@ type Bounty struct {
 	FinalizedAt     time.Time
 	IssueID         uint
 	StripeInvoiceID string
-	Claims          []Claim
+	Claims          []Claim `gorm:"foreignKey:BountyID"`
 	Status          string
 }
 

@@ -49,7 +49,7 @@ const passwordsMatchHelperMsg = computed(() => {
 const verifyLink = () => {
 	var code = route.params.code
 
-	api.post('/signup/verif/' + code)
+	api.post('/v1/signup/verif/' + code)
 		.then((response) => {
 			verifCode.value = route.params.verifCode
 			validVerifCode.value = true
@@ -67,7 +67,7 @@ const sendPassword = () => {
 	}
 
 	api
-		.post('/signup/password', data)
+		.post('/v1/signup/password', data)
 		.then((response) => {
 			notifStore.success('Password set successfully')
 			autoLogin()
