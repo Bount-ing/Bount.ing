@@ -19,6 +19,7 @@ import router from './router'
 
 const app = createApp(App)
 
+// Pinia Storage
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 export default pinia;
@@ -26,6 +27,7 @@ app.use(pinia)
 app.use(router)
 app.use(i18n);
 
+// Google Analytics
 const gtagOptions: GtagPluginOptions = {
     property: {
       id: import.meta.env.VITE_GTAG
@@ -35,5 +37,15 @@ const gtagOptions: GtagPluginOptions = {
     pageTrackerScreenviewEnabled: true,
   };
 app.use(createGtag, gtagOptions);
+
+// Font Awesome Icons
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faHome, faChartBar, faDollarSign, faInfoCircle, faQuestionCircle, faEnvelope } from '@fortawesome/free-solid-svg-icons';
+
+library.add(faHome, faChartBar, faDollarSign, faInfoCircle, faQuestionCircle, faEnvelope);
+
+app.component('font-awesome-icon', FontAwesomeIcon);
+
 
 app.mount('#app')

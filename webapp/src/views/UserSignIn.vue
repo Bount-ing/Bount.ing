@@ -18,81 +18,81 @@ const userLogin = async () => {
 	}
 
 	await userStore.login(data)
-	router.push('/user')
+	router.push('/profile')
 	console.log(data)
 }
 </script>
 <template>
-	<div class="user-form-category-btn">
-		<ul class="nav nav-tabs">
-			<li><router-link to="/signin" class="nav-link active">sign in</router-link></li>
-			<li><router-link to="/signup" class="nav-link">sign up</router-link></li>
-		</ul>
-	</div>
-	<div class="tab-pane active" id="login-tab">
-		<div class="user-form-title">
-			<h2>{{ $t('content.userSignin.welcome') }}</h2>
-			<p>{{ $t('content.userSignin.userCreds') }}</p>
+	<div class="max-w-lg max-h-full mx-auto mt-12">
+	  <div class="shadow-lg rounded-lg p-6 pt-8 mt-8">
+		<div class="text-center mb-6">
+		  <h2 class="text-2xl font-semibold text-primary">{{ $t('account.userCredentials.welcome') }}</h2>
+		  <p class="text-secondary-light">{{ $t('account.userCredentials.enterCredentials') }}</p>
 		</div>
-		<form data-bitwarden-watching="1">
-			<div class="row">
-				<div class="col-12">
-					<div class="form-group">
-						<input
-							type="text"
-							v-model="mail"
-							class="form-control"
-							:placeholder="$t('content.userSignin.mailField')"
-						/>
-					</div>
-				</div>
-				<div class="col-12">
-					<div class="form-group">
-						<input
-							v-model="password"
-							class="form-control"
-							id="pass"
-							:placeholder="$t('content.userSignin.pwdField')"
-							:type="showPassword ? 'text' : 'password'"
-						/><button
-							type="button"
-							class="form-icon"
-							style="color: rgba(0, 0, 0, 0.5)"
-							@click="() => (showPassword = !showPassword)"
-						>
-							<font-awesome-icon icon="eye" />
-						</button>
-					</div>
-				</div>
-				<div class="col-6">
-					<div class="form-group">
-						<div class="custom-control custom-checkbox">
-							<input type="checkbox" class="custom-control-input" id="signin-check" /><label
-								class="custom-control-label"
-								for="signin-check"
-								>Remember me</label
-							>
-						</div>
-					</div>
-				</div>
-				<div class="col-6">
-					<div class="form-group text-right">
-						<a href="#" class="form-forgot">{{ $t('content.userSignin.forgotPwd') }} </a>
-					</div>
-				</div>
-				<div class="col-12">
-					<div class="form-group">
-						<button type="button" class="btn btn-inline" @click="userLogin()">
-							<i class="fas fa-unlock"></i><span>{{ $t('content.userSignin.enter') }}</span>
-						</button>
-					</div>
-				</div>
+  
+		<form>
+		  <div class="space-y-4">
+			<!-- Email Field -->
+			<div class="relative">
+			  <input
+				type="email"
+				v-model="mail"
+				class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-secondary"
+				:placeholder="$t('account.userCredentials.email')"
+				required
+			  />
 			</div>
+  
+			<!-- Password Field -->
+			<div class="relative">
+			  <input
+				v-model="password"
+				class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-secondary"
+				:type="showPassword ? 'text' : 'password'"
+				:placeholder="$t('account.userCredentials.password')"
+				required
+			  />
+			  <button
+				type="button"
+				class="absolute right-3 top-2 text-gray-500"
+				@click="showPassword = !showPassword"
+			  >
+				<font-awesome-icon icon="eye" />
+			  </button>
+			</div>
+  
+			<!-- Remember Me & Forgot Password -->
+			<div class="flex justify-between items-center">
+			  <div class="flex items-center space-x-2">
+				<input type="checkbox" class="h-4 w-4 bg-secondary text-primary border-primary" id="signin-check" />
+				<label for="signin-check" class="text-gray-600">{{ $t('account.userCredentials.rememberMe')}}</label>
+			  </div>
+			  <div>
+				<a href="#" class="text-sm text-primary hover:text-primary-light">{{ $t('account.userCredentials.forgotPassword') }}</a>
+			  </div>
+			</div>
+  
+			<!-- Submit Button -->
+			<div class="mt-6">
+			  <button
+				type="button"
+				@click="userLogin()"
+				class="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-light focus:outline-none transition-all"
+			  >
+				<i class="fas fa-unlock mr-2"></i>
+				<span>{{ $t('account.userCredentials.enter') }}</span>
+			  </button>
+			</div>
+		  </div>
 		</form>
-		<div class="user-form-direction">
-			<p>
-				<router-link to="/signup" v-html="$t('content.userSignin.noAccountMsg')"> </router-link>
-			</p>
+  
+		<div class="mt-6 text-center">
+		  <p class="text-gray-600">
+			<router-link to="/signup" class="text-primary hover:text-primary-light">
+			  {{ $t('account.userCredentials.noAccount') }}
+			</router-link>
+		  </p>
 		</div>
+	  </div>
 	</div>
-</template>
+  </template>

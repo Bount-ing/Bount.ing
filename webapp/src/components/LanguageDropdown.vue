@@ -1,26 +1,26 @@
 <template>
     <div :class="{'relative': !inline}">
-      <button @click="toggleDropdown" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-700">
+      <button @click="toggleDropdown" class="px-3 py-2 rounded-md text-sm font-medium ">
         <span :class="'flag fi fi-squared fi-' + currentFlag"></span>
       </button>
       <div v-if="isDropdownOpen" :class="dropdownClass">
-        <a @click="setLanguage('en')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-          <span class="flag fi fi-squared fi-gb"></span> {{ $t('English') }}
+        <a @click="setLanguage('en')" class="block px-4 text-lg py-2 text-sm text-primary hover:bg-secondary-dark">
+          <span class="flag fi fi-squared fi-gb"></span> {{ $t('language.english') }}
         </a>
-        <a @click="setLanguage('es')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-          <span class="flag fi fi-squared fi-es"></span> {{ $t('Spanish') }}
+        <a @click="setLanguage('es')" class="block px-4 text-lg py-2 text-sm text-primary hover:bg-secondary-dark">
+          <span class="flag fi fi-squared fi-es"></span> {{ $t('language.spanish') }}
         </a>
-        <a @click="setLanguage('fr')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-          <span class="flag fi fi-squared fi-fr"></span> {{ $t('French') }}
+        <a @click="setLanguage('fr')" class="block px-4 text-lg py-2 text-sm text-primary hover:bg-secondary-dark">
+          <span class="flag fi fi-squared fi-fr"></span> {{ $t('language.french') }}
         </a>
-        <a @click="setLanguage('ca')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-          <span class="flag fi fi-squared fi-es-ct"></span> {{ $t('Catalan') }}
+        <a @click="setLanguage('ca')" class="block px-4 text-lg py-2 text-sm text-primary hover:bg-secondary-dark">
+          <span class="flag fi fi-squared fi-es-ct"></span> {{ $t('language.catalan') }}
         </a>
-        <a @click="setLanguage('pt')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-          <span class="flag fi fi-squared fi-pt"></span> {{ $t('Portuguese') }}
+        <a @click="setLanguage('pt')" class="block px-4 text-lg py-2 text-sm text-primary hover:bg-secondary-dark">
+          <span class="flag fi fi-squared fi-pt"></span> {{ $t('language.portuguese') }}
         </a>
-        <a @click="setLanguage('eu')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-          <span class="flag fi fi-squared fi-es-pv"></span> {{ $t('Euskera') }}
+        <a @click="setLanguage('eu')" class="block px-4 text-lg py-2 text-sm text-primary hover:bg-secondary-dark">
+          <span class="flag fi fi-squared fi-es-pv"></span> {{ $t('language.euskera') }}
         </a>
         <!-- Add more languages as needed -->
       </div>
@@ -52,7 +52,7 @@
   };
   
   const dropdownClass = computed(() => {
-    return props.inline ? 'mt-2 w-full bg-white border rounded-md shadow-lg' : 'absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg';
+    return props.inline ? 'text-primary mt-2 w-full bg-secondary border border-primary-dark rounded-md shadow-lg' : 'absolute right-0 mt-2 w-48 border bg-secondary rounded-md shadow-lg text-primary border-primary-dark';
   });
   
   const currentFlag = ref('gb'); // Default flag

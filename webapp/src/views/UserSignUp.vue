@@ -28,46 +28,51 @@ const registerUser = () => {
 		})
 }
 </script>
+
 <template>
-	<div class="user-form-category-btn">
-		<ul class="nav nav-tabs">
-			<li><router-link to="/signin" class="nav-link">sign in</router-link></li>
-			<li><router-link to="/signup" class="nav-link active">sign up</router-link></li>
-		</ul>
-	</div>
-	<div class="tab-pane active" id="register-tab">
-		<div class="user-form-title">
-			<h2>Register</h2>
-			<p>Setup a new account in a minute.</p>
+	<div class="container mx-auto p-6">
+	  <!-- Tab Links -->
+  
+	  <!-- Registration Form -->
+	  <div class="mt-8 p-8 rounded-lg shadow-md max-w-md mx-auto">
+		<div class="mb-6">
+		  <h2 class="text-2xl font-bold text-primary">Register</h2>
+		  <p class="text-secondary-light">Setup a new account in a minute.</p>
 		</div>
-		<form data-bitwarden-watching="1" @submit.prevent="registerUser" action="#">
-			<div class="row">
-				<div class="col-12">
-					<div class="form-group">
-						<input type="email" class="form-control" placeholder="Email" v-model="userMail" /><small
-							class="form-alert"
-							>Please provide a valid mail adress, we will send a verification code to make sure
-							it's correct</small
-						>
-						<small v-if="userExists" style="color: var(--red)">User already exists </small>
-					</div>
-				</div>
-				<div class="col-12">
-					<div class="form-group">
-						<button type="button" @click="registerUser()" class="btn btn-inline">
-							<i class="fas fa-user-check"></i><span>Create new account</span>
-						</button>
-					</div>
-				</div>
-			</div>
+  
+		<form @submit.prevent="registerUser">
+		  <!-- Email Input -->
+		  <div class="mb-4">
+			<label for="email" class="block text-gray-700 font-medium mb-2">Email</label>
+			<input
+			  type="email"
+			  id="email"
+			  v-model="userMail"
+			  class="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-secondary"
+			  placeholder="Enter your email"
+			/>
+			<small class="text-sm text-secondary-light mt-1 block">We will send a verification code to make sure it's correct.</small>
+			<small v-if="userExists" class="text-sm text-red-500 mt-2">User already exists</small>
+		  </div>
+  
+		  <!-- Submit Button -->
+		  <div class="mb-4">
+			<button
+			  type="submit"
+			  class="w-full bg-primary text-white font-semibold py-3 rounded-md hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary"
+			>
+			  <i class="fas fa-user-check mr-2"></i><span>Create new account</span>
+			</button>
+		  </div>
 		</form>
-		<div class="tab-pane active">
-			<div class="user-form-direction">
-				<p>
-					Already have an account? click on the
-					<router-link to="/userSignin/signin">(sign in)</router-link> button above.
-				</p>
-			</div>
+  
+		<!-- Direction to Sign In -->
+		<div class="mt-4 text-center">
+		  <p class="text-gray-600">
+			Already have an account? Click on the 
+			<router-link to="/signin" class="text-primary font-semibold">Sign In</router-link> button above.
+		  </p>
 		</div>
+	  </div>
 	</div>
-</template>
+  </template>

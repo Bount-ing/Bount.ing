@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user';
-import LandingHeader from '@/components/UI/LandingHeader.vue';
+import LandingHeader from '@/components/UI/PublicHeader.vue';
 
 //check if user is logged in
 const userStore = useUserStore();

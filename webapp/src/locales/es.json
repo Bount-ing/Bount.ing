@@ -1,60 +1,105 @@
 {
-    "Home": "Inicio",
-    "Dashboard": "Tablero",
-    "Profile": "Perfil",
-    "About": "Acerca de",
-    "F.A.Q.": "Preguntas Frecuentes",
-    "Contact": "Contacto",
-    "Login": "Iniciar sesión",
-    "Logout": "Cerrar sesión",
-    "Open main menu": "Abrir el menú principal",
-    "View Issue on GitHub": "Ver problema en GitHub",
-    "Claim": "Reclamar",
-    "Raise": "Aumentar",
-    "Select Bounty Type": "Seleccionar tipo de recompensa",
-    "Economic": "Económico",
-    "Fast": "Rápido",
-    "Standard": "Estándar",
-    "All rights reserved.": "Todos los derechos reservados.",
-    "Terms of Service": "Términos de servicio",
-    "Privacy Policy": "Política de privacidad",
-    "Contact us": "Contáctenos",
-    "Create an increasing Bounty": "Crear una recompensa creciente",
-    "Bounty Amount": "Monto de la recompensa",
-    "Start Date": "Fecha de inicio",
-    "End Date": "Fecha de finalización",
-    "Submit": "Enviar",
-    "Cancel": "Cancelar",
-    "Level": "Nivel",
-    "Interests": "Intereses",
-    "Personal Information": "Información personal",
-    "Full Name": "Nombre completo",
-    "Email Address": "Dirección de correo electrónico",
-    "Phone Number": "Número de teléfono",
-    "Location": "Ubicación",
-    "Type": "Tipo",
-    "Amount": "Monto",
-    "Date": "Fecha",
-    "No transactions found.": "No se encontraron transacciones.",
-    "Create a Single Bounty": "Crear una recompensa única",
-    "Status": "Estado",
-    "No bounties found.": "No se encontraron recompensas.",
-    "English": "Inglés",
-    "Spanish": "Español",
-    "French": "Francés",
-    "Catalan": "Catalán",
-    "Portuguese": "Portugués",
-    "Euskera": "Euskera",
-    "Private Issue": "Problema privado",
-    "Details are confidential.": "Los detalles son confidenciales.",
-    "You need to be logged in and granted to see it.": "Debe iniciar sesión y tener permisos para verlo.",
-    "Recent Posts": "Publicaciones recientes",
-    "Issues": "Problemas",
-    "Create a descreasing Bounty": "Crear una recompensa decreciente",
-    "About Me": "Sobre mí",
-    "Card Information": "Información de la tarjeta",
-    "Card Number": "Número de tarjeta",
-    "Expiry Date": "Fecha de expiración",
-    "Card Holder Name": "Nombre del titular de la tarjeta",
-    "Available Issues": "Problemas disponibles"
-}
+    "greeting": "Hola",
+    "navigation": {
+      "home": "Inicio",
+      "dashboard": "Tablero",
+      "pricing": "Precios",
+      "about": "Acerca de nosotros",
+      "faq": "Preguntas frecuentes",
+      "contact": "Contáctanos"
+    },
+    "account": {
+      "signin": "Iniciar sesión",
+      "signup": "Registrarse",
+      "logout": "Cerrar sesión",
+      "userCredentials": {
+        "welcome": "¡Bienvenido de nuevo!",
+        "enterCredentials": "Por favor ingresa tus credenciales",
+        "email": "Dirección de correo electrónico",
+        "password": "Contraseña",
+        "rememberMe": "Recuérdame",
+        "forgotPassword": "¿Olvidaste tu contraseña?",
+        "enter": "Entrar",
+        "noAccount": "¿No tienes una cuenta? Regístrate"
+      }
+    },
+    "bounties": {
+      "no_bounties_found": "No se encontraron recompensas.",
+      "select_bounty_type": "Selecciona el tipo de recompensa",
+      "create_increasing_bounty": "Crear una recompensa creciente",
+      "create_single_bounty": "Crear una recompensa única",
+      "create_decreasing_bounty": "Crear una recompensa decreciente",
+      "claim": "Reclamar la recompensa",
+      "raise": "Aumentar la recompensa",
+      "bounty_amount": "Monto de la recompensa",
+      "start_date": "Fecha de inicio",
+      "end_date": "Fecha de fin"
+    },
+    "status": {
+      "status": "Estado",
+      "type": "Tipo",
+      "date": "Fecha"
+    },
+    "transactions": {
+      "no_transactions_found": "No se encontraron transacciones.",
+      "amount": "Monto"
+    },
+    "issues": {
+      "available_issues": "Problemas disponibles",
+      "private_issue": "Problema privado",
+      "details_are_confidential": "Los detalles son confidenciales.",
+      "need_to_be_logged_in": "Debes estar conectado y autorizado para ver esto."
+    },
+    "profile": {
+      "personal_information": "Información personal",
+      "full_name": "Nombre completo",
+      "email_address": "Dirección de correo electrónico",
+      "phone_number": "Número de teléfono",
+      "location": "Ubicación",
+      "about_me": "Acerca de mí",
+      "repositories": "Repositorios",
+      "issues": "Problemas",
+      "bounties": "Recompensas",
+      "badges": "Insignias",
+      "hosts": "Anfitriones",
+      "payments": "Pagos",
+      "organizations": "Organizaciones"
+    },
+    "payment": {
+      "finalize": "Finalizar",
+      "card_information": "Información de la tarjeta",
+      "card_number": "Número de la tarjeta",
+      "expiry_date": "Fecha de vencimiento",
+      "card_holder_name": "Nombre del titular de la tarjeta"
+    },
+    "legal": {
+      "tos": "Términos de servicio",
+      "privacy_policy": "Política de privacidad",
+      "all_rights_reserved": "Todos los derechos reservados"
+    },
+    "language": {
+      "english": "Inglés",
+      "spanish": "Español",
+      "french": "Francés",
+      "catalan": "Catalán",
+      "portuguese": "Portugués",
+      "euskera": "Vasco"
+    },
+    "activity": {
+      "action_in_repo": "actuó en el repositorio",
+      "repo_link": "Haz clic aquí para ver"
+    },
+    "contact": {
+      "linkedin": "LinkedIn",
+      "discord": "Discord",
+      "github": "Github"
+    },
+    "signup": {
+      "register": "Registrarse",
+      "email_label": "Correo electrónico"
+    },
+    "faq": {
+      "support": "Soporte"
+    }
+  }
+  

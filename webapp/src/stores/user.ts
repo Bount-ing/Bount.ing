@@ -2,6 +2,7 @@ import axios from 'axios';
 import { ref, computed } from 'vue';
 import { defineStore } from "pinia";
 import { api } from './api';
+import router from '../router';
 
 interface User {
     userid: string;
@@ -122,7 +123,8 @@ export const useUserStore = defineStore('user', () => {
                 token.value = accessToken;
                 loggedIn.value = true;
 
-                await getUserInfo(); // Replace with an actual function fetching user data
+                //push to dashboard
+                router.push({ name: 'Profile' });
             } else {
                 throw new Error('Missing tokens in response');
             }
@@ -148,8 +150,6 @@ export const useUserStore = defineStore('user', () => {
     }
 
     function logout(): void {
-        if (!loggedIn.value) return;
-
         user.value = null;
         loggedIn.value = false;
         token.value = '';
@@ -157,6 +157,12 @@ export const useUserStore = defineStore('user', () => {
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
+
+        // Optional: clear GitHub token
+        localStorage.removeItem('githubToken');
+
+        // refresh page
+        router.push({ path: '/' });
     }
 
     async function getUserInfo(): Promise<void> {

@@ -57,7 +57,8 @@ const router = createRouter({
     {
       path: "/profile",
       name: "Profile",
-      component: () => import('../views/UserProfileView.vue')
+      component: () => import('../views/UserProfileView.vue'),
+      meta: { needsAuth: true }
     },
     {
       path: "/pricing",
@@ -81,11 +82,6 @@ const router = createRouter({
       path: '/',
       component: LoginLayout,
       children: [
-        {
-          path: "/login",
-          name: "Login",
-          component: () => import('../views/LoginView.vue')
-        },
         {
           path: 'signin',
           name: 'userSignIn',

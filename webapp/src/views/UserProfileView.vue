@@ -1,71 +1,91 @@
 <template>
-  <section class="min-h-screen flex flex-col items-center justify-center p-4 text-white">
-    <div v-if="loading" class="text-center text-2xl font-semibold">Loading...</div>
-    <div v-else class="w-full max-w-6xl rounded-2xl shadow-xl overflow-hidden bg-gray-800">
-      <UserProfile :user="user" />
-      
-      <!-- Tab Navigation -->
-      <div class="flex justify-around bg-gray-700 text-gray-300">
+  <section class="min-h-screen flex text-white">
+    <!-- Left Sidebar Navigation -->
+    <div class="w-64 bg-secondary p-4 pt-8">
+      <div class="flex flex-col space-y-2 pt-2">
+        <!-- Sidebar Items (Tabs) -->
         <button
           v-for="tab in tabs"
           :key="tab.name"
           @click="selectTab(tab)"
-          :class="{ 'bg-gray-800': currentTab && currentTab.name === tab.name }"
-          class="p-4 cursor-pointer"
+          :class="[
+            'p-4 cursor-pointer text-left rounded-md',
+            { 'bg-gray-700': currentTab && currentTab.name === tab.name }
+          ]"
         >
           {{ tab.name }}
         </button>
       </div>
+    </div>
 
-      <!-- Tab Content -->
-      <div class="p-6">
-        <keep-alive>
-          <component :is="currentTab?.component" :key="currentTab?.name" v-if="currentTab" />
-        </keep-alive>
+    <!-- Main Content Area -->
+    <div class="flex-1 pt-8">
+      <div v-if="loading" class="text-center text-2xl font-semibold">Loading...</div>
+      <div v-else class="rounded-2xl shadow-xl overflow-hidden p-4">
+        <UserProfile :user="user" />
+        
+        <!-- Tab Content -->
+        <div class="mt-6">
+          <keep-alive>
+            <component :is="currentTab?.component" :key="currentTab?.name" v-if="currentTab" />
+          </keep-alive>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
-<script>
+<script setup>
+import { ref, watchEffect } from 'vue';
 import UserProfile from '../components/UserProfile.vue';
-import UserBountiesList from '../components/UserBountiesList.vue';
-import UserTransactionsHistory from '../components/UserTransactionsHistory.vue';
-import UserPaymentInformation from '../components/UserPaymentInformation.vue';
-import GitHubImages from '../components/GitHubImages.vue';
-import { ref } from 'vue';
+import UserBadgesList from '../components/UserProfile/UserBadgesList.vue';
+import UserOrganizationsList from '../components/UserProfile/UserOrganizationsList.vue';
+import UserHostsList from '../components/UserProfile/UserHostsList.vue';
+import UserRepositoriesList from '../components/UserProfile/UserRepositoriesList.vue';
+import UserIssuesList from '../components/UserProfile/UserIssuesList.vue';
+import UserBountiesList from '../components/UserProfile/UserBountiesList.vue';
+import UserPaymentsList from '../components/UserProfile/UserPaymentsList.vue';
 import { useUserStore } from '../stores/user';
+import { useI18n } from 'vue-i18n';  // Import useI18n hook
 
-export default {
-  components: {
-    UserProfile,
-    UserBountiesList,
-    UserTransactionsHistory,
-    UserPaymentInformation,
-    GitHubImages,
-  },
-  setup() {
-    const userStore = useUserStore();
-    const user = userStore.user;
-    const tabs = ref([
-      { name: 'Bounties', component: 'UserBountiesList' },
-      { name: 'Transactions', component: 'UserTransactionsHistory' },
-      { name: 'Payment Info', component: 'UserPaymentInformation' },
-      { name: 'GitHub Images', component: 'GitHubImages' },
-    ]);
+// Use the useI18n hook to get the translation function
+const { t, locale } = useI18n();
 
-    const currentTab = ref(tabs.value[0] || { name: '', component: 'FallbackComponent' });
 
-    const selectTab = (tab) => {
-      currentTab.value = tab;
-    };
+// Get the user from the store
+const userStore = useUserStore();
+const user = userStore.user;
 
-    return {
-      user,
-      tabs,
-      currentTab,
-      selectTab,
-    };
-  }
+
+// Define the tabs array (initially empty)
+const tabs = ref([]);
+
+// Function to update the tabs when language changes
+const updateTabs = () => {
+  tabs.value = [
+    { name: t('profile.badges'), component: UserBadgesList },
+    { name: t('profile.organizations'), component: UserOrganizationsList },
+    { name: t('profile.hosts'), component: UserHostsList },
+    { name: t('profile.repositories'), component: UserRepositoriesList },
+    { name: t('profile.issues'), component: UserIssuesList },
+    { name: t('profile.bounties'), component: UserBountiesList },
+    { name: t('profile.payments'), component: UserPaymentsList },
+  ];
+};
+
+// Call `updateTabs` initially to set the tab names
+updateTabs();
+
+// Watch for changes to the locale and update tabs accordingly
+watchEffect(() => {
+  updateTabs();
+});
+
+// Set the default tab
+const currentTab = ref(tabs.value[0] || { name: '', component: null });
+
+// Select a tab when clicked
+const selectTab = (tab) => {
+  currentTab.value = tab;
 };
 </script>

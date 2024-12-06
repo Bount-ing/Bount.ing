@@ -1,60 +1,104 @@
 {
-  "Home": "Home",
-  "Dashboard": "Dashboard",
-  "Profile": "Profile",
-  "About": "About",
-  "F.A.Q.": "F.A.Q.",
-  "Contact": "Contact",
-  "Login": "Login",
-  "Logout": "Logout",
-  "Open main menu": "Open main menu",
-  "View Issue on GitHub": "View Issue on GitHub",
-  "Claim": "Claim",
-  "Raise": "Raise",
-  "Select Bounty Type": "Select Bounty Type",
-  "Economic": "Economic",
-  "Fast": "Fast",
-  "Standard": "Standard",
-  "All rights reserved.": "All rights reserved.",
-  "Terms of Service": "Terms of Service",
-  "Privacy Policy": "Privacy Policy",
-  "Contact us": "Contact us",
-  "Create an increasing Bounty": "Create an increasing Bounty",
-  "Bounty Amount": "Bounty Amount",
-  "Start Date": "Start Date",
-  "End Date": "End Date",
-  "Submit": "Submit",
-  "Cancel": "Cancel",
-  "Level": "Level",
-  "Interests": "Interests",
-  "Personal Information": "Personal Information",
-  "Full Name": "Full Name",
-  "Email Address": "Email Address",
-  "Phone Number": "Phone Number",
-  "Location": "Location",
-  "Type": "Type",
-  "Amount": "Amount",
-  "Date": "Date",
-  "No transactions found.": "No transactions found.",
-  "Create a Single Bounty": "Create a Single Bounty",
-  "Status": "Status",
-  "No bounties found.": "No bounties found.",
-  "English": "English",
-  "Spanish": "Spanish",
-  "French": "French",
-  "Catalan": "Catalan",
-  "Portuguese": "Portuguese",
-  "Euskera": "Euskera",
-  "Private Issue": "Private Issue",
-  "Details are confidential.": "Details are confidential.",
-  "You need to be logged in and granted to see it.": "You need to be logged in and granted to see it.",
-  "Recent Posts": "Recent Posts",
-  "Issues": "Issues",
-  "Create a descreasing Bounty": "Create a descreasing Bounty",
-  "About Me": "About Me",
-  "Card Information": "Card Information",
-  "Card Number": "Card Number",
-  "Expiry Date": "Expiry Date",
-  "Card Holder Name": "Card Holder Name",
-  "Available Issues": "Available Issues"
+  "greeting": "Hello",
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "pricing": "Pricing",
+    "about": "About Us",
+    "faq": "Frequently Asked Questions",
+    "contact": "Contact Us"
+  },
+  "account": {
+    "signin": "Sign In",
+    "signup": "Sign Up",
+    "logout": "Log Out",
+    "userCredentials": {
+      "welcome": "Welcome back!",
+      "enterCredentials": "Please enter your credentials",
+      "email": "Email Address",
+      "password": "Password",
+      "rememberMe": "Remember Me",
+      "forgotPassword": "Forgot Password?",
+      "enter": "Enter",
+      "noAccount": "Don't have an account? Sign up"
+    }
+  },
+  "bounties": {
+    "no_bounties_found": "No bounties found.",
+    "select_bounty_type": "Select bounty type",
+    "create_increasing_bounty": "Create an increasing bounty",
+    "create_single_bounty": "Create a single bounty",
+    "create_decreasing_bounty": "Create a decreasing bounty",
+    "claim": "Claim the bounty",
+    "raise": "Increase the bounty",
+    "bounty_amount": "Bounty amount",
+    "start_date": "Start date",
+    "end_date": "End date"
+  },
+  "status": {
+    "status": "Status",
+    "type": "Type",
+    "date": "Date"
+  },
+  "transactions": {
+    "no_transactions_found": "No transactions found.",
+    "amount": "Amount"
+  },
+  "issues": {
+    "available_issues": "Available issues",
+    "private_issue": "Private issue",
+    "details_are_confidential": "Details are confidential.",
+    "need_to_be_logged_in": "You need to be logged in and authorized to view this."
+  },
+  "profile": {
+    "personal_information": "Personal Information",
+    "full_name": "Full Name",
+    "email_address": "Email Address",
+    "phone_number": "Phone Number",
+    "location": "Location",
+    "about_me": "About Me",
+    "repositories": "Repositories",
+    "issues": "Issues",
+    "bounties": "Bounties",
+    "badges": "Badges",
+    "hosts": "Hosts",
+    "payments": "Payments",
+    "organizations": "Organizations"
+  },
+  "payment": {
+    "finalize": "Finalize",
+    "card_information": "Card Information",
+    "card_number": "Card Number",
+    "expiry_date": "Expiry Date",
+    "card_holder_name": "Card Holder's Name"
+  },
+  "legal": {
+    "tos": "Terms of Service",
+    "privacy_policy": "Privacy Policy",
+    "all_rights_reserved": "All rights reserved"
+  },
+  "language": {
+    "english": "English",
+    "spanish": "Spanish",
+    "french": "French",
+    "catalan": "Catalan",
+    "portuguese": "Portuguese",
+    "euskera": "Basque"
+  },
+  "activity": {
+    "action_in_repo": "acted in the repository",
+    "repo_link": "Click here to view"
+  },
+  "contact": {
+    "linkedin": "LinkedIn",
+    "discord": "Discord",
+    "github": "GitHub"
+  },
+  "signup": {
+    "register": "Sign Up",
+    "email_label": "Email"
+  },
+  "faq": {
+    "support": "Support"
+  }
 }

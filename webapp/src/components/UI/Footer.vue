@@ -1,5 +1,5 @@
 <template>
-  <footer class="text-primary py-4 min-w-screen w-screen bottom-0 ">
+  <footer class="text-primary py-4 min-w-screen w-screen bottom-0 mt-8 pt-8">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
       <p>© 2024 Bount.ing. {{ $t('All rights reserved.') }}</p>
       <p>

@@ -1,60 +1,105 @@
 {
-    "Home": "Hasiera",
-    "Dashboard": "Aginte panela",
-    "Profile": "Profila",
-    "About": "Honi buruz",
-    "F.A.Q.": "Ohiko galderak",
-    "Contact": "Harremana",
-    "Login": "Saioa hasi",
-    "Logout": "Saioa itxi",
-    "Open main menu": "Ireki menu nagusia",
-    "View Issue on GitHub": "Ikusi arazoa GitHub-en",
-    "Claim": "Eskatu",
-    "Raise": "Igo",
-    "Select Bounty Type": "Aukeratu sari mota",
-    "Economic": "Ekonomikoa",
-    "Fast": "Azkarra",
-    "Standard": "Estándarra",
-    "All rights reserved.": "Eskubide guztiak erreserbatuta.",
-    "Terms of Service": "Zerbitzuaren baldintzak",
-    "Privacy Policy": "Pribatutasun politika",
-    "Contact us": "Jarri gurekin harremanetan",
-    "Create an increasing Bounty": "Sortu sari gorakorra",
-    "Bounty Amount": "Sariaren zenbatekoa",
-    "Start Date": "Hasiera data",
-    "End Date": "Amaiera data",
-    "Submit": "Bidali",
-    "Cancel": "Utzi",
-    "Level": "Maila",
-    "Interests": "Interesak",
-    "Personal Information": "Informazio pertsonala",
-    "Full Name": "Izen-abizenak",
-    "Email Address": "Posta elektroniko helbidea",
-    "Phone Number": "Telefono zenbakia",
-    "Location": "Kokapena",
-    "Type": "Mota",
-    "Amount": "Zenbatekoa",
-    "Date": "Data",
-    "No transactions found.": "Ez da transakziorik aurkitu.",
-    "Create a Single Bounty": "Sortu sari bakarra",
-    "Status": "Egoera",
-    "No bounties found.": "Ez da saririk aurkitu.",
-    "English": "Ingelesa",
-    "Spanish": "Gaztelania",
-    "French": "Frantsesa",
-    "Catalan": "Katalana",
-    "Portuguese": "Portugesa",
-    "Euskera": "Euskara",
-    "Private Issue": "Arazo pribatua",
-    "Details are confidential.": "Xehetasunak konfidentzialak dira.",
-    "You need to be logged in and granted to see it.": "Ikusteko saioa hasi eta baimenduta egon behar duzu.",
-    "Recent Posts": "Azken argitalpenak",
-    "Issues": "Arazoak",
-    "Create a descreasing Bounty": "Sortu sari murrizgarria",
-    "About Me": "Niri buruz",
-    "Card Information": "Txartelaren informazioa",
-    "Card Number": "Txartel zenbakia",
-    "Expiry Date": "Iraungitze data",
-    "Card Holder Name": "Txartelaren titularraren izena",
-    "Available Issues": "Eskuragarri dauden arazoak"
-}
+    "greeting": "Kaixo",
+    "navigation": {
+      "home": "Hasiera",
+      "dashboard": "Kontrol panela",
+      "pricing": "Prezioak",
+      "about": "Guri buruz",
+      "faq": "Maiz galdetutako galderak",
+      "contact": "Harremana"
+    },
+    "account": {
+      "signin": "Saioa hasi",
+      "signup": "Erregistratu",
+      "logout": "Saioa itxi",
+      "userCredentials": {
+        "welcome": "Ongi etorri!",
+        "enterCredentials": "Mesedez, sartu zure identifikatzaileak",
+        "email": "Posta elektronikoa",
+        "password": "Pasahitza",
+        "rememberMe": "Gogoratu ni",
+        "forgotPassword": "Ahaztutako pasahitza?",
+        "enter": "Sartu",
+        "noAccount": "Ez daukazu konturik? Erregistratu zaitez"
+      }
+    },
+    "bounties": {
+      "no_bounties_found": "Ez da sari bat aurkitu.",
+      "select_bounty_type": "Hautatu sari motak",
+      "create_increasing_bounty": "Sortu sari igotzen doana",
+      "create_single_bounty": "Sortu sari bakarra",
+      "create_decreasing_bounty": "Sortu sari jaitsi doana",
+      "claim": "Eskaera egin",
+      "raise": "Igotzi saria",
+      "bounty_amount": "Sariaren zenbatekoa",
+      "start_date": "Hasiera data",
+      "end_date": "Amaiera data"
+    },
+    "status": {
+      "status": "Estatua",
+      "type": "Motak",
+      "date": "Data"
+    },
+    "transactions": {
+      "no_transactions_found": "Ez da transakziorik aurkitu.",
+      "amount": "Zenbatekoa"
+    },
+    "issues": {
+      "available_issues": "Eskaerak eskuragarri",
+      "private_issue": "Arazo pribatuak",
+      "details_are_confidential": "Xehetasunak konfidentzialeak dira.",
+      "need_to_be_logged_in": "Sartutako eta baimendutako egon behar duzu hori ikusteko."
+    },
+    "profile": {
+      "personal_information": "Informazio pertsonala",
+      "full_name": "Izena eta abizenak",
+      "email_address": "Posta elektronikoa",
+      "phone_number": "Telefono zenbakia",
+      "location": "Kokapena",
+      "about_me": "Nire buruz",
+      "repositories": "Erakusketa",
+      "issues": "Arazoak",
+      "bounties": "Sariak",
+      "badges": "Badinak",
+      "hosts": "Harrapatzaileak",
+      "payments": "Ordainketak",
+      "organizations": "Erakundeak"
+    },
+    "payment": {
+      "finalize": "Amaitu",
+      "card_information": "Txartelaren informazioa",
+      "card_number": "Txartelaren zenbakia",
+      "expiry_date": "Irteera data",
+      "card_holder_name": "Txartelaren jabearen izena"
+    },
+    "legal": {
+      "tos": "Erabilera baldintzak",
+      "privacy_policy": "Pribatutasun politika",
+      "all_rights_reserved": "Eskubide guztiak erreserbatuta"
+    },
+    "language": {
+      "english": "Ingeles",
+      "spanish": "Gaztelania",
+      "french": "Frantses",
+      "catalan": "Katalana",
+      "portuguese": "Portugesa",
+      "euskera": "Euskara"
+    },
+    "activity": {
+      "action_in_repo": "egon da biltegian",
+      "repo_link": "Hemen klikatu ikusteko"
+    },
+    "contact": {
+      "linkedin": "LinkedIn",
+      "discord": "Discord",
+      "github": "Github"
+    },
+    "signup": {
+      "register": "Erregistratu",
+      "email_label": "Posta elektronikoa"
+    },
+    "faq": {
+      "support": "Laguntza"
+    }
+  }
+  
