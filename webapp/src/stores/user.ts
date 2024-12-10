@@ -171,22 +171,24 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  function logout(): void {
-    user.value = null
-    loggedIn.value = false
-    token.value = ''
-
-    localStorage.removeItem('token')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('user')
-
-    // Optional: clear GitHub token
-    localStorage.removeItem('githubToken')
-
-    // refresh page
-    router.push({ path: '/' })
+  async function logout(): Promise<void> {
+    try {
+      // Clear tokens from localStorage
+      localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
+  
+      // Reset the token state and loggedIn status
+      token.value = ''
+      loggedIn.value = false
+  
+      // Redirect to the login page (or wherever appropriate)
+      router.push({ name: 'Signin' }) // Update 'Login' to the actual route name if necessary
+    } catch (error) {
+      console.error('Logout failed:', error)
+      throw new Error('Logout error')
+    }
   }
-
+  
   async function getUserInfo(): Promise<void> {
     // Mock implementation; replace with actual API call.
     try {

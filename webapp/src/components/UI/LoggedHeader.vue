@@ -12,11 +12,11 @@
 
       <!-- Center Section: Navigation Icons -->
       <div class="hidden lg:flex justify-center space-x-4 text-sm">
-        <router-link to="/" class="flex flex-col items-center px-3 py-1 rounded-md text-sm font-medium hover:bg-secondary-dark">
+        <router-link  v-if="isLoggedIn" to="/" class="flex flex-col items-center px-3 py-1 rounded-md text-sm font-medium hover:bg-secondary-dark">
           <font-awesome-icon icon="home" class="text-primary-light text-2xl p-1" />
           <span>{{ $t('navigation.home') }}</span>
         </router-link>
-        <router-link to="/profile" class="flex flex-col items-center px-3 py-1 rounded-md text-sm font-medium hover:bg-secondary-dark">
+        <router-link v-if="isLoggedIn" to="/profile" class="flex flex-col items-center px-3 py-1 rounded-md text-sm font-medium hover:bg-secondary-dark">
           <font-awesome-icon icon="chart-bar" class="text-primary-light text-2xl p-1" />
           <span>{{ $t('navigation.dashboard') }}</span>
         </router-link>
@@ -65,11 +65,11 @@
     <div v-if="isOpen" class="lg:hidden absolute top-16 left-0 w-full bg-secondary z-40 border-primary-dark border-b-2">
       <div class="flex flex-col space-y-4 px-6 py-4">
   <div class="flex flex-col space-y-4 px-6 py-4">
-    <router-link to="/" @click="isOpen = !isOpen" class="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-secondary-dark">
+    <router-link v-if="isLoggedIn" to="/" @click="isOpen = !isOpen" class="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-secondary-dark">
       <font-awesome-icon icon="home" class="text-primary-light text-2xl py-1 px-2" />
       <span class="text-xl">{{ $t('Home') }}</span>
     </router-link>
-    <router-link to="/profile" class="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-secondary-dark">
+    <router-link  v-if="isLoggedIn" to="/profile" class="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-secondary-dark">
       <font-awesome-icon icon="chart-bar" class="text-primary-light text-2xl py-1 px-2" />
       <span class="text-xl">{{ $t('Dashboard') }}</span>
     </router-link>
