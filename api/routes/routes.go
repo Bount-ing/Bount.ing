@@ -46,21 +46,50 @@ func SetupRouter() *gin.Engine {
 	public.GET("/oauth/github/callback", handlers.OAuthGithubCallback)
 	public.GET("/oauth/stripe/callback", handlers.OAuthStripeCallback)
 	public.POST("/register", handlers.CreateUser)
-	public.GET("/bounties/", handlers.GetBounties)
 
 	user := needAuth.Group("/users")
 	user.GET("/me", handlers.GetCurrentUser)
 	user.POST("/stripe", handlers.ConnectStripe)
 
-	bounty := needAuth.Group("/bounties")
-	bounty.POST("/", handlers.CreateBounty)
-	bounty.GET("/:id", handlers.GetBounty)
-	bounty.PUT("/:id", handlers.UpdateBounty)
-	bounty.DELETE("/:id", handlers.DeleteBounty)
-
 	adminBounties := needAdmin.Group("/bounties")
 	adminBounties.GET("/unconfirmed", handlers.GetAllUnconfirmedBounties)
 	adminBounties.PUT("/finalize/:id", handlers.FinalizeBounty)
+
+	public.GET("/claims", handlers.GetClaims)
+	public.GET("/claims/:id", handlers.GetClaim)
+	public.POST("/claims", handlers.CreateClaim)
+	public.PUT("/claims/:id", handlers.UpdateClaim)
+	public.DELETE("/claims/:id", handlers.DeleteClaim)
+
+	public.GET("/bounties/", handlers.GetBounties)
+	public.GET("/bounties/:id", handlers.GetBounty)
+	public.POST("/bounties", handlers.CreateBounty)
+	public.PUT("/bounties/:id", handlers.UpdateBounty)
+	public.DELETE("/bounties/:id", handlers.DeleteBounty)
+
+	public.GET("/issues", handlers.GetIssues)
+	public.GET("/issues/:id", handlers.GetIssue)
+	public.POST("/issues", handlers.CreateIssue)
+	public.PUT("/issues/:id", handlers.UpdateIssue)
+	public.DELETE("/issues/:id", handlers.DeleteIssue)
+
+	public.GET("/repositories", handlers.GetRepositories)
+	public.GET("/repositories/:id", handlers.GetRepository)
+	public.POST("/repositories", handlers.CreateRepository)
+	public.PUT("/repositories/:id", handlers.UpdateRepository)
+	public.DELETE("/repositories/:id", handlers.DeleteRepository)
+
+	public.GET("/hosts", handlers.GetHosts)
+	public.GET("/hosts/:id", handlers.GetHost)
+	public.POST("/hosts", handlers.CreateHost)
+	public.PUT("/hosts/:id", handlers.UpdateHost)
+	public.DELETE("/hosts/:id", handlers.DeleteHost)
+
+	public.GET("/organizations", handlers.GetOrganizations)
+	public.GET("/organizations/:id", handlers.GetOrganization)
+	public.POST("/organizations", handlers.CreateOrganization)
+	public.PUT("/organizations/:id", handlers.UpdateOrganization)
+	public.DELETE("/organizations/:id", handlers.DeleteOrganization)
 
 	return r
 }

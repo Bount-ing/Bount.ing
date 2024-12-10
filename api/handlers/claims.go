@@ -63,3 +63,14 @@ func UpdateClaim(ctx *gin.Context) {
 	}
 
 }
+
+func DeleteClaim(ctx *gin.Context) {
+	claimID := ctx.Param("id")
+
+	if err := controllers.DeleteClaim(claimID); err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Claim not found"})
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, gin.H{})
+}

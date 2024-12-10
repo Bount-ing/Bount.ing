@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreatOrganization(ctx *gin.Context) {
+func CreateOrganization(ctx *gin.Context) {
 	var organization models.Organization
 
 	log.Print("Creating organization")

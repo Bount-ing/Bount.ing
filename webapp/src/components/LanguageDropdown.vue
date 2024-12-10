@@ -55,13 +55,13 @@
     return props.inline ? 'text-primary mt-2 w-full bg-secondary border border-primary-dark rounded-md shadow-lg' : 'absolute right-0 mt-2 w-48 border bg-secondary rounded-md shadow-lg text-primary border-primary-dark';
   });
   
-  const currentFlag = ref('gb'); // Default flag
+  const currentFlag = ref('eu'); // Default flag
   
   // Update the current flag based on the selected language
   watch(locale, (newLocale) => {
     switch (newLocale) {
       case 'en':
-        currentFlag.value = 'eu';
+        currentFlag.value = 'gb';
         break;
       case 'es':
         currentFlag.value = 'es';
@@ -83,7 +83,7 @@
         currentFlag.value = 'eu'; // Default to English flag
         break;
     }
-  });
+  }, {immediate: true });
   </script>
   
   <style scoped>

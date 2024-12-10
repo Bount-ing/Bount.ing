@@ -11,15 +11,15 @@
 
         </div>
 
-        <!-- Language dropdown and Authentication buttons -->
-        <div class="hidden md:flex items-center space-x-4">
-          <!-- Language Dropdown Component -->
-          <router-link v-if="!isLoggedIn" to="/signin" class="px-3 py-2 rounded-md text-sm font-medium border text-info-light border-info hover:border-info-light">Sign In</router-link>
-          <router-link v-if="!isLoggedIn" to="/signup" class="px-3 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">Sign Up</router-link>
-          <button v-else @click="logout" class="px-3 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-light">{{ $t('Logout') }}</button>
-          <LanguageDropdown :inline="false" />
-        </div>
-
+      <!-- Right Section: Language and Authentication -->
+      <div class="flex items-center space-x-2">
+        <!-- Language Dropdown Component -->
+        <LanguageDropdown :inline="false" />
+        <router-link v-if="!isLoggedIn" to="/signin" class="px-2 py-2 rounded-md text-sm font-medium border text-info-light border-info hover:border-info-light">{{ $t('account.signin') }}</router-link>
+        <router-link v-if="!isLoggedIn" to="/signup" class="px-2 py-2 rounded-md text-sm font-medium border text-success-light border-success hover:border-success-light">{{ $t('account.signup') }}</router-link>
+        <button v-else @click="logout" class="px-2 py-2 rounded-md text-sm font-medium border text-error-light border-error hover:border-error-light">{{ $t('account.logout') }}</button>
+      </div>
+      
         <div class="hidden md:block" v-if="isLoggedIn">
 			<ConnectStripe />
         </div>
