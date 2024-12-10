@@ -152,6 +152,16 @@ func GetUserByID(id uint) (models.User, error) {
 	return user, dbc.Error
 }
 
+func GetUserByEmail(email string) (models.User, error) {
+	var user models.User
+
+	dbc := db.DB.Where("email = ?", email).First(&user)
+	if dbc.Error == gorm.ErrRecordNotFound {
+		return user, nil
+	}
+	return user, dbc.Error
+}
+
 func UpdateUserStripeID(id uint, stripeUserId string) error {
 	var user models.User
 

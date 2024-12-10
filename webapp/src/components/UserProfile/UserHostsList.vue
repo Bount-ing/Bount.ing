@@ -4,25 +4,33 @@
     <div v-if="loading" class="text-gray-400">Loading hosts...</div>
     <div v-else-if="hosts.length === 0" class="text-gray-400">No hosts available.</div>
     <ul v-else>
-      <HostLine v-for="host in hosts" :key="host.ID" :host="host" />
+      <li 
+        v-for="host in hosts" 
+        :key="host.ID" 
+        class="flex items-center justify-between mb-2"
+      >
+        <HostLine 
+          :host="host" 
+          class="flex-grow mr-2"
+        />
+      </li>
     </ul>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { api } from '@/stores/api'; // Import the API client
-import HostLine from './HostLine.vue'; // Import the sub-component
+import { api } from '@/stores/api';
+import HostLine from './HostLine.vue';
 
-// Reactive state variables
+
 const hosts = ref([]);
 const loading = ref(true);
 
-// Fetch hosts data on component mount
 const fetchHosts = async () => {
   try {
-    const response = await api.get('/v1/hosts'); // Replace with your API endpoint
-    hosts.value = response.data; // Assuming the API returns an array of hosts
+    const response = await api.get('/v1/hosts');
+    hosts.value = response.data;
   } catch (error) {
     console.error('Error fetching hosts:', error);
   } finally {
@@ -30,6 +38,7 @@ const fetchHosts = async () => {
   }
 };
 
-// Use the lifecycle hook to fetch data
+
+
 onMounted(fetchHosts);
 </script>

@@ -17,10 +17,14 @@
 	const userStore = useUserStore();
 
 	onMounted(async () => {
-		const token = route.query.token;
-		if (token) {
+		const github_token = route.query.github_token;
+		console.log('Query:', route.query);
+		if (github_token) {
 			try {
-				await userStore.login(token);
+				userStore.hosts["https://github.com"] = {
+					connected: true,
+					token: github_token,
+				};
 				router.push('/');
 			} catch (error) {
 				console.error('Login failed:', error);
