@@ -19,10 +19,12 @@ import { computed } from 'vue';
 import { useUserStore } from '@/stores/user';
 
 const { user } = useUserStore();
+const github_user = JSON.parse(localStorage.getItem('github_user') || '{}');
+console.log('Github User:', github_user);
 
 // Computed property to handle avatar fallback
 const avatarUrl = computed(() => {
-  return user?.avatar || '/default-avatar.png'; // Fallback to a default avatar
+  return user?.avatar || github_user?.avatar_url  || '/default-avatar.png'; // Fallback to a default avatar
 });
 
 // Computed properties for other user data with fallbacks
@@ -35,6 +37,6 @@ const userLevel = computed(() => {
 });
 
 const username = computed(() => {
-  return user?.username || "User's name"; // Default name if missing
+  return user?.username || github_user?.name || "User"; // Default username if missing
 });
 </script>

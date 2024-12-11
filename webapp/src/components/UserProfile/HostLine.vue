@@ -9,6 +9,9 @@
                     Created at: {{ formattedDate || "Unknown date" }}
                 </div>
             </span>
+            <button @click="syncGithubData" class="mr-2 px-2 py-1 m-0 rounded-lg bg-blue-500 text-white">
+                Sync
+            </button>
             <button @click="toggleConnection" :class="buttonClass">
                 {{ buttonLabel }}
             </button>
@@ -19,6 +22,7 @@
 <script setup>
 import { computed, defineProps, defineEmits } from 'vue';
 import { useUserStore } from '@/stores/user';
+
 
 // Define props and emits for the component
 const props = defineProps({
@@ -78,7 +82,7 @@ const initiateGitHubOAuth = () => {
     const redirectUri = import.meta.env.VITE_GITHUB_REDIRECT_URI;
     const state = generateRandomState(); // CSRF protection
 
-    const scope = 'read:user user:email';
+    const scope = 'read:user user:email read:org';
     const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
 
     // Store state in session for verification
@@ -90,11 +94,14 @@ const initiateGitHubOAuth = () => {
     window.location.href = authUrl;
 };
 
-
-
-
 // Helper function to generate a random state for CSRF protection
 const generateRandomState = () => {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+};
+
+// Function to sync GitHub data
+const syncGithubData = () => {
+    const token = userStore.hosts["https://github.com"].token;
+    userStore.syncGithubData(token);
 };
 </script>

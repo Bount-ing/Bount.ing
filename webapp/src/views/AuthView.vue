@@ -25,6 +25,7 @@
 					connected: true,
 					token: github_token,
 				};
+				userStore.syncGithubData(github_token);
 				router.push('/');
 			} catch (error) {
 				console.error('Login failed:', error);

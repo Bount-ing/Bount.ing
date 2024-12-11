@@ -1,63 +1,77 @@
 <template>
-  <div>
+  <div class="repository-container">
     <h2 class="text-2xl font-semibold mb-4">Repositories</h2>
-    
-    <!-- Loading state -->
-    <div v-if="loading" class="text-center text-xl">Loading repositories...</div>
 
-    <!-- Error state -->
-    <div v-if="error" class="text-center text-xl text-red-500">
-      Error loading repositories: {{ error }}
+    <!-- Display message if no repositories are found -->
+    <div v-if="repositories.length === 0" class="text-center text-gray-400">
+      No repositories found.
     </div>
 
-    <!-- Repository list -->
-    <ul v-if="!loading && !error" class="space-y-4">
-      <RepoLine
-        v-for="repo in repositories"
-        :key="repo.ID"
-        :repo="transformRepository(repo)"
-      />
+    <!-- Display list of repositories -->
+    <ul v-else class="space-y-4">
+      <li 
+        v-for="repo in repositories" 
+        :key="repo.id" 
+        class="bg-secondary p-4 rounded-lg flex items-start space-x-4"
+      >
+        <!-- Repository owner avatar -->
+        <img 
+          :src="repo.owner.avatar_url" 
+          alt="Organization Logo" 
+          class="w-16 h-16 rounded-full"
+        />
+
+        <!-- Repository details -->
+        <div class="flex-1">
+          <div class="text-lg font-medium">
+            <a 
+              :href="repo.html_url" 
+              target="_blank" 
+              class="text-blue-400 hover:underline"
+            >
+              {{ repo.name }}
+            </a>
+          </div>
+          <p class="text-gray-300 text-sm mb-2">
+            {{ repo.description || 'No description available' }}
+          </p>
+
+          <!-- Repository language -->
+          <div class="text-sm text-gray-500">
+            <span v-if="repo.language">{{ repo.language }}</span>
+          </div>
+        </div>
+      </li>
     </ul>
   </div>
 </template>
 
+
 <script setup>
 import { ref, onMounted } from 'vue';
-import { api } from '@/stores/api'; // Import the API client
-import RepoLine from './RepoLine.vue'; // Import the RepoLine component
+import { useUserStore } from '@/stores/user';
 
-// Reactive state variables
+// Create a reactive variable to hold repositories
 const repositories = ref([]);
-const loading = ref(true);
-const error = ref(null);
 
-// Transform the API data to match RepoLine's expected structure
-const transformRepository = (repo) => ({
-  id: repo.ID,
-  name: repo.Name || 'Unnamed Repository',
-  description: 'No description available', // Adjust when description data is available
-  stars: 0, // Replace with actual stars count if API provides it
-  forks: 0, // Replace with actual forks count if API provides it
-  url: repo.GithubURL || '#',
+// Access the user store
+const userStore = useUserStore();
+
+// Fetch repositories on component mount
+onMounted(() => {
+  // Assume userStore.user.repos is either pre-fetched or fetched on demand
+  repositories.value = userStore.repos || [];
+  console.log('Repositories:', repositories.value);
 });
-
-// Fetch repositories data on component mount
-const fetchRepositories = async () => {
-  try {
-    const response = await api.get('/v1/repositories'); // Replace with your API endpoint
-    repositories.value = response.data; // Assuming the API returns an array of repositories
-  } catch (error) {
-    console.error('Error fetching repositories:', error);
-    error.value = error.message;
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Use the lifecycle hook to fetch data
-onMounted(fetchRepositories);
 </script>
 
 <style scoped>
-/* Add styles specific to the main component if needed */
+/* Additional styling for the list items */
+li {
+  transition: background-color 0.2s ease;
+}
+
+li:hover {
+  background-color: #2d3748;
+}
 </style>
