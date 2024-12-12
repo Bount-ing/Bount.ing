@@ -310,8 +310,8 @@ const submitBounty = async () => {
     if (checkIssueResponse.status === 200) {
       // If the issue exists, extract the id
       const existingIssue = checkIssueResponse.data // Directly use `data` here
-      if (existingIssue?.id) {
-        apiIssueId = existingIssue.id
+      if (existingIssue?.ID) {
+        apiIssueId = existingIssue.ID
       } else {
         console.error('Issue found but no id in response.')
         return

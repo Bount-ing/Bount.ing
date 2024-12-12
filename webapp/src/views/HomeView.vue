@@ -169,7 +169,7 @@ function calculateTotalAmount(bounty) {
         if (variable.direction === 'increase') {
           baseAmount += currentAmount;
         } else if (variable.direction === 'decrease') {
-          baseAmount -= currentAmount;
+          baseAmount += variableAmount - currentAmount;
         }
       }
     });
