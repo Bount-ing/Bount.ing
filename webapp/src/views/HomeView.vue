@@ -1,185 +1,211 @@
 <template>
-  <section class="min-h-screen flex flex-col items-center justify-center p-4">
-    <div v-if="issues.length > 0" class="w-full mt-8 p-6 rounded-md shadow-md">
-      <h2 class="text-2xl font-semibold text-primary mb-4">{{ $t('Available Issues') }}</h2>
-      <ul class="space-y-3">
-        <li v-for="issue in issues" :key="issue.id" class="issue-item rounded-lg shadow-lg border border-primary">
-          <PrivateIssueListItem v-if="issue.is_private" :issue="issue" :bounty="issue.amount" />
-          <IssueListItem v-else v-bind="issue" :issue="issue" :bounty="issue.amount" />
-        </li>
-      </ul>
+  <div>
+    <h2 class="text-3xl font-semibold mb-4 text-gray-900">Bounties</h2>
+    <div v-if="groupedBounties.length === 0" class="text-center text-gray-400">
+      No bounties found.
     </div>
-  </section>
+    <ul v-else class="space-y-4 p-4">
+      <!-- Display each group -->
+      <li 
+        v-for="(group, index) in groupedBounties" 
+        :key="index" 
+        class="bg-secondary p-4 rounded-lg flex items-center space-x-4 shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out"
+      >
+        <!-- Avatar Section with Soft Background -->
+        <div v-if="group.avatarUrl" class="flex-shrink-0">
+          <img :src="group.avatarUrl" alt="Avatar" class="rounded-full w-14 h-14 border-2 border-primary" />
+        </div>
+
+        <!-- Content Section -->
+        <div class="flex-1">
+          <!-- Title and Description Section -->
+          <div class="mb-2">
+            <h3 class="text-xl font-semibold text-primary-light">{{ group.Title }}</h3>
+            <p v-if="group.Description" class="text-gray-600 mt-1 text-sm">{{ group.Description }}</p>
+            <p v-else class="text-gray-500 mt-1 text-sm italic">No description provided.</p>
+          </div>
+
+          <!-- Issue URL Section -->
+          <div class="mb-2">
+            <a 
+              :href="group.issueUrl" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="text-primary hover:text-primary-dark text-sm"
+            >
+              View Issue
+            </a>
+          </div>
+        </div>
+
+        <!-- Right-aligned Section for Bounty Amount and Timing -->
+        <div class="ml-auto flex flex-col items-end space-y-2">
+          <!-- Bounty Amount as a Button -->
+          <div v-if="group.Bounties.length" class="flex items-center justify-between mb-2">
+            <button class="bg-secondary text-primary-light border-primary-light border py-2 px-6 rounded-full text-sm font-semibold shadow-md transform transition-transform duration-200 hover:scale-105">
+              {{ calculateCurrentAmount(group).toFixed(2) }} €
+            </button>
+          </div>
+
+          <!-- Bounty Status and Timing -->
+          <div v-if="group.Bounties.length" class="text-sm text-gray-500 space-y-1">
+            <div v-for="(bounty, index) in group.Bounties" :key="index" class="flex justify-between items-center">
+              <span>Expires: {{ new Date(bounty.endAt).toLocaleDateString() }}</span>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
-import axios from 'axios';
-import PrivateIssueListItem from '../components/PrivateIssueListItem.vue';
-import IssueListItem from '../components/IssueListItem.vue';
-import { useUserStore } from '../stores/user'
-import { storeToRefs } from 'pinia'
 
-interface Issue {
-  id: string;
-  amount: number;
-  currency: string;
-  issue_github_url: string;
-  issue_image_url: string;
-  user_github_login: string;
-  start_at: string;
-  end_at: string;
-  title?: string;
-  description?: string;
-  created_at?: string;
-  updated_at?: string;
-  is_private?: boolean;
-  state?: string;
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import { api } from '@/stores/api';
+
+const groupedBounties = ref([]); // Reactive state to hold grouped bounties
+let intervalId = null; // Variable to store the interval ID for cleanup
+
+
+async function fetchBounties() {
+  try {
+    const response = await api.get('/v1/public-bounties-issue');
+    const issues = response.data;
+
+    // Group bounties by issueUrl, filtering out issues without bounties
+    const grouped = issues
+      .filter(issue => issue.Bounties && issue.Bounties.length > 0)
+      .map(issue => ({
+        ...issue,
+        currentAmount: calculateCurrentAmount(issue)
+      }));
+
+    groupedBounties.value = grouped;
+    
+    console.log('Grouped Bounties:', JSON.stringify(groupedBounties.value, null, 2));
+  } catch (error) {
+    console.error('Error fetching bounties:', error);
+  }
 }
 
-export default defineComponent({
-  name: 'HomeView',
-  components: {
-    PrivateIssueListItem,
-    IssueListItem
-  },
-  setup() {
-    const issues = ref<Issue[]>([]);
-    const loading = ref(true);
-    const userStore = useUserStore();
+function calculateCurrentAmount(issue) {
+  // Check if the issue has any bounties
+  if (!issue.Bounties || issue.Bounties.length === 0) {
+    console.log(`No bounties for issue: ${issue.issueUrl}`);
+    return 0;
+  }
 
-    const fetchBounties = async () => {
-      loading.value = true;
-      const baseURL = import.meta.env.VITE_API_BASE_URL as string;
+  // Calculate total amount for all bounties in this issue
+  let totalAmount = 0;
 
-      if (!baseURL) {
-        console.error("API base URL is not set.");
-        loading.value = false;
+  issue.Bounties.forEach(bounty => {
+    totalAmount += calculateTotalAmount(bounty);
+  });
+
+  return totalAmount;
+}
+
+function calculateTotalAmount(bounty) {
+  if (!bounty) {
+    console.error('Bounty is undefined or null');
+    return 0;
+  }
+
+  // Ensure amount is a valid number
+  const amount = bounty.amount !== undefined && bounty.amount !== null 
+    ? Number(bounty.amount) 
+    : 0;
+  
+  if (isNaN(amount)) {
+    console.error(`Invalid amount for bounty: ${bounty.issueUrl}`, 
+      `Raw amount: ${bounty.amount}`, 
+      `Parsed amount: ${amount}`,
+      'Full bounty object:', 
+      JSON.stringify(bounty, null, 2)
+    );
+    return 0;
+  }
+
+  // Check if the bounty itself is active
+  if (!isActive(bounty.startAt, bounty.endAt)) {
+    console.log(`Bounty not active: ${bounty.issueUrl}`);
+    return 0;  // Return 0 if not active
+  }
+
+  let baseAmount = amount;
+
+  // Process variables if they exist
+  if (bounty.variables && Array.isArray(bounty.variables)) {
+    const now = new Date();
+
+    bounty.variables.forEach(variable => {
+      // Validate variable amount
+      const variableAmount = variable.amount !== undefined && variable.amount !== null 
+        ? Number(variable.amount) 
+        : 0;
+      
+      if (isNaN(variableAmount)) {
+        console.error(`Invalid variable amount for bounty: ${bounty.issueUrl}`, 
+          `Raw variable amount: ${variable.amount}`, 
+          `Parsed amount: ${variableAmount}`
+        );
         return;
       }
 
-      try {
-        const response = await axios.get(`${baseURL}/api/v1/bounties/`, { headers: {
-          Authorization: userStore.authHeader,
-          RefererPolicy: 'origin-when-cross-origin'
-        } });
-        const currentDate = new Date();
+      // Correct date parsing and handling
+      const start = variable.startAt ? new Date(variable.startAt) : null;
+      const end = variable.endAt ? new Date(variable.endAt) : null;
 
-        const activeBounties = response.data.filter((bounty: any) => {
-          const startDate = new Date(bounty.start_at);
-          const endDate = new Date(bounty.end_at);
-          const status = bounty.status;
-          return currentDate > startDate && currentDate < endDate && status === 'open';
-        });
+      // Check if the variable is within the valid time range
+      if (start && end && now >= start && now <= end) {
+        const totalDuration = end.getTime() - start.getTime();
+        const elapsedDuration = now.getTime() - start.getTime();
 
-        const issueTotals = activeBounties.reduce((acc: Record<string, any>, bounty: any) => {
-          const id = bounty.issue_github_id;
-          if (!acc[id]) {
-            acc[id] = {
-              amount: 0,
-              bounty_type: bounty.bounty_type,
-              issueUrl: bounty.issue_github_url,
-              currency: bounty.currency,
-              issue_image_url: bounty.issue_image_url,
-              user_github_login: bounty.user_github_login,
-              start_at: bounty.start_at,
-              end_at: bounty.end_at
-            };
-          }
-          const startDate = new Date(bounty.start_at);
-          const endDate = new Date(bounty.end_at);
-          const timeElapsed = (currentDate.getTime() - startDate.getTime()) / (endDate.getTime() - startDate.getTime());
+        const proportion = totalDuration > 0 ? Math.min(1, Math.max(0, elapsedDuration / totalDuration)) : 0;
 
-          let adjustedAmount = parseFloat(bounty.amount);
-          if (bounty.bounty_type === 'crescendo') {
-            adjustedAmount *= timeElapsed;
-          } else if (bounty.bounty_type === 'decrescendo') {
-            adjustedAmount *= (1 - timeElapsed);
-          }
+        const currentAmount = variableAmount * proportion;
 
-          acc[id].amount += adjustedAmount;
-          return acc;
-        }, {});
-
-        issues.value = await Promise.all(Object.keys(issueTotals).map(async (id) => {
-          const issue: Issue = {
-            id,
-            amount: issueTotals[id].amount,
-            currency: issueTotals[id].currency,
-            issue_github_url: issueTotals[id].issueUrl,
-            issue_image_url: issueTotals[id].issue_image_url,
-            user_github_login: issueTotals[id].user_github_login,
-            start_at: issueTotals[id].start_at,
-            end_at: issueTotals[id].end_at,
-            state: issueTotals[id].state,
-          };
-          return await fetchGitHubIssueData(issue);
-        }));
-
-        issues.value = issues.value.filter((issue) => {
-          const startDate = new Date(issue.start_at);
-          const endDate = new Date(issue.end_at);
-          return currentDate > startDate && currentDate < endDate && issue.state === 'open';
-        });
-
-        issues.value = issues.value.sort((a, b) => b.amount - a.amount);
-      } catch (error) {
-        console.error('Error fetching bounties:', error);
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    const fetchGitHubIssueData = async (issue: Issue) => {
-      const issueUrlParts = issue.issue_github_url.split('/');
-      const owner = issueUrlParts[issueUrlParts.length - 4];
-      const repo = issueUrlParts[issueUrlParts.length - 3];
-      const issueNumber = issueUrlParts[issueUrlParts.length - 1];
-
-      try {
-        const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}`);
-        // Merge fetched data with existing issue data
-        issue.title = response.data.title;
-        issue.description = response.data.body;
-        issue.created_at = response.data.created_at;
-        issue.updated_at = response.data.updated_at;
-        issue.state = response.data.state;
-        return issue;
-      } catch (error) {
-        console.error('Error fetching GitHub issue data without token:', error);
-        
-        // If unauthenticated request fails, try with token (assuming it is a private issue)
-        const token = ''; // Replace with the appropriate way to get the auth token
-        try {
-          const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}`, { headers:  { Authorization: userStore.authGithubHeader } });
-          // Merge fetched data with existing issue data
-          issue.title = response.data.title;
-          issue.description = response.data.body;
-          issue.created_at = response.data.created_at;
-          issue.updated_at = response.data.updated_at;
-          issue.state = response.data.state;
-          return issue;
-        } catch (authError) {
-          console.error('Error fetching GitHub issue data with token:', authError);
-          return { ...issue, is_private: true }; // Fallback for errors or private issues
+        if (variable.direction === 'increase') {
+          baseAmount += currentAmount;
+        } else if (variable.direction === 'decrease') {
+          baseAmount -= currentAmount;
         }
       }
-    };
-
-    onMounted(() => {
-      fetchBounties();
-      const interval = setInterval(fetchBounties, 60000); // Refresh every 60 seconds
-      onUnmounted(() => clearInterval(interval)); // Clear interval when component is unmounted
     });
+  }
 
-    return {
-      issues,
-      loading
-    };
+  // Ensure the amount is never negative
+  const finalAmount = Math.max(0, baseAmount);
+  
+  console.log(`Bounty ${bounty.issueUrl} - Base: ${amount}, Final: ${finalAmount}`);
+
+  return finalAmount;
+}
+
+// Helper function to check if the current date is within a given range
+function isActive(startAt, endAt) {
+  const now = new Date();
+  const start = startAt ? new Date(startAt) : null;
+  const end = endAt ? new Date(endAt) : null;
+
+  if (start && now < start) return false; // Not started yet
+  if (end && now > end) return false;    // Already ended
+  return true;                           // Active
+}
+// Set up an interval to recalculate every second
+onMounted(() => {
+  fetchBounties(); // Initial fetch
+
+  intervalId = setInterval(() => {
+    groupedBounties.value = [...groupedBounties.value]; // Force reactivity update
+  }, 1000);
+});
+
+// Clean up interval when the component is unmounted
+onUnmounted(() => {
+  if (intervalId) {
+    clearInterval(intervalId); // Prevent memory leaks
   }
 });
 </script>
-
-<style scoped>
-/* Add your styles here */
-</style>

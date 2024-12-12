@@ -1,21 +1,19 @@
 package controllers
 
 import (
+	"errors"
+	"fmt"
 	"log"
 
 	"github.com/bount-ing/bount.ing/api/db"
 	"github.com/bount-ing/bount.ing/api/models"
 )
 
-func CreateBounty(bounty models.Bounty) error {
-
-	err := db.DB.Create(&bounty)
-
-	if err.Error != nil {
-		log.Print(err.Error)
-		return err.Error
+func CreateBounty(bounty *models.Bounty) error {
+	// Save the bounty and associated relationships to the database
+	if err := db.DB.Create(&bounty).Error; err != nil {
+		return err
 	}
-
 	return nil
 }
 
@@ -109,4 +107,38 @@ func GetAllUnconfirmedBounties() ([]models.Bounty, error) {
 	}
 
 	return bounties, nil
+}
+
+func ValidateBountyData(bounty models.Bounty, variables []models.BountyVariable) error {
+	// Ensure start date is not after end date for bounty
+	if bounty.StartAt.After(bounty.EndAt) {
+		return errors.New("bounty start date cannot be after end date")
+	}
+
+	for _, variable := range variables {
+		// Check if variable amount is greater than zero
+		if variable.Amount <= 0 {
+			return errors.New("variable amount must be greater than zero")
+		}
+
+		// Compare start and end dates for each variable directly without parsing
+		if variable.StartAt.After(variable.EndAt) {
+			return fmt.Errorf("variable start date %s cannot be after end date %s", variable.StartAt, variable.EndAt)
+		}
+	}
+
+	return nil
+}
+func GetPublicBountiesByIssue() ([]models.Issue, error) {
+	// Fetch all issues with associated bounties and their variables
+	var issues []models.Issue
+
+	err := db.DB.Preload("Bounties").Preload("Bounties.Variables").Find(&issues)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return issues, err.Error
+	}
+
+	return issues, nil
 }

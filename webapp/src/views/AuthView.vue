@@ -26,7 +26,7 @@
 					token: github_token,
 				};
 				userStore.syncGithubData(github_token);
-				router.push('/');
+				router.push('/profile');
 			} catch (error) {
 				console.error('Login failed:', error);
 				// Handle the error (e.g., show a notification to the user)

@@ -7,18 +7,29 @@ import (
 	"github.com/bount-ing/bount.ing/api/models"
 )
 
-func CreateIssue(issue models.Issue) error {
+func CreateIssue(issue models.Issue) (models.Issue, error) {
 	err := db.DB.Create(&issue)
 	if err.Error != nil {
 		log.Print(err.Error)
-		return err.Error
+		return issue, err.Error
 	}
-	return nil
+	return issue, nil
 }
 
 func GetIssue(issueID string) (models.Issue, error) {
 	var issue models.Issue
 	err := db.DB.First(&issue, issueID)
+	if err.Error != nil {
+		log.Print(err.Error)
+		return issue, err.Error
+	}
+	return issue, nil
+}
+
+func GetIssueByUrl(issueUrl string) (models.Issue, error) {
+	var issue models.Issue
+	log.Print("Issue URL: ", issueUrl)
+	err := db.DB.Where("url = ?", issueUrl).First(&issue)
 	if err.Error != nil {
 		log.Print(err.Error)
 		return issue, err.Error

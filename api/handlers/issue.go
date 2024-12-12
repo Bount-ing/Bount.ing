@@ -3,6 +3,8 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/bount-ing/bount.ing/api/controllers"
 	"github.com/bount-ing/bount.ing/api/models"
@@ -19,8 +21,9 @@ func CreateIssue(ctx *gin.Context) {
 		return
 	}
 
-	if err := controllers.CreateIssue(issue); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+	issue, err := controllers.CreateIssue(issue)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
 
@@ -37,6 +40,27 @@ func GetIssue(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, issue)
+}
+
+func GetIssueByUrl(c *gin.Context) {
+	rawURL := c.Param("url")
+
+	// Optionally, decode it yourself
+	decodedURL, err := url.QueryUnescape(rawURL)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Failed to decode URL"})
+		return
+	}
+
+	trimmedURL := strings.TrimPrefix(decodedURL, "/")
+
+	issue, err := controllers.GetIssueByUrl(trimmedURL)
+	if err != nil {
+		c.JSON(http.StatusNoContent, gin.H{"error": "Issue not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, issue)
 }
 
 func GetIssues(ctx *gin.Context) {

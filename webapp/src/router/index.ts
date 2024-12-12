@@ -16,6 +16,11 @@ const router = createRouter({
       name: 'Bount.ing',
       component: DefaultLayout,
       children: [
+        {
+          path: '',
+          name: 'Home',
+          component: HomeView
+        },  
           {
       path: '/about',
       name: 'About Bount.ing',

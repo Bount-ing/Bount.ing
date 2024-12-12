@@ -9,22 +9,35 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateBounty(ctx *gin.Context) {
+func CreateBounty(c *gin.Context) {
 	var bounty models.Bounty
 
-	log.Print("Creating bounty")
-
-	if err := ctx.ShouldBindJSON(&bounty); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+	// Manually bind the JSON to the Bounty model
+	if err := bounty.Bind(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := controllers.CreateBounty(bounty); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+	// Call the controller to save the bounty
+	if err := controllers.CreateBounty(&bounty); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, bounty)
+	// Respond with success
+	c.JSON(http.StatusCreated, gin.H{"message": "Bounty created successfully"})
+}
+
+func GetPublicBountiesByIssue(ctx *gin.Context) {
+	issues, err := controllers.GetPublicBountiesByIssue()
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Bounty not found"})
+		return
+	}
+
+	log.Printf("Issues: %+v", issues)
+
+	ctx.JSON(http.StatusOK, issues)
 }
 
 func GetBounty(ctx *gin.Context) {
