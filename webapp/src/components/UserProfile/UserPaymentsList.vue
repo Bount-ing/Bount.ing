@@ -30,10 +30,6 @@
   
   // Mock data for payments
   const payments = ref([
-    { id: 1, date: '2024-12-01', amount: 50.0, method: 'Credit Card', status: 'Completed', statusClass: 'text-green-500' },
-    { id: 2, date: '2024-11-25', amount: 120.0, method: 'PayPal', status: 'Pending', statusClass: 'text-yellow-500' },
-    { id: 3, date: '2024-11-10', amount: 75.5, method: 'Bank Transfer', status: 'Failed', statusClass: 'text-red-500' },
-    { id: 4, date: '2024-10-30', amount: 200.0, method: 'Credit Card', status: 'Completed', statusClass: 'text-green-500' },
   ]);
   
   </script>
