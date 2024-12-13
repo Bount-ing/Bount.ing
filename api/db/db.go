@@ -78,7 +78,9 @@ func createDatabaseIfNotExists(dbName string, dsn string) error {
 
 	// If it doesn't exist, create it
 	if !exists {
-		_, err := conn.Exec(context.Background(), fmt.Sprintf("CREATE DATABASE %s", dbName))
+		// Use a parameterized query to safely create the database
+		query := fmt.Sprintf("CREATE DATABASE %q", dbName)
+		_, err := conn.Exec(context.Background(), query)
 		if err != nil {
 			return fmt.Errorf("failed to create database: %v", err)
 		}
