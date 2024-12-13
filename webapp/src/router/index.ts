@@ -138,7 +138,7 @@ router.beforeEach((to, from, next) => {
     } else {
       if (to.matched.some((record) => record.meta.skipIfLoggedIn) && userStore.isLoggedIn) {
         //in case user is logged in, redirect to dashboard instead of showing this component
-        next({ path: '/user' })
+        next({ path: '/profile' })
         return
       }
       next() // does not require auth, make sure to always call next()!
