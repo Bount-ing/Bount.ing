@@ -1,7 +1,24 @@
 <template>
-  <section class="min-h-screen flex text-white">
+  <section class="min-h-screen flex flex-col lg:flex-row text-white">
+    <!-- Button to toggle Sidebar on mobile -->
+    <button
+      @click="toggleSidebar"
+      class="lg:hidden fixed top-20 left-4 z-50 p-2 bg-primary rounded-md shadow-lg"
+      aria-label="Toggle Sidebar"
+      :aria-expanded="isSidebarOpen"
+    >
+      <span>{{ isSidebarOpen ? 'Close' : 'Open' }} Menu</span>
+    </button>
+
     <!-- Left Sidebar Navigation -->
-    <div class="w-64 bg-secondary p-4 pt-8">
+    <div
+      :class="[
+        'w-64 bg-secondary p-4 pt-32 transition-transform ease-in-out duration-300 transform',
+        { 'translate-x-0': isSidebarOpen, '-translate-x-full lg:translate-x-0': !isSidebarOpen }
+      ]"
+      class="absolute lg:relative top-0 left-0 bottom-0 z-40 lg:z-auto"
+      aria-hidden="!isSidebarOpen"
+    >
       <div class="flex flex-col space-y-2 pt-2">
         <!-- Sidebar Items (Tabs) -->
         <button
@@ -9,7 +26,7 @@
           :key="tab.name"
           @click="selectTab(tab)"
           :class="[
-            'p-4 cursor-pointer text-left rounded-md',
+            'p-4 cursor-pointer text-left rounded-md transition-colors',
             { 'bg-gray-700': currentTab && currentTab.name === tab.name }
           ]"
         >
@@ -19,9 +36,9 @@
     </div>
 
     <!-- Main Content Area -->
-    <div class="flex-1 pt-8">
+    <div class="flex-1 pt-8 pl-4 pr-4 lg:pl-64 transition-all duration-300">
       <div v-if="loading" class="text-center text-2xl font-semibold">Loading...</div>
-      <div v-else class="rounded-2xl shadow-xl overflow-hidden p-4">
+      <div v-else class="rounded-2xl shadow-xl overflow-hidden p-4 bg-secondary-dark text-white">
         <UserProfile :user="user" />
         
         <!-- Tab Content -->
@@ -35,6 +52,7 @@
   </section>
 </template>
 
+
 <script setup>
 import { ref, watchEffect } from 'vue';
 import UserProfile from '../components/UserProfile.vue';
@@ -46,21 +64,14 @@ import UserIssuesList from '../components/UserProfile/UserIssuesList.vue';
 import UserBountiesList from '../components/UserProfile/UserBountiesList.vue';
 import UserPaymentsList from '../components/UserProfile/UserPaymentsList.vue';
 import { useUserStore } from '../stores/user';
-import { useI18n } from 'vue-i18n';  // Import useI18n hook
+import { useI18n } from 'vue-i18n';
 
-// Use the useI18n hook to get the translation function
 const { t, locale } = useI18n();
-
-
-// Get the user from the store
 const userStore = useUserStore();
 const user = userStore.user;
 
-
-// Define the tabs array (initially empty)
+// Define tabs
 const tabs = ref([]);
-
-// Function to update the tabs when language changes
 const updateTabs = () => {
   tabs.value = [
     { name: t('profile.badges'), component: UserBadgesList },
@@ -73,19 +84,16 @@ const updateTabs = () => {
   ];
 };
 
-// Call `updateTabs` initially to set the tab names
 updateTabs();
+watchEffect(() => updateTabs());
 
-// Watch for changes to the locale and update tabs accordingly
-watchEffect(() => {
-  updateTabs();
-});
-
-// Set the default tab
 const currentTab = ref(tabs.value[0] || { name: '', component: null });
-
-// Select a tab when clicked
 const selectTab = (tab) => {
   currentTab.value = tab;
+};
+
+const isSidebarOpen = ref(false);
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
 };
 </script>
