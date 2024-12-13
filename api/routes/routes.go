@@ -65,7 +65,7 @@ func SetupRouter() *gin.Engine {
 	public.GET("/bounties/:id", handlers.GetBounty)
 	needAuth.POST("/bounties", handlers.CreateBounty)
 	needAdmin.PUT("/bounties/:id", handlers.UpdateBounty)
-	needAdmin.DELETE("/bounties/:id", handlers.DeleteBounty)
+	needAuth.DELETE("/bounties/:id", handlers.DeleteBounty)
 
 	public.GET("/public-bounties-issue", handlers.GetPublicBountiesByIssue)
 
@@ -75,6 +75,8 @@ func SetupRouter() *gin.Engine {
 	needAuth.POST("/issues", handlers.CreateIssue)
 	needAdmin.PUT("/issues/:id", handlers.UpdateIssue)
 	needAdmin.DELETE("/issues/:id", handlers.DeleteIssue)
+
+	needAuth.GET("/users/me/issues", handlers.GetMyIssues)
 
 	public.GET("/repositories", handlers.GetRepositories)
 	public.GET("/repositories/:id", handlers.GetRepository)

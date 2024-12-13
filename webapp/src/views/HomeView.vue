@@ -13,7 +13,7 @@
       >
         <!-- Avatar Section with Soft Background -->
         <div v-if="group.avatarUrl" class="flex-shrink-0">
-          <img :src="group.avatarUrl" alt="Avatar" class="rounded-full w-14 h-14 border-2 border-primary" />
+          <img :src="group.avatarUrl" alt="Avatar" class="rounded-full w-14 h-14  border-primary" />
         </div>
 
         <!-- Content Section -->
@@ -47,12 +47,6 @@
             </button>
           </div>
 
-          <!-- Bounty Status and Timing -->
-          <div v-if="group.Bounties.length" class="text-sm text-gray-500 space-y-1">
-            <div v-for="(bounty, index) in group.Bounties" :key="index" class="flex justify-between items-center">
-              <span>Expires: {{ new Date(bounty.endAt).toLocaleDateString() }}</span>
-            </div>
-          </div>
         </div>
       </li>
     </ul>
@@ -197,9 +191,9 @@ function isActive(startAt, endAt) {
 onMounted(() => {
   fetchBounties(); // Initial fetch
 
-  intervalId = setInterval(() => {
+
     groupedBounties.value = [...groupedBounties.value]; // Force reactivity update
-  }, 1000);
+
 });
 
 // Clean up interval when the component is unmounted

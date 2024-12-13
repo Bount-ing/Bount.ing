@@ -41,7 +41,7 @@ type Bounty struct {
 	IssueID         uint             `json:"issue_id"`
 	StripeInvoiceID string           `json:"stripe_invoice_id"`
 	Claims          []Claim          `gorm:"foreignKey:BountyID" json:"claims,omitempty"`
-	Variables       []BountyVariable `json:"variables,omitempty"`
+	Variables       []BountyVariable `gorm:"foreignKey:BountyID" json:"variables,omitempty"`
 	Status          string           `json:"status"`
 }
 

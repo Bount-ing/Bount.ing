@@ -65,3 +65,31 @@ func DeleteIssue(issueID string) error {
 	}
 	return nil
 }
+func GetMyIssues(userID uint) ([]models.Issue, error) {
+	// Fetch all issues with associated bounties and their variables
+	var issues []models.Issue
+
+	err := db.DB.Preload("Bounties").Preload("Bounties.Variables").Find(&issues)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return issues, err.Error
+	}
+
+	//for each issue check if the owner id is equal of bounty owner id
+	var myIssues []models.Issue
+	for _, issue := range issues {
+		myBounties := []models.Bounty{}
+		for _, bounty := range issue.Bounties {
+			if bounty.OwnerID == userID {
+				myBounties = append(myBounties, bounty)
+			}
+		}
+		if len(myBounties) > 0 {
+			issue.Bounties = myBounties
+			myIssues = append(myIssues, issue)
+		}
+	}
+
+	return myIssues, nil
+}

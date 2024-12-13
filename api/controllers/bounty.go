@@ -54,7 +54,7 @@ func UpdateBounty(bounty models.Bounty) error {
 	return nil
 }
 
-func DeleteBounty(bountyID string) error {
+func DeleteBounty(bountyID, userID uint) error {
 	var bounty models.Bounty
 
 	err := db.DB.First(&bounty, bountyID)
@@ -62,6 +62,10 @@ func DeleteBounty(bountyID string) error {
 	if err.Error != nil {
 		log.Print(err.Error)
 		return err.Error
+	}
+
+	if bounty.OwnerID != userID {
+		return errors.New("user does not own bounty")
 	}
 
 	err = db.DB.Delete(&bounty)

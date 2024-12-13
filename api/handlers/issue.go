@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/bount-ing/bount.ing/api/auth"
 	"github.com/bount-ing/bount.ing/api/controllers"
 	"github.com/bount-ing/bount.ing/api/models"
 	"github.com/gin-gonic/gin"
@@ -97,4 +98,20 @@ func DeleteIssue(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Issue deleted"})
+}
+
+func GetMyIssues(ctx *gin.Context) {
+	user, err := auth.GetUserFromJwt(ctx)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"reason": err})
+		return
+	}
+
+	issues, err := controllers.GetMyIssues(user.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, issues)
 }

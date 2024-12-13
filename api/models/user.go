@@ -27,6 +27,7 @@ type User struct {
 	StipeAccountID    string
 
 	RefreshTokens []RefreshToken `gorm:"foreignKey:UserID"`
+	Bounties      []Bounty       `gorm:"foreignKey:OwnerID"`
 }
 
 func init() {

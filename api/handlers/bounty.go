@@ -3,7 +3,9 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/bount-ing/bount.ing/api/auth"
 	"github.com/bount-ing/bount.ing/api/controllers"
 	"github.com/bount-ing/bount.ing/api/models"
 	"github.com/gin-gonic/gin"
@@ -12,6 +14,13 @@ import (
 func CreateBounty(c *gin.Context) {
 	var bounty models.Bounty
 
+	user, err := auth.GetUserFromJwt(c)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"reason": err})
+		return
+	}
+
+	bounty.OwnerID = user.ID
 	// Manually bind the JSON to the Bounty model
 	if err := bounty.Bind(c); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -81,7 +90,16 @@ func UpdateBounty(ctx *gin.Context) {
 func DeleteBounty(ctx *gin.Context) {
 	bountyID := ctx.Param("id")
 
-	if err := controllers.DeleteBounty(bountyID); err != nil {
+	user, err := auth.GetUserFromJwt(ctx)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"reason": err})
+		return
+	}
+
+	//convert string to uint
+	bountyIDUint, err := strconv.ParseUint(bountyID, 10, 64)
+
+	if err := controllers.DeleteBounty(uint(bountyIDUint), user.ID); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Bounty not found"})
 		return
 	}
