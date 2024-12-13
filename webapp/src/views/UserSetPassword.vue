@@ -88,7 +88,7 @@ const autoLogin = async (data) => {
 		password: sha256(password.value)
 	}
 	await userStore.login(loginData)
-	router.push('/user')
+	router.push('/profile')
 	console.log(loginData)
 }
 
