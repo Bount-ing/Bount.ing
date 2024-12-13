@@ -14,13 +14,13 @@ import (
 var DB *gorm.DB
 
 func init() {
-	// Database connection string
-	dsn := fmt.Sprintf(
+	// Database connection string for the initial setup
+	initialDsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("POSTGRES_HOST"),
 		os.Getenv("POSTGRES_USER"),
 		os.Getenv("POSTGRES_PASSWORD"),
-		os.Getenv("POSTGRES_DB"),
+		"postgres", // Use default database for initial setup
 		os.Getenv("POSTGRES_PORT"),
 	)
 
@@ -28,7 +28,7 @@ func init() {
 	var err error
 	DB, err = gorm.Open(
 		postgres.New(postgres.Config{
-			DSN:                  dsn,
+			DSN:                  initialDsn,
 			PreferSimpleProtocol: true,
 		}),
 		&gorm.Config{TranslateError: true},
@@ -38,13 +38,13 @@ func init() {
 		log.Fatalf("failed to establish database connection: %v", err)
 	}
 
-	// Check if the "bounting" database exists
+	// Check if the target database exists and create it if necessary
 	if err := createDatabaseIfNotExists(); err != nil {
 		log.Fatalf("failed to create or connect to database: %v", err)
 	}
 
-	// Switch to the "bounting" database for further operations
-	dsn = fmt.Sprintf(
+	// Switch to the target database for further operations
+	targetDsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("POSTGRES_HOST"),
 		os.Getenv("POSTGRES_USER"),
@@ -55,34 +55,34 @@ func init() {
 
 	DB, err = gorm.Open(
 		postgres.New(postgres.Config{
-			DSN:                  dsn,
+			DSN:                  targetDsn,
 			PreferSimpleProtocol: true,
 		}),
 		&gorm.Config{TranslateError: true},
 	)
 
 	if err != nil {
-		log.Fatalf("failed to switch to the 'bounting' database: %v", err)
+		log.Fatalf("failed to switch to the target database: %v", err)
 	}
 }
 
 // createDatabaseIfNotExists checks if the database exists and creates it if not
 func createDatabaseIfNotExists() error {
-	// Connect using "postgres" database to check if the "bounting" DB exists
+	// Use the default database for administrative tasks
 	conn, err := pgx.Connect(context.Background(), fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("POSTGRES_HOST"),
 		os.Getenv("POSTGRES_USER"),
 		os.Getenv("POSTGRES_PASSWORD"),
-		os.Getenv("POSTGRES_DB"),
+		"postgres", // Use default database
 		os.Getenv("POSTGRES_PORT"),
 	))
 	if err != nil {
-		return fmt.Errorf("unable to connect to the database: %v", err)
+		return fmt.Errorf("unable to connect to the default database: %v", err)
 	}
 	defer conn.Close(context.Background())
 
-	// Check if "bounting" database exists
+	// Check if the target database exists
 	var exists bool
 	err = conn.QueryRow(context.Background(), "SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = $1)", os.Getenv("POSTGRES_DB")).Scan(&exists)
 	if err != nil {
