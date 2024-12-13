@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/jackc/pgx/v4"
+	"github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -14,17 +16,17 @@ import (
 var DB *gorm.DB
 
 func init() {
-	// Ensure you have correct environment variables set
-	dbName := os.Getenv("POSTGRES_DBNAME") // Use a distinct env var for database name
-	dbUser := os.Getenv("POSTGRES_USER")
-	dbHost := os.Getenv("POSTGRES_HOST")
-	dbPassword := os.Getenv("POSTGRES_PASSWORD")
-	dbPort := os.Getenv("POSTGRES_PORT")
+	// Explicit extraction of environment variables
+	dbName := strings.Trim(os.Getenv("POSTGRES_DB"), "\"")
+	dbUser := strings.Trim(os.Getenv("POSTGRES_USER"), "\"")
+	dbHost := strings.Trim(os.Getenv("POSTGRES_HOST"), "\"")
+	dbPassword := strings.Trim(os.Getenv("POSTGRES_PASSWORD"), "\"")
+	dbPort := strings.Trim(os.Getenv("POSTGRES_PORT"), "\"")
 
-	// Database connection string
+	// First connection string (to default postgres database)
 	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		dbHost, dbUser, dbPassword, "postgres", dbPort, // Connect to default DB first
+		"host=%s user=%s password=%s dbname=postgres port=%s sslmode=disable",
+		dbHost, dbUser, dbPassword, dbPort,
 	)
 
 	// Connect to PostgreSQL
@@ -40,16 +42,18 @@ func init() {
 		log.Fatalf("failed to establish database connection: %v", err)
 	}
 
-	// Check if the database exists
+	// Check if the database exists and create if not
 	if err := createDatabaseIfNotExists(dbName, dsn); err != nil {
 		log.Fatalf("failed to create or connect to database: %v", err)
 	}
 
-	// Switch to the specific database
+	// Connection string for the specific database
 	dsn = fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		dbHost, dbUser, dbPassword, dbName, dbPort,
 	)
+
+	// Reconnect to the specific database
 	DB, err = gorm.Open(
 		postgres.New(postgres.Config{
 			DSN:                  dsn,
@@ -79,8 +83,7 @@ func createDatabaseIfNotExists(dbName string, dsn string) error {
 	// If it doesn't exist, create it
 	if !exists {
 		// Use a parameterized query to safely create the database
-		query := fmt.Sprintf("CREATE DATABASE %q", dbName)
-		_, err := conn.Exec(context.Background(), query)
+		_, err := conn.Exec(context.Background(), fmt.Sprintf("CREATE DATABASE %s", pq.QuoteIdentifier(dbName)))
 		if err != nil {
 			return fmt.Errorf("failed to create database: %v", err)
 		}
