@@ -5,58 +5,23 @@
       No bounties found.
     </div>
     <ul v-else class="space-y-4 p-4">
-      <!-- Display each group -->
-      <li 
-        v-for="(group, index) in groupedBounties" 
-        :key="index" 
-        class="bg-secondary p-4 rounded-lg flex items-center space-x-4 shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out"
-      >
-        <!-- Avatar Section with Soft Background -->
-        <div v-if="group.avatarUrl" class="flex-shrink-0">
-          <img :src="group.avatarUrl" alt="Avatar" class="rounded-full w-14 h-14  border-primary" />
-        </div>
-
-        <!-- Content Section -->
-        <div class="flex-1">
-          <!-- Title and Description Section -->
-          <div class="mb-2">
-            <h3 class="text-xl font-semibold text-primary-light">{{ group.Title }}</h3>
-            <p v-if="group.Description" class="text-gray-600 mt-1 text-sm">{{ group.Description }}</p>
-            <p v-else class="text-gray-500 mt-1 text-sm italic">No description provided.</p>
-          </div>
-
-          <!-- Issue URL Section -->
-          <div class="mb-2">
-            <a 
-              :href="group.issueUrl" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              class="text-primary hover:text-primary-dark text-sm"
-            >
-              View Issue
-            </a>
-          </div>
-        </div>
-
-        <!-- Right-aligned Section for Bounty Amount and Timing -->
-        <div class="ml-auto flex flex-col items-end space-y-2">
-          <!-- Bounty Amount as a Button -->
-          <div v-if="group.Bounties.length" class="flex items-center justify-between mb-2">
-            <button class="bg-secondary text-primary-light border-primary-light border py-2 px-6 rounded-full text-sm font-semibold shadow-md transform transition-transform duration-200 hover:scale-105">
-              {{ calculateCurrentAmount(group).toFixed(2) }} €
-            </button>
-          </div>
-
-        </div>
-      </li>
+      <BountyItem
+        v-for="(group, index) in groupedBounties"
+        :key="index"
+        :group="group"
+        :calculateCurrentAmount="calculateCurrentAmount"
+      />
     </ul>
   </div>
 </template>
 
 
+
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { api } from '@/stores/api';
+import BountyItem from '@/components/BountyItem.vue';
+
 
 const groupedBounties = ref([]); // Reactive state to hold grouped bounties
 let intervalId = null; // Variable to store the interval ID for cleanup
