@@ -66,6 +66,13 @@ const router = createRouter({
       meta: { needsAuth: true }
     },
     {
+      path: '/claim/:id',
+      name: 'claim',
+      component: () => import('../views/ClaimBountyView.vue'),
+      props: true,
+      meta: { needsAuth: true }
+    },
+    {
       path: "/pricing",
       name: "Pricing",
       component: () => import('../views/PricingView.vue')

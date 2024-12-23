@@ -93,3 +93,13 @@ func GetMyIssues(userID uint) ([]models.Issue, error) {
 
 	return myIssues, nil
 }
+
+func GetIssueBounties(issueID string) (models.Issue, error) {
+	var issue models.Issue
+	err := db.DB.Preload("Bounties").First(&issue, issueID)
+	if err.Error != nil {
+		log.Print(err.Error)
+		return issue, err.Error
+	}
+	return issue, nil
+}

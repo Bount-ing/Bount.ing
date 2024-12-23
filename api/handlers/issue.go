@@ -115,3 +115,15 @@ func GetMyIssues(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, issues)
 }
+
+func GetIssueBounties(ctx *gin.Context) {
+	issueID := ctx.Param("id")
+
+	bounties, err := controllers.GetIssueBounties(issueID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Issue not found"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, bounties)
+}
