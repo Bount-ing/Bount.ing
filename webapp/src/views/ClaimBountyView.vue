@@ -86,6 +86,66 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Bounty Claimer and Owner Status -->
+              <div class="mt-4">
+                <h3 class="text-lg font-semibold text-primary-light">Bounty Claimer and Owner Status</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                  <!-- Bounty Claimer Status -->
+                  <div>
+                    <h4 class="text-md font-semibold text-primary">Bounty Claimer</h4>
+                    <div class="space-y-2">
+                      <div class="flex items-center gap-2">
+                        <span class="font-medium">PR has been found:</span>
+                        <span v-if="bounty.claimer?.prFound" class="text-green-500">✔</span>
+                        <span v-else class="text-red-500">❌</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-medium">PR links to the issue:</span>
+                        <span v-if="bounty.claimer?.prLinked" class="text-green-500">✔</span>
+                        <span v-else class="text-red-500">❌</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-medium">PR has been accepted:</span>
+                        <span v-if="bounty.claimer?.prAccepted" class="text-green-500">✔</span>
+                        <span v-else class="text-red-500">❌</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-medium">Issue has been closed:</span>
+                        <span v-if="bounty.claimer?.issueClosed" class="text-green-500">✔</span>
+                        <span v-else class="text-red-500">❌</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Bounty Owner Status -->
+                  <div>
+                    <h4 class="text-md font-semibold text-primary">Bounty Owner</h4>
+                    <div class="space-y-2">
+                      <div class="flex items-center gap-2">
+                        <span class="font-medium">PR has been found:</span>
+                        <span v-if="bounty.owner?.prFound" class="text-green-500">✔</span>
+                        <span v-else class="text-red-500">❌</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-medium">PR links to the issue:</span>
+                        <span v-if="bounty.owner?.prLinked" class="text-green-500">✔</span>
+                        <span v-else class="text-red-500">❌</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-medium">PR has been accepted:</span>
+                        <span v-if="bounty.owner?.prAccepted" class="text-green-500">✔</span>
+                        <span v-else class="text-red-500">❌</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-medium">Issue has been closed:</span>
+                        <span v-if="bounty.owner?.issueClosed" class="text-green-500">✔</span>
+                        <span v-else class="text-red-500">❌</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -119,6 +179,7 @@
     </div>
   </div>
 </template>
+
 
 
 <script setup>
