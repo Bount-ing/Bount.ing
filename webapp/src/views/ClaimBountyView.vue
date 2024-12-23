@@ -1,8 +1,8 @@
 <template>
   <div class="container mx-auto p-6">
-    <div class="bg-secondary rounded-lg shadow-lg p-6">
+    <div class="rounded-lg shadow-lg p-6">
       <!-- Page Header -->
-      <h1 class="text-2xl font-bold text-primary mb-4">Claim Issue</h1>
+      <h1 class="text-2xl font-bold text-primary mb-4">Claim Issue's Resolution</h1>
 
       <!-- Loading State -->
       <div v-if="loading" class="text-center py-4">
@@ -17,7 +17,7 @@
       <!-- Content when data is loaded -->
       <template v-else>
         <!-- Issue Details -->
-        <div class="bg-secondary-dark p-4 rounded-md shadow-md mb-6">
+        <div class="bg-secondary p-4 rounded-md shadow-md mb-6">
           <div class="flex items-start gap-4">
             <img 
               v-if="issue?.avatarUrl" 
@@ -50,7 +50,7 @@
             <div 
               v-for="bounty in bounties" 
               :key="bounty.ID" 
-              class="bg-secondary-dark rounded-lg p-4 shadow-md"
+              class="bg-secondary rounded-lg p-4 shadow-md"
             >
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
