@@ -378,6 +378,7 @@ const checkPrStatus = async () => {
       closed: prData && prData.state === 'closed',
       // Add author information
       authorUsername: prData.user?.login || 'Unknown',
+      authorExternalId: prData.user?.id || null,
       authorAvatar: prData.user?.avatar_url || null
     }
 
@@ -425,6 +426,7 @@ const submitClaim = async () => {
         accepted: prStatus.value.accepted,
         closed: prStatus.value.closed,
         authorUsername: prStatus.value.authorUsername,
+        authorExternalId: prStatus.value.authorExternalId,
         repoOwner,
         repoName,
         prNumber
