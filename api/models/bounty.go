@@ -43,6 +43,18 @@ type Bounty struct {
 	Claims          []Claim          `gorm:"foreignKey:BountyID" json:"claims,omitempty"`
 	Variables       []BountyVariable `gorm:"foreignKey:BountyID" json:"variables,omitempty"`
 	Status          string           `json:"status"`
+
+	// Claimer Status Timestamps
+	ClaimerPRFound     time.Time `json:"claimerPRFound"`     // Timestamp when PR is found by the claimer
+	ClaimerPRLinked    time.Time `json:"claimerPRLinked"`    // Timestamp when PR is linked to the issue by the claimer
+	ClaimerPRAccepted  time.Time `json:"claimerPRAccepted"`  // Timestamp when the PR is accepted by the owner
+	ClaimerIssueClosed time.Time `json:"claimerIssueClosed"` // Timestamp when the issue is closed by the claimer
+
+	// Owner Status Timestamps
+	OwnerPRFound     time.Time `json:"ownerPRFound"`     // Timestamp when PR is found by the owner
+	OwnerPRLinked    time.Time `json:"ownerPRLinked"`    // Timestamp when PR is linked to the issue by the owner
+	OwnerPRAccepted  time.Time `json:"ownerPRAccepted"`  // Timestamp when the PR is accepted by the owner
+	OwnerIssueClosed time.Time `json:"ownerIssueClosed"` // Timestamp when the issue is closed by the owner
 }
 
 func ValidateBountyType(bt string) error {

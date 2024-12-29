@@ -7,10 +7,11 @@ import (
 
 type Claim struct {
 	gorm.Model
-	OwnerID  uint
-	IssueID  uint
-	BountyID uint
-	Status   string
+	OwnerID        uint
+	IssueID        uint
+	BountyID       uint
+	PullRequestURL string
+	Status         string
 }
 
 func init() {
