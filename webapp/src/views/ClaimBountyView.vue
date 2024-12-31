@@ -83,62 +83,66 @@
 
               <!-- Bounty Claimer and Owner Status -->
               <div class="mt-4">
-                <h3 class="text-lg font-semibold text-primary-light">
-                  Bounty Claimer and Owner Status
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                  <!-- Bounty Claimer Status -->
-                  <div>
-                    <h4 class="text-md font-semibold text-primary">Bounty Claimer</h4>
-                    <div class="space-y-2">
-                      <div class="flex items-center gap-2">
-                        <span class="font-medium">PR has been found:</span>
-                        <span v-if="bounty.claimer?.prFound" class="text-green-500">✔</span>
-                        <span v-else class="text-red-500">❌</span>
-                      </div>
-                      <div class="flex items-center gap-2">
-                        <span class="font-medium">PR links to the issue:</span>
-                        <span v-if="bounty.claimer?.prLinked" class="text-green-500">✔</span>
-                        <span v-else class="text-red-500">❌</span>
-                      </div>
-                      <div class="flex items-center gap-2">
-                        <span class="font-medium">PR has been accepted:</span>
-                        <span v-if="bounty.claimer?.prAccepted" class="text-green-500">✔</span>
-                        <span v-else class="text-red-500">❌</span>
-                      </div>
-                      <div class="flex items-center gap-2">
-                        <span class="font-medium">Issue has been closed:</span>
-                        <span v-if="bounty.claimer?.issueClosed" class="text-green-500">✔</span>
-                        <span v-else class="text-red-500">❌</span>
-                      </div>
-                    </div>
-                  </div>
+                <div class="mt-4">
 
-                  <!-- Bounty Owner Status -->
-                  <div>
-                    <h4 class="text-md font-semibold text-primary">Bounty Owner</h4>
-                    <div class="space-y-2">
-                      <div class="flex items-center gap-2">
-                        <span class="font-medium">PR has been found:</span>
-                        <span v-if="bounty.owner?.prFound" class="text-green-500">✔</span>
-                        <span v-else class="text-red-500">❌</span>
-                      </div>
-                      <div class="flex items-center gap-2">
-                        <span class="font-medium">PR links to the issue:</span>
-                        <span v-if="bounty.owner?.prLinked" class="text-green-500">✔</span>
-                        <span v-else class="text-red-500">❌</span>
-                      </div>
-                      <div class="flex items-center gap-2">
-                        <span class="font-medium">PR has been accepted:</span>
-                        <span v-if="bounty.owner?.prAccepted" class="text-green-500">✔</span>
-                        <span v-else class="text-red-500">❌</span>
-                      </div>
-                      <div class="flex items-center gap-2">
-                        <span class="font-medium">Issue has been closed:</span>
-                        <span v-if="bounty.owner?.issueClosed" class="text-green-500">✔</span>
-                        <span v-else class="text-red-500">❌</span>
-                      </div>
-                    </div>
+                  <div class="mt-4 overflow-x-auto">
+                    <table class="table-auto w-full bg-secondary rounded-lg shadow-md">
+                      <thead class="bg-secondary-dark text-gray-300">
+                        <tr>
+                          <th class="px-4 py-2">Status</th>
+                          <th class="px-4 py-2">Bounty Claimer</th>
+                          <th class="px-4 py-2">Bounty Owner</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="border-b border-gray-600">
+                          <td class="px-4 py-2 text-primary font-semibold">PR Found</td>
+                          <td class="px-4 py-2 text-center">
+                            <span v-if="bounty.claimer?.prFound" class="text-green-500">✔</span>
+                            <span v-else class="text-red-500">❌</span>
+                          </td>
+                          <td class="px-4 py-2 text-center">
+                            <span v-if="bounty.owner?.prFound" class="text-green-500">✔</span>
+                            <span v-else class="text-red-500">❌</span>
+                          </td>
+                        </tr>
+                        <tr class="border-b border-gray-600">
+                          <td class="px-4 py-2 text-primary font-semibold">PR Linked</td>
+                          <td class="px-4 py-2 text-center">
+                            <span v-if="bounty.claimer?.prLinked" class="text-green-500">✔</span>
+                            <span v-else class="text-red-500">❌</span>
+                          </td>
+                          <td class="px-4 py-2 text-center">
+                            <span v-if="bounty.owner?.prLinked" class="text-green-500">✔</span>
+                            <span v-else class="text-red-500">❌</span>
+                          </td>
+                        </tr>
+                        <tr class="border-b border-gray-600">
+                          <td class="px-4 py-2 text-primary font-semibold">PR Accepted</td>
+                          <td class="px-4 py-2 text-center">
+                            <span v-if="bounty.claimer?.prAccepted" class="text-green-500">✔</span>
+                            <span v-else class="text-red-500">❌</span>
+                          </td>
+                          <td class="px-4 py-2 text-center">
+                            <span v-if="bounty.owner?.prAccepted" class="text-green-500">✔</span>
+                            <span v-else class="text-red-500">❌</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="px-4 py-2 text-primary font-semibold">Issue Closed</td>
+                          <td class="px-4 py-2 text-center">
+                            <span v-if="bounty.claimer?.issueClosed" class="text-green-500"
+                              >✔</span
+                            >
+                            <span v-else class="text-red-500">❌</span>
+                          </td>
+                          <td class="px-4 py-2 text-center">
+                            <span v-if="bounty.owner?.issueClosed" class="text-green-500">✔</span>
+                            <span v-else class="text-red-500">❌</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
@@ -169,57 +173,74 @@
             </div>
 
             <!-- PR Status Section -->
-            <div v-if="prStatusChecked" class="mt-4 space-y-4">
-              <h3 class="text-lg font-semibold text-primary-light">PR Status</h3>
+            <div v-if="prStatusChecked" class="mt-4">
+  <h3 class="text-lg font-semibold text-primary-light text-center mb-4">PR Status</h3>
 
-              <div v-if="prStatus" class="space-y-4">
-                <!-- Add PR Author Information -->
-                <div class="flex items-center justify-between">
-                  <span class="font-medium">PR Author:</span>
-                  <div class="flex items-center gap-2">
-                    <img
-                      v-if="prStatus.authorAvatar"
-                      :src="prStatus.authorAvatar"
-                      :alt="prStatus.authorUsername"
-                      class="w-6 h-6 rounded-full"
-                    />
-                    <span class="text-primary">{{ prStatus.authorUsername }}</span>
-                  </div>
-                </div>
-                <!-- PR Found -->
-                <div class="flex items-center justify-between">
-                  <span class="font-medium">PR has been found:</span>
-                  <span v-if="prStatus.found" class="text-green-500 text-lg">✔</span>
-                </div>
+  <div v-if="prStatus" class="mt-4 overflow-x-auto">
+    <table class="table-auto w-full max-w-3xl mx-auto bg-secondary rounded-lg shadow-lg">
+      <thead>
+        <tr class="bg-secondary-dark text-gray-300 text-left md:text-center">
+          <th class="px-4 py-3 text-sm font-semibold uppercase">Status</th>
+          <th class="px-4 py-3 text-sm font-semibold uppercase">Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- PR Author -->
+        <tr class="border-b border-gray-600 hover:bg-secondary-light transition duration-200">
+          <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">PR Author</td>
+          <td class="px-4 py-3 flex items-center gap-2 text-sm text-gray-300 md:justify-center">
+            <img
+              v-if="prStatus.authorAvatar"
+              :src="prStatus.authorAvatar"
+              :alt="prStatus.authorUsername"
+              class="w-6 h-6 rounded-full"
+            />
+            <span class="text-primary">{{ prStatus.authorUsername }}</span>
+          </td>
+        </tr>
+        <!-- PR Found -->
+        <tr class="border-b border-gray-600 hover:bg-secondary-light transition duration-200">
+          <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">PR Found</td>
+          <td class="px-4 py-3 text-sm text-gray-300 md:text-center">
+            <span v-if="prStatus.found" class="text-green-500 text-lg">✔</span>
+            <span v-else class="text-red-500 text-lg">❌</span>
+          </td>
+        </tr>
+        <!-- PR Linked to Issue -->
+        <tr class="border-b border-gray-600 hover:bg-secondary-light transition duration-200">
+          <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">PR Linked to Issue</td>
+          <td class="px-4 py-3 text-sm text-gray-300 md:text-center">
+            <span v-if="prStatus.linked" class="text-green-500 text-lg">✔</span>
+            <span v-else class="text-red-500 text-lg">❌</span>
+          </td>
+        </tr>
+        <!-- PR Accepted -->
+        <tr class="border-b border-gray-600 hover:bg-secondary-light transition duration-200">
+          <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">PR Accepted</td>
+          <td class="px-4 py-3 text-sm text-gray-300 md:text-center">
+            <span v-if="prStatus.accepted" class="text-green-500 text-lg">✔</span>
+            <span v-else class="text-red-500 text-lg">❌</span>
+          </td>
+        </tr>
+        <!-- Issue Closed -->
+        <tr class="hover:bg-secondary-light transition duration-200">
+          <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">Issue Closed</td>
+          <td class="px-4 py-3 text-sm text-gray-300 md:text-center">
+            <span v-if="prStatus.closed" class="text-green-500 text-lg">✔</span>
+            <span v-else class="text-red-500 text-lg">❌</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-                <!-- PR Linked to Issue -->
-                <div class="flex items-center justify-between">
-                  <span class="font-medium">PR links to the issue:</span>
-                  <span v-if="prStatus.linked" class="text-green-500 text-lg">✔</span>
-                  <span v-else class="text-red-500 text-lg">❌</span>
-                </div>
+  <!-- PR Not Found Error -->
+  <div v-else-if="error" class="text-red-500 mt-4 text-center">
+    <span class="font-medium">PR has not been found:</span>
+    <span class="text-red-500 text-lg">❌</span>
+  </div>
+</div>
 
-                <!-- PR Accepted -->
-                <div class="flex items-center justify-between">
-                  <span class="font-medium">PR has been accepted:</span>
-                  <span v-if="prStatus.accepted" class="text-green-500 text-lg">✔</span>
-                  <span v-else class="text-red-500 text-lg">❌</span>
-                </div>
-
-                <!-- Issue Closed -->
-                <div class="flex items-center justify-between">
-                  <span class="font-medium">Issue has been closed:</span>
-                  <span v-if="prStatus.closed" class="text-green-500 text-lg">✔</span>
-                  <span v-else class="text-red-500 text-lg">❌</span>
-                </div>
-              </div>
-
-              <!-- PR Not Found Error -->
-              <div v-else-if="error" class="text-red-500 flex items-center gap-2">
-                <span class="font-medium">PR has not been found:</span>
-                <span class="text-red-500 text-lg">❌</span>
-              </div>
-            </div>
           </div>
 
           <div class="mb-4">
@@ -383,7 +404,7 @@ const checkPrStatus = async () => {
     }
 
     prStatusChecked.value = true
-    
+
     console.log('PR Author:', prStatus.value.authorUsername)
     console.log('PR Status:', prStatus.value)
   } catch (err) {
@@ -448,7 +469,6 @@ const submitClaim = async () => {
 
     // Show success message (you might want to handle this differently)
     alert('Claim submitted successfully!')
-
   } catch (err) {
     console.error('Error submitting claim:', err)
     submitError.value = err.response?.data?.message || 'Failed to submit claim. Please try again.'
@@ -456,7 +476,6 @@ const submitClaim = async () => {
     submitting.value = false
   }
 }
-
 
 onMounted(() => {
   fetchIssueDataAndBounties()
