@@ -4,27 +4,60 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/bount-ing/bount.ing/api/auth"
 	"github.com/bount-ing/bount.ing/api/controllers"
 	"github.com/bount-ing/bount.ing/api/models"
 	"github.com/gin-gonic/gin"
 )
 
+type CreateClaimRequest struct {
+	ClaimerID      uint                  `json:"claimerId"`
+	IssueID        uint                  `json:"IssueId"`
+	PullRequestURL string                `json:"prUrl"`
+	ClaimDetails   string                `json:"claimDetails"`
+	PRVerification models.PRVerification `json:"prVerification"`
+}
+
 func CreateClaim(ctx *gin.Context) {
-	var claim models.Claim
+	var req CreateClaimRequest
 
-	log.Print("Creating claim")
+	u, err := auth.GetUserFromJwt(ctx)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"reason": err})
+		return
+	}
+	log.Print("Creating claim for user: ", u.ID)
 
-	if err := ctx.ShouldBindJSON(&claim); err != nil {
+	// Bind JSON payload to request struct
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
 		return
 	}
 
-	if err := controllers.CreateClaim(claim); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+	// Create PRVerification first
+	if err := controllers.CreatePRVerification(&req.PRVerification); err != nil {
+		log.Printf("Error creating PRVerification: %v", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create PRVerification"})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, claim)
+	// Create claims for all bounties associated with the issue
+	if err := controllers.CreateClaim(
+		u.ID,
+		req.IssueID,
+		req.PullRequestURL,
+		req.ClaimDetails,
+		req.PRVerification.ID,
+	); err != nil {
+		log.Printf("Error creating claims: %v", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create claims"})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"message": "Claims created successfully for all bounties",
+		"issueId": req.IssueID,
+	})
 }
 
 func GetClaim(ctx *gin.Context) {

@@ -84,7 +84,6 @@
               <!-- Bounty Claimer and Owner Status -->
               <div class="mt-4">
                 <div class="mt-4">
-
                   <div class="mt-4 overflow-x-auto">
                     <table class="table-auto w-full bg-secondary rounded-lg shadow-md">
                       <thead class="bg-secondary-dark text-gray-300">
@@ -174,73 +173,94 @@
 
             <!-- PR Status Section -->
             <div v-if="prStatusChecked" class="mt-4">
-  <h3 class="text-lg font-semibold text-primary-light text-center mb-4">PR Status</h3>
+              <h3 class="text-lg font-semibold text-primary-light text-center mb-4">PR Status</h3>
 
-  <div v-if="prStatus" class="mt-4 overflow-x-auto">
-    <table class="table-auto w-full max-w-3xl mx-auto bg-secondary rounded-lg shadow-lg">
-      <thead>
-        <tr class="bg-secondary-dark text-gray-300 text-left md:text-center">
-          <th class="px-4 py-3 text-sm font-semibold uppercase">Status</th>
-          <th class="px-4 py-3 text-sm font-semibold uppercase">Details</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- PR Author -->
-        <tr class="border-b border-gray-600 hover:bg-secondary-light transition duration-200">
-          <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">PR Author</td>
-          <td class="px-4 py-3 flex items-center gap-2 text-sm text-gray-300 md:justify-center">
-            <img
-              v-if="prStatus.authorAvatar"
-              :src="prStatus.authorAvatar"
-              :alt="prStatus.authorUsername"
-              class="w-6 h-6 rounded-full"
-            />
-            <span class="text-primary">{{ prStatus.authorUsername }}</span>
-          </td>
-        </tr>
-        <!-- PR Found -->
-        <tr class="border-b border-gray-600 hover:bg-secondary-light transition duration-200">
-          <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">PR Found</td>
-          <td class="px-4 py-3 text-sm text-gray-300 md:text-center">
-            <span v-if="prStatus.found" class="text-green-500 text-lg">✔</span>
-            <span v-else class="text-red-500 text-lg">❌</span>
-          </td>
-        </tr>
-        <!-- PR Linked to Issue -->
-        <tr class="border-b border-gray-600 hover:bg-secondary-light transition duration-200">
-          <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">PR Linked to Issue</td>
-          <td class="px-4 py-3 text-sm text-gray-300 md:text-center">
-            <span v-if="prStatus.linked" class="text-green-500 text-lg">✔</span>
-            <span v-else class="text-red-500 text-lg">❌</span>
-          </td>
-        </tr>
-        <!-- PR Accepted -->
-        <tr class="border-b border-gray-600 hover:bg-secondary-light transition duration-200">
-          <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">PR Accepted</td>
-          <td class="px-4 py-3 text-sm text-gray-300 md:text-center">
-            <span v-if="prStatus.accepted" class="text-green-500 text-lg">✔</span>
-            <span v-else class="text-red-500 text-lg">❌</span>
-          </td>
-        </tr>
-        <!-- Issue Closed -->
-        <tr class="hover:bg-secondary-light transition duration-200">
-          <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">Issue Closed</td>
-          <td class="px-4 py-3 text-sm text-gray-300 md:text-center">
-            <span v-if="prStatus.closed" class="text-green-500 text-lg">✔</span>
-            <span v-else class="text-red-500 text-lg">❌</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+              <div v-if="prStatus" class="mt-4 overflow-x-auto">
+                <table
+                  class="table-auto w-full max-w-3xl mx-auto bg-secondary rounded-lg shadow-lg"
+                >
+                  <thead>
+                    <tr class="bg-secondary-dark text-gray-300 text-left md:text-center">
+                      <th class="px-4 py-3 text-sm font-semibold uppercase">Status</th>
+                      <th class="px-4 py-3 text-sm font-semibold uppercase">Details</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- PR Author -->
+                    <tr
+                      class="border-b border-gray-600 hover:bg-secondary-light transition duration-200"
+                    >
+                      <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">
+                        PR Author
+                      </td>
+                      <td
+                        class="px-4 py-3 flex items-center gap-2 text-sm text-gray-300 md:justify-center"
+                      >
+                        <img
+                          v-if="prStatus.authorAvatar"
+                          :src="prStatus.authorAvatar"
+                          :alt="prStatus.authorUsername"
+                          class="w-6 h-6 rounded-full"
+                        />
+                        <span class="text-primary">{{ prStatus.authorUsername }}</span>
+                      </td>
+                    </tr>
+                    <!-- PR Found -->
+                    <tr
+                      class="border-b border-gray-600 hover:bg-secondary-light transition duration-200"
+                    >
+                      <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">
+                        PR Found
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-300 md:text-center">
+                        <span v-if="prStatus.found" class="text-green-500 text-lg">✔</span>
+                        <span v-else class="text-red-500 text-lg">❌</span>
+                      </td>
+                    </tr>
+                    <!-- PR Linked to Issue -->
+                    <tr
+                      class="border-b border-gray-600 hover:bg-secondary-light transition duration-200"
+                    >
+                      <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">
+                        PR Linked to Issue
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-300 md:text-center">
+                        <span v-if="prStatus.linked" class="text-green-500 text-lg">✔</span>
+                        <span v-else class="text-red-500 text-lg">❌</span>
+                      </td>
+                    </tr>
+                    <!-- PR Accepted -->
+                    <tr
+                      class="border-b border-gray-600 hover:bg-secondary-light transition duration-200"
+                    >
+                      <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">
+                        PR Accepted
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-300 md:text-center">
+                        <span v-if="prStatus.accepted" class="text-green-500 text-lg">✔</span>
+                        <span v-else class="text-red-500 text-lg">❌</span>
+                      </td>
+                    </tr>
+                    <!-- Issue Closed -->
+                    <tr class="hover:bg-secondary-light transition duration-200">
+                      <td class="px-4 py-3 text-primary font-semibold text-sm md:text-center">
+                        Issue Closed
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-300 md:text-center">
+                        <span v-if="prStatus.closed" class="text-green-500 text-lg">✔</span>
+                        <span v-else class="text-red-500 text-lg">❌</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
 
-  <!-- PR Not Found Error -->
-  <div v-else-if="error" class="text-red-500 mt-4 text-center">
-    <span class="font-medium">PR has not been found:</span>
-    <span class="text-red-500 text-lg">❌</span>
-  </div>
-</div>
-
+              <!-- PR Not Found Error -->
+              <div v-else-if="error" class="text-red-500 mt-4 text-center">
+                <span class="font-medium">PR has not been found:</span>
+                <span class="text-red-500 text-lg">❌</span>
+              </div>
+            </div>
           </div>
 
           <div class="mb-4">
@@ -436,23 +456,24 @@ const submitClaim = async () => {
     const repoName = prParts[2]
     const prNumber = prParts[4]
 
-    // Prepare claim data
     const claimData = {
-      bountyId: route.params.id, // Assuming this is the bounty ID
-      prUrl: prUrl.value,
-      claimDetails: claimDetails.value,
-      prVerification: {
-        found: prStatus.value.found,
-        linked: prStatus.value.linked,
-        accepted: prStatus.value.accepted,
-        closed: prStatus.value.closed,
-        authorUsername: prStatus.value.authorUsername,
-        authorExternalId: prStatus.value.authorExternalId,
-        repoOwner,
-        repoName,
-        prNumber
+      IssueId: Number(route.params.id),
+      prUrl: prUrl.value.trim(),
+      claimDetails: claimDetails.value || '',
+      PRVerification: {
+        found: Boolean(prStatus.value.found),
+        linked: Boolean(prStatus.value.linked),
+        accepted: Boolean(prStatus.value.accepted),
+        closed: Boolean(prStatus.value.closed),
+        authorUsername: String(prStatus.value.authorUsername),
+        authorExternalId: Number(prStatus.value.authorExternalId),
+        repoOwner: String(repoOwner),
+        repoName: String(repoName),
+        prNumber: String(prNumber)
       }
     }
+
+    console.log('Raw outgoing request:', JSON.stringify(claimData, null, 2))
 
     console.log('Submitting claim with data:', claimData)
 

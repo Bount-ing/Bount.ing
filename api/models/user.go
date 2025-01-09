@@ -23,7 +23,7 @@ type User struct {
 	Username string
 
 	PublishedBounties []Bounty `gorm:"foreignKey:OwnerID"`
-	Claims            []Claim  `gorm:"foreignKey:OwnerID"`
+	Claims            []Claim  `gorm:"foreignKey:ClaimerID"`
 	StipeAccountID    string
 
 	RefreshTokens []RefreshToken `gorm:"foreignKey:UserID"`

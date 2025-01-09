@@ -7,12 +7,45 @@ import (
 	"github.com/bount-ing/bount.ing/api/models"
 )
 
-func CreateClaim(claim models.Claim) error {
-	err := db.DB.Create(&claim)
+func CreateClaim(claimerID uint, issueID uint, pullRequestURL string, claimDetails string, prVerificationID uint) error {
+	// Start transaction
+	tx := db.DB.Begin()
 
-	if err.Error != nil {
-		log.Print(err.Error)
-		return err.Error
+	// Find all bounties for the issue
+	var bounties []models.Bounty
+	if err := tx.Where("issue_id = ?", issueID).Find(&bounties).Error; err != nil {
+		tx.Rollback()
+		log.Printf("Failed to find bounties for issue %d: %v", issueID, err)
+		return err
+	}
+
+	// Create a claim for each bounty
+	for _, bounty := range bounties {
+		claim := &models.Claim{
+			ClaimerID:              claimerID,
+			BountyID:               bounty.ID,
+			IssueID:                issueID,
+			PullRequestURL:         pullRequestURL,
+			ClaimDetails:           claimDetails,
+			Status:                 "pending",
+			OwnerPRVerificationID:  prVerificationID,
+			AuthorPRVerificationID: prVerificationID,
+		}
+
+		if err := tx.Create(claim).Error; err != nil {
+			tx.Rollback()
+			log.Printf("Failed to create claim for bounty %d: %v", bounty.ID, err)
+			return err
+		}
+	}
+
+	return tx.Commit().Error
+}
+
+func CreatePRVerification(verification *models.PRVerification) error {
+	if err := db.DB.Create(verification).Error; err != nil {
+		log.Printf("Failed to create PRVerification: %v", err)
+		return err
 	}
 	return nil
 }
