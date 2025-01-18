@@ -34,11 +34,13 @@ const passwordRules = () => {
 
 const passwordRulesHelperMsg = computed(() => {
 	return validPassword.value
-		? '<span style="color: green">Ok!</span>'
-		: '<span style="color:red">Password must be ' +
-				passwordMinLen +
-				' characters and contain at least 1 number and 1letter</span>'
-})
+		? '<span style="color: green">✔ Ok!</span>'
+		: `<ul style="color: red; padding-left: 20px; list-style-type: disc;">
+				<li>At least ${passwordMinLen} characters long</li>
+				<li>Contains at least 1 number</li>
+				<li>Contains at least 1 letter</li>
+			</ul>`;
+});
 
 const passwordsMatchHelperMsg = computed(() => {
 	return verifyPassword.value == password.value
@@ -96,53 +98,45 @@ verifyLink()
 </script>
 
 <template>
-	<div class="user-form-category-btn">
-		<ul class="nav nav-tabs">
-			<li><router-link to="/signin" class="nav-link">sign in</router-link></li>
-			<li><router-link to="/signup" class="nav-link active">sign up</router-link></li>
-		</ul>
-	</div>
-	<div class="tab-pane active" id="login-tab">
-		<form v-if="validVerifCode" @submit.prevent="sendPassword">
-			<div class="col-12">
-				<div class="user-form-title">
-					<h2>Define your password</h2>
-					<p>Setup your new account in just a few seconds.</p>
-				</div>
-				<div class="form-group">
-					<input
-						type="password"
-						class="form-control"
-						placeholder="Password"
-						v-model="password"
-						v-on:input="passwordRules()"
-					/><button class="form-icon">
-						<i class="eye fas fa-eye"></i></button
-					><small class="form-alert" v-html="passwordRulesHelperMsg"></small>
-				</div>
+	<div class="flex flex-col items-center justify-center min-h-screen p-4">
+	  <div class="w-full max-w-md">
+		<div class="tab-pane active" id="login-tab">
+		  <form v-if="validVerifCode" @submit.prevent="sendPassword" class="bg-secondary p-6 rounded-lg shadow-md">
+			<div class="text-center mb-4">
+			  <h2 class="text-xl font-semibold">Define your password</h2>
+			  <p class="text-gray-500">Setup your new account in just a few seconds.</p>
 			</div>
-			<div class="col-12">
-				<div class="form-group">
-					<input
-						type="password"
-						class="form-control"
-						placeholder="Repeat Password"
-						v-model="verifyPassword"
-					/><button class="form-icon">
-						<i class="eye fas fa-eye"></i></button
-					><small class="form-alert" v-html="passwordsMatchHelperMsg"></small>
-				</div>
+			<div class="mb-4">
+			  <input
+				type="password"
+				class="w-full p-3 border rounded-lg text-primary bg-black"
+				placeholder="Password"
+				v-model="password"
+				v-on:input="passwordRules()"
+			  />
+			  <small class="text-red-500" v-html="passwordRulesHelperMsg"></small>
 			</div>
-			<div class="col-12">
-				<div class="form-group">
-					<button type="submit" class="btn btn-inline">
-						<i class="fas fa-user-check"></i><span>Create new account</span>
-					</button>
-				</div>
+			<div class="mb-4">
+			  <input
+				type="password"
+				class="w-full p-3 border rounded-lg text-primary bg-black"
+				placeholder="Repeat Password"
+				v-model="verifyPassword"
+			  />
+			  <small class="text-red-500" v-html="passwordsMatchHelperMsg"></small>
 			</div>
-		</form>
-		<div class="col-12" v-else>
-			<span style="color: red"> Invalid or expired link </span>
+			<div>
+			  <button type="submit" class="w-full bg-primary text-white p-3 rounded-lg hover:bg-primary-light">
+				<i class="fas fa-user-check"></i>
+				<span class="ml-2">Create new account</span>
+			  </button>
+			</div>
+		  </form>
+		  <div class="text-center text-red-500 mt-4" v-else>
+			<span>Invalid or expired link</span>
+		  </div>
 		</div>
+	  </div>
 	</div>
-</template>
+  </template>
+  
