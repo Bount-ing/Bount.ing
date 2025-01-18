@@ -7,8 +7,14 @@ import (
 )
 
 type Issue struct {
-	gorm.Model   // This embeds fields like ID, CreatedAt, UpdatedAt, DeletedAt
-	GithubID     int
+	gorm.Model // This embeds fields like ID, CreatedAt, UpdatedAt, DeletedAt
+
+	// Bounting ID
+	LocalID uint
+	// Host / External ID
+	ForeignID string
+	HostID    uint
+
 	URL          string `json:"issueUrl"`
 	AvatarURL    string `json:"avatarUrl"`
 	Title        string

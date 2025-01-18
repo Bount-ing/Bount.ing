@@ -11,11 +11,11 @@ import (
 )
 
 type CreateClaimRequest struct {
-	ClaimerID      uint                  `json:"claimerId"`
-	IssueID        uint                  `json:"IssueId"`
-	PullRequestURL string                `json:"prUrl"`
-	ClaimDetails   string                `json:"claimDetails"`
-	PRVerification models.PRVerification `json:"prVerification"`
+	ClaimerID      uint
+	IssueID        uint
+	PullRequestURL string
+	ClaimDetails   string
+	ClaimCheck     models.ClaimCheck
 }
 
 func CreateClaim(ctx *gin.Context) {
@@ -35,7 +35,7 @@ func CreateClaim(ctx *gin.Context) {
 	}
 
 	// Create PRVerification first
-	if err := controllers.CreatePRVerification(&req.PRVerification); err != nil {
+	if err := controllers.CreateClaimCheck(&req.ClaimCheck); err != nil {
 		log.Printf("Error creating PRVerification: %v", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create PRVerification"})
 		return
@@ -47,7 +47,6 @@ func CreateClaim(ctx *gin.Context) {
 		req.IssueID,
 		req.PullRequestURL,
 		req.ClaimDetails,
-		req.PRVerification.ID,
 	); err != nil {
 		log.Printf("Error creating claims: %v", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create claims"})

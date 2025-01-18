@@ -143,3 +143,13 @@ func filterAndOrganizeClaims(claims []models.Claim) []models.Claim {
 
 	return claims
 }
+
+func GetIssueByID(issueID uint) (models.Issue, error) {
+	var issue models.Issue
+	err := db.DB.First(&issue, issueID)
+	if err.Error != nil {
+		log.Print(err.Error)
+		return issue, err.Error
+	}
+	return issue, nil
+}

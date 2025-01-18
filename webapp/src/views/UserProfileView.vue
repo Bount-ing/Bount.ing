@@ -36,11 +36,11 @@
     </div>
 
     <!-- Main Content Area -->
-    <div class="flex-1 pt-8 pl-4 pr-4 lg:pl-64 transition-all duration-300">
+    <div class="flex-1 pt-8 pl-4 pr-4 transition-all duration-300">
       <div v-if="loading" class="text-center text-2xl font-semibold">Loading...</div>
       <div v-else class="rounded-2xl shadow-xl overflow-hidden p-4 bg-secondary-dark text-white">
-        <UserProfile :user="user" />
-        
+      <UserProfile :user="user" />
+
         <!-- Tab Content -->
         <div class="mt-6">
           <keep-alive>
@@ -52,26 +52,25 @@
   </section>
 </template>
 
-
 <script setup>
-import { ref, watchEffect } from 'vue';
-import UserProfile from '../components/UserProfile.vue';
-import UserBadgesList from '../components/UserProfile/UserBadgesList.vue';
-import UserOrganizationsList from '../components/UserProfile/UserOrganizationsList.vue';
-import UserHostsList from '../components/UserProfile/UserHostsList.vue';
-import UserRepositoriesList from '../components/UserProfile/UserRepositoriesList.vue';
-import UserIssuesList from '../components/UserProfile/UserIssuesList.vue';
-import UserBountiesList from '../components/UserProfile/UserBountiesList.vue';
-import UserPaymentsList from '../components/UserProfile/UserPaymentsList.vue';
-import { useUserStore } from '../stores/user';
-import { useI18n } from 'vue-i18n';
+import { ref, watchEffect } from 'vue'
+import UserProfile from '../components/UserProfile.vue'
+import UserBadgesList from '../components/UserProfile/UserBadgesList.vue'
+import UserOrganizationsList from '../components/UserProfile/UserOrganizationsList.vue'
+import UserHostsList from '../components/UserProfile/UserHostsList.vue'
+import UserRepositoriesList from '../components/UserProfile/UserRepositoriesList.vue'
+import UserIssuesList from '../components/UserProfile/UserIssuesList.vue'
+import UserBountiesList from '../components/UserProfile/UserBountiesList.vue'
+import UserPaymentsList from '../components/UserProfile/UserPaymentsList.vue'
+import { useUserStore } from '../stores/user'
+import { useI18n } from 'vue-i18n'
 
-const { t, locale } = useI18n();
-const userStore = useUserStore();
-const user = userStore.user;
+const { t, locale } = useI18n()
+const userStore = useUserStore()
+const user = userStore.user
 
 // Define tabs
-const tabs = ref([]);
+const tabs = ref([])
 const updateTabs = () => {
   tabs.value = [
     { name: t('profile.badges'), component: UserBadgesList },
@@ -80,20 +79,20 @@ const updateTabs = () => {
     { name: t('profile.repositories'), component: UserRepositoriesList },
     { name: t('profile.issues'), component: UserIssuesList },
     { name: t('profile.bounties'), component: UserBountiesList },
-    { name: t('profile.payments'), component: UserPaymentsList },
-  ];
-};
+    { name: t('profile.payments'), component: UserPaymentsList }
+  ]
+}
 
-updateTabs();
-watchEffect(() => updateTabs());
+updateTabs()
+watchEffect(() => updateTabs())
 
-const currentTab = ref(tabs.value[0] || { name: '', component: null });
+const currentTab = ref(tabs.value[0] || { name: '', component: null })
 const selectTab = (tab) => {
-  currentTab.value = tab;
-};
+  currentTab.value = tab
+}
 
-const isSidebarOpen = ref(false);
+const isSidebarOpen = ref(false)
 const toggleSidebar = () => {
-  isSidebarOpen.value = !isSidebarOpen.value;
-};
+  isSidebarOpen.value = !isSidebarOpen.value
+}
 </script>

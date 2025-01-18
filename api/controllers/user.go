@@ -176,3 +176,13 @@ func UpdateUserStripeID(id uint, stripeUserId string) error {
 	}
 	return nil
 }
+
+func GetExternalIdentityByUserIDAndHostID(claimerID, hostID uint) (models.ExternalIdentity, error) {
+	var externalIdentity models.ExternalIdentity
+
+	dbc := db.DB.Where("user_id = ? AND host_id = ?", claimerID, hostID).First(&externalIdentity)
+	if dbc.Error == gorm.ErrRecordNotFound {
+		return externalIdentity, nil
+	}
+	return externalIdentity, dbc.Error
+}

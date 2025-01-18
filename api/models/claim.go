@@ -5,20 +5,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// PRVerification represents the verification details of a pull request
-type PRVerification struct {
-	gorm.Model
-	Found            bool   `json:"found"`
-	Linked           bool   `json:"linked"`
-	Accepted         bool   `json:"accepted"`
-	Closed           bool   `json:"closed"`
-	AuthorUsername   string `json:"authorUsername"`
-	AuthorExternalID uint   `json:"authorExternalId"`
-	RepoOwner        string `json:"repoOwner"`
-	RepoName         string `json:"repoName"`
-	PRNumber         string `json:"prNumber"`
-}
-
 // Claim represents the claim with two PRVerification objects, one for the owner and one for the author
 type Claim struct {
 	gorm.Model
@@ -29,15 +15,18 @@ type Claim struct {
 	ClaimDetails   string `json:"claimDetails"`
 	Status         string `json:"status"`
 
-	// Foreign Keys for PRVerification
-	OwnerPRVerificationID  uint `json:"ownerPRVerificationID"`
-	AuthorPRVerificationID uint `json:"authorPRVerificationID"`
+	// Relationships
+	Bounty             Bounty     `gorm:"foreignKey:BountyID"`
+	BountyClaimerCheck ClaimCheck `gorm:"foreignKey:BountyClaimerCheckID"`
+	BountyOwnerCheck   ClaimCheck `gorm:"foreignKey:BountyOwnerCheckID"`
+	BountySystemCheck  ClaimCheck `gorm:"foreignKey:BountySystemCheckID"`
 
-	// Relations
-	OwnerPRVerification  PRVerification `gorm:"foreignKey:OwnerPRVerificationID"`
-	AuthorPRVerification PRVerification `gorm:"foreignKey:AuthorPRVerificationID"`
+	// Foreign keys for ClaimChecks
+	BountyClaimerCheckID uint `json:"bountyClaimerCheckID"`
+	BountyOwnerCheckID   uint `json:"bountyOwnerCheckID"`
+	BountySystemCheckID  uint `json:"bountySystemCheckID"`
 }
 
 func init() {
-	db.DB.AutoMigrate(&Claim{}, &PRVerification{})
+	db.DB.AutoMigrate(&Claim{})
 }
