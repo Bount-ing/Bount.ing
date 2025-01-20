@@ -112,7 +112,9 @@ func GetIssueBounties(issueID string) (models.Issue, error) {
 	err := db.DB.Preload("Bounties").
 		Preload("Bounties.Variables").
 		Preload("Bounties.Claims", "status = ?", "pending").
-		Preload("Bounties.Claims.PRVerification").
+		Preload("Bounties.Claims.BountyClaimerCheck"). // Changed from PRVerification
+		Preload("Bounties.Claims.BountyOwnerCheck").   // Add other checks if needed
+		Preload("Bounties.Claims.BountySystemCheck").  // Add other checks if needed
 		First(&issue, issueID)
 
 	if err.Error != nil {
