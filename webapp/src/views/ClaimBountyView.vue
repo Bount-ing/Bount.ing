@@ -294,8 +294,12 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useUserStore } from '../stores/user';
 import { api } from '@/stores/api'
 import axios from 'axios' // Ensure axios is available
+
+
+const userStore = useUserStore();
 
 const route = useRoute()
 
@@ -457,10 +461,11 @@ const submitClaim = async () => {
     const prNumber = prParts[4]
 
     const claimData = {
-      IssueId: Number(route.params.id),
+      issueId: Number(route.params.id),
+      bountyId: Number(route.params.bountyId), // Add bounty ID if available
       prUrl: prUrl.value.trim(),
       claimDetails: claimDetails.value || '',
-      PRVerification: {
+      bountyClaimerCheck: {
         found: Boolean(prStatus.value.found),
         linked: Boolean(prStatus.value.linked),
         accepted: Boolean(prStatus.value.accepted),
@@ -469,12 +474,13 @@ const submitClaim = async () => {
         authorExternalId: Number(prStatus.value.authorExternalId),
         repoOwner: String(repoOwner),
         repoName: String(repoName),
-        prNumber: String(prNumber)
+        prNumber: String(prNumber),
+        checkerType: "CLAIMER",
+        checkerId: userStore.user.userid
       }
     }
 
     console.log('Raw outgoing request:', JSON.stringify(claimData, null, 2))
-
     console.log('Submitting claim with data:', claimData)
 
     // Make API request to submit claim
@@ -488,7 +494,6 @@ const submitClaim = async () => {
     prStatus.value = null
     prStatusChecked.value = false
 
-    // Show success message (you might want to handle this differently)
     alert('Claim submitted successfully!')
   } catch (err) {
     console.error('Error submitting claim:', err)
