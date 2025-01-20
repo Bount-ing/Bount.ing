@@ -8,6 +8,7 @@ import Footer from './components/UI/Footer.vue'
     <main class="flex-grow">
       <RouterView />
     </main>
+    <notifications class="mt-2"/>
   </div>
 </template>
 

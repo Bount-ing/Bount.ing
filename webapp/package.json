@@ -22,6 +22,7 @@
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "@heroicons/vue": "^2.2.0",
     "@intlify/vite-plugin-vue-i18n": "^7.0.0",
+    "@kyvg/vue3-notification": "^3.4.1",
     "@mdi/font": "^7.4.47",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.13",

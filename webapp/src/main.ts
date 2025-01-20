@@ -47,5 +47,8 @@ library.add(faHome, faChartBar, faDollarSign, faInfoCircle, faQuestionCircle, fa
 
 app.component('font-awesome-icon', FontAwesomeIcon);
 
+// Notifications
+import Notifications from '@kyvg/vue3-notification'
+app.use(Notifications);
 
 app.mount('#app')
