@@ -62,6 +62,7 @@ import UserRepositoriesList from '../components/UserProfile/UserRepositoriesList
 import UserIssuesList from '../components/UserProfile/UserIssuesList.vue'
 import UserBountiesList from '../components/UserProfile/UserBountiesList.vue'
 import UserPaymentsList from '../components/UserProfile/UserPaymentsList.vue'
+import UserPersonalInfo from '../components/UserProfile/UserPersonalInfo.vue'
 import { useUserStore } from '../stores/user'
 import { useI18n } from 'vue-i18n'
 
@@ -73,6 +74,7 @@ const user = userStore.user
 const tabs = ref([])
 const updateTabs = () => {
   tabs.value = [
+  { name: t('profile.personal_info'), component: UserPersonalInfo },
     { name: t('profile.badges'), component: UserBadgesList },
     { name: t('profile.organizations'), component: UserOrganizationsList },
     { name: t('profile.hosts'), component: UserHostsList },

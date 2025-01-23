@@ -19,10 +19,10 @@ type User struct {
 	StipeAccountID          string    `json:"stripe_account_id"`
 
 	// Relationships
-	ExternalIdentities []ExternalIdentity `gorm:"foreignKey:UserID;references:ID" json:"external_identities,omitempty"`
-	PublishedBounties  []Bounty           `gorm:"foreignKey:OwnerID" json:"published_bounties,omitempty"`
-	Claims             []Claim            `gorm:"foreignKey:ClaimerID" json:"claims,omitempty"`
-	RefreshTokens      []RefreshToken     `gorm:"foreignKey:UserID" json:"refresh_tokens,omitempty"`
+	Identities        []Identity     `gorm:"foreignKey:UserID;references:ID" json:"identities,omitempty"`
+	PublishedBounties []Bounty       `gorm:"foreignKey:OwnerID" json:"published_bounties,omitempty"`
+	Claims            []Claim        `gorm:"foreignKey:ClaimerID" json:"claims,omitempty"`
+	RefreshTokens     []RefreshToken `gorm:"foreignKey:UserID" json:"refresh_tokens,omitempty"`
 
 	// We'll keep Username at the User level as it might be used as a display name
 	// across all platforms

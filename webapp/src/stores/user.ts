@@ -51,8 +51,8 @@ interface HostData {
   repos: Repo[]
 }
 interface User {
-  userid: string
-  username: string
+  id: number
+  username: string | null | undefined
   avatar: string
   userBio?: string
   fullName?: string
@@ -89,6 +89,25 @@ interface LoginCredentials {
   username: string
   password: string
 }
+
+interface EditableUserFields {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  location: string;
+  userBio: string;
+  avatar: string;
+}
+
+const DEFAULT_USER_VALUES: EditableUserFields = {
+  fullName: '',
+  email: '',
+  phoneNumber: '',
+  location: '',
+  userBio: '',
+  avatar: '',
+};
+
 
 export const useUserStore = defineStore('user', () => {
   const user = ref<User | null>(null)
@@ -245,24 +264,59 @@ export const useUserStore = defineStore('user', () => {
 
   async function login(creds: LoginCredentials): Promise<void> {
     try {
-      const response = await api.post('/v1/signin', creds)
-      const { accessToken, refreshToken } = response.data
-      console.log(response.data)
-
-      if (accessToken && refreshToken) {
-        localStorage.setItem('token', accessToken)
-        localStorage.setItem('refreshToken', refreshToken)
-        token.value = accessToken
-        loggedIn.value = true
-
-        //push to dashboard
-        router.push({ name: 'Profile' })
-      } else {
-        throw new Error('Missing tokens in response')
+      // 1. Sign in and get tokens
+      const response = await api.post('/v1/signin', creds);
+      const { accessToken, refreshToken } = response.data;
+  
+      if (!accessToken || !refreshToken) {
+        throw new Error('Missing tokens in response');
       }
+  
+      // 2. Store tokens
+      localStorage.setItem('token', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      token.value = accessToken;
+      loggedIn.value = true;
+  
+      // 3. Parse JWT
+      const decodedJwt = parseJwt(accessToken);
+    if (!decodedJwt?.UID) {  // Changed from userId to UID
+      throw new Error('Invalid token: missing UID');
+    }
+    localStorage.setItem('userId', decodedJwt.UID.toString());
+  
+      // 4. Fetch user data
+      try {
+        const userResponse = await api.get('/v1/users/me', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
+        
+        if (!userResponse.data) {
+          throw new Error('Failed to fetch user data');
+        }
+  
+        // 5. Update user store with complete data
+        user.value = userResponse.data as User;
+  
+        // 6. Navigate to profile
+        router.push({ name: 'Profile' });
+  
+      } catch (userError) {
+        console.error('Failed to fetch user data:', userError);
+        // Even if user data fetch fails, we're still logged in
+        // You might want to show a warning to the user
+        router.push({ name: 'Profile' });
+      }
+  
     } catch (error) {
-      console.error('Login failed:', error)
-      throw new Error('Invalid credentials or login error')
+      console.error('Login failed:', error);
+      throw new Error(
+        error instanceof Error 
+          ? error.message 
+          : 'Invalid credentials or login error'
+      );
     }
   }
 
@@ -317,6 +371,28 @@ export const useUserStore = defineStore('user', () => {
     localStorage.setItem('github_user', JSON.stringify(githubData))
   }
 
+  async function updateUser(updatedData: EditableUserFields): Promise<void> {
+    if (!user.value) {
+      throw new Error('No user is currently logged in');
+    }
+
+    try {
+      const response = await api.put(`/v1/users/${user.value.id}`, updatedData, {
+        headers: {
+          Authorization: `Bearer ${token.value}`,
+        },
+      });
+
+      if (response.data) {
+        user.value = { ...user.value, ...updatedData };
+        console.log('User updated successfully:', response.data);
+      }
+    } catch (error) {
+      console.error('Failed to update user:', error);
+      throw new Error(error instanceof Error ? error.message : 'Update user error');
+    }
+  }
+
   return {
     user,
     loggedIn,
@@ -333,6 +409,7 @@ export const useUserStore = defineStore('user', () => {
     refreshJwt,
     login,
     logout,
-    getUserInfo
+    getUserInfo,
+    updateUser
   }
 })

@@ -5,9 +5,10 @@ import (
 	"gorm.io/gorm"
 )
 
-type ExternalIdentity struct {
+type Identity struct {
 	gorm.Model
-	ID       uint
+	ID uint
+
 	HostID   uint
 	Username string
 	Email    string
@@ -19,5 +20,5 @@ type ExternalIdentity struct {
 }
 
 func init() {
-	db.DB.AutoMigrate(&ExternalIdentity{})
+	db.DB.AutoMigrate(&Identity{})
 }
