@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
 import type { EditableUserFields } from '@/types/user';
@@ -7,6 +7,10 @@ import { DEFAULT_USER_VALUES } from '@/types/user';
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
+
+const isUpdating = ref(false);
+const isLoading = ref(true);
+const error = ref<string | null>(null);
 
 // Create a computed property to safely access user data with defaults
 const safeUser = computed(() => {
@@ -30,9 +34,8 @@ const editableUser = ref<EditableUserFields>({ ...safeUser.value });
 // Safe reset function
 const resetForm = () => {
   editableUser.value = { ...safeUser.value };
+  console.log('Form reset:', editableUser.value);
 };
-
-const isUpdating = ref(false);
 
 // Safe update function
 const updateUserInfo = async () => {
@@ -43,6 +46,7 @@ const updateUserInfo = async () => {
 
   try {
     isUpdating.value = true;
+    console.log('Updating user info:', editableUser.value);
     
     const updatedData = {
       ...user.value,
@@ -50,19 +54,34 @@ const updateUserInfo = async () => {
     };
 
     await userStore.updateUser(updatedData);
-    // Show success message
+    console.log('User updated successfully');
   } catch (error) {
     console.error('Failed to update user:', error);
-    // Handle error
   } finally {
     isUpdating.value = false;
   }
 };
 
+// Fetch user data on component mount
+onMounted(async () => {
+  try {
+    console.log('Component mounted, fetching user data...');
+    await userStore.getUserInfo();
+    resetForm();
+    isLoading.value = false;
+    console.log('User data loaded:', user.value);
+  } catch (err) {
+    console.error('Failed to load user data:', err);
+    error.value = 'Unable to load user data. Please try refreshing the page.';
+    isLoading.value = false;
+  }
+});
+
 // Watch for user changes safely
 watch(() => user.value, (newUser) => {
   if (newUser) {
     resetForm();
+    console.log('User data changed:', newUser);
   }
 }, { deep: true });
 </script>
@@ -76,7 +95,7 @@ watch(() => user.value, (newUser) => {
     </div>
 
     <!-- Show settings only if we have a valid user ID -->
-    <div v-if="user?.id" class="space-y-6">
+    <div v-if="user?.ID" class="space-y-6"> <!-- Update to match the key in the object -->
       <!-- Rest of your settings form -->
       <section class="bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <div class="p-6 border-b border-gray-700">
@@ -107,7 +126,11 @@ watch(() => user.value, (newUser) => {
                 </div>
                 <div class="space-y-1">
                   <p class="text-sm text-gray-400">User ID</p>
-                  <p class="font-medium">{{ user.id || 'N/A' }}</p>
+                  <p class="font-medium">{{ user.ID || 'N/A' }}</p> <!-- Update to match the key in the object -->
+                </div>
+                <div class="space-y-1">
+                  <p class="text-sm text-gray-400">Email</p>
+                  <p class="font-medium">{{ user.Email || 'Not set' }}</p> <!-- Update to match the key in the object -->
                 </div>
               </div>
             </div>
@@ -161,13 +184,13 @@ watch(() => user.value, (newUser) => {
     </div>
 
     <!-- Loading State -->
-    <div v-else-if="isUpdating" class="text-center py-8">
+    <div v-else-if="isLoading" class="text-center py-8">
       <p>Loading user data...</p>
     </div>
 
     <!-- Error State -->
     <div v-else class="text-center py-8 text-red-400">
-      <p>Unable to load user data. Please try refreshing the page.</p>
+      <p>{{ error }}</p>
     </div>
   </div>
 </template>
