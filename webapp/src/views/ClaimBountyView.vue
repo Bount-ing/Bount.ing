@@ -476,7 +476,7 @@ const submitClaim = async () => {
         repoName: String(repoName),
         prNumber: String(prNumber),
         checkerType: "CLAIMER",
-        checkerId: userStore.user.userid
+        checkerId: userStore.user.ID
       }
     }
 

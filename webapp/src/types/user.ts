@@ -3,7 +3,7 @@
 // User-related interfaces
 export interface EditableUserFields {
     fullName: string;
-    email: string;
+    Email: string;
     phoneNumber: string;
     location: string;
     userBio: string;
@@ -13,7 +13,7 @@ export interface EditableUserFields {
   // Default values and constants
   export const DEFAULT_USER_VALUES: EditableUserFields = {
     fullName: '',
-    email: '',
+    Email: '',
     phoneNumber: '',
     location: '',
     userBio: '',

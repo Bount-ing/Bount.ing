@@ -20,7 +20,7 @@ const safeUser = computed(() => {
 
   return {
     fullName: user.value.fullName ?? DEFAULT_USER_VALUES.fullName,
-    email: user.value.email ?? DEFAULT_USER_VALUES.email,
+    Email: user.value.Email ?? DEFAULT_USER_VALUES.Email,
     phoneNumber: user.value.phoneNumber ?? DEFAULT_USER_VALUES.phoneNumber,
     location: user.value.location ?? DEFAULT_USER_VALUES.location,
     userBio: user.value.userBio ?? DEFAULT_USER_VALUES.userBio,
@@ -152,8 +152,8 @@ watch(() => user.value, (newUser) => {
                 <div>
                   <label class="block text-sm font-medium mb-1">Email</label>
                   <input 
-                    v-model="editableUser.email" 
-                    type="email" 
+                    v-model="editableUser.Email" 
+                    type="Email" 
                     class="w-full p-2.5 rounded-md bg-gray-700 border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>

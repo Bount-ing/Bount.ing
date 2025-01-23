@@ -51,12 +51,12 @@ interface HostData {
   repos: Repo[]
 }
 interface User {
-  id: number
+  ID: number
   username: string | null | undefined
   avatar: string
   userBio?: string
   fullName?: string
-  email?: string
+  Email?: string
   phoneNumber?: string
   location?: string
   bearerToken?: string
@@ -92,7 +92,7 @@ interface LoginCredentials {
 
 interface EditableUserFields {
   fullName: string
-  email: string
+  Email: string
   phoneNumber: string
   location: string
   userBio: string
@@ -101,7 +101,7 @@ interface EditableUserFields {
 
 const DEFAULT_USER_VALUES: EditableUserFields = {
   fullName: '',
-  email: '',
+  Email: '',
   phoneNumber: '',
   location: '',
   userBio: '',
@@ -349,7 +349,7 @@ export const useUserStore = defineStore('user', () => {
     }
 
     try {
-      const response = await api.put(`/v1/users/${user.value.id}`, updatedData, {
+      const response = await api.put(`/v1/users/${user.value.ID}`, updatedData, {
         headers: {
           Authorization: `Bearer ${token.value}`
         }

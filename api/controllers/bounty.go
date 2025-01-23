@@ -146,3 +146,16 @@ func GetPublicBountiesByIssue() ([]models.Issue, error) {
 
 	return issues, nil
 }
+
+func GetBountyByID(bountyID uint) (models.Bounty, error) {
+	var bounty models.Bounty
+
+	err := db.DB.First(&bounty, bountyID)
+
+	if err.Error != nil {
+		log.Print(err.Error)
+		return bounty, err.Error
+	}
+
+	return bounty, nil
+}

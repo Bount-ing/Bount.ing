@@ -57,7 +57,7 @@ func SetupRouter() *gin.Engine {
 
 	public.GET("/claims", handlers.GetClaims)
 	public.GET("/claims/:id", handlers.GetClaim)
-	needAuth.POST("/claims", handlers.CreateClaim)
+	needAuth.POST("/claims", handlers.ClaimBounty)
 	needAdmin.PUT("/claims/:id", handlers.UpdateClaim)
 	needAdmin.DELETE("/claims/:id", handlers.DeleteClaim)
 

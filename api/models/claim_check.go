@@ -19,7 +19,7 @@ type ClaimCheck struct {
 	PRNumber         string `json:"prNumber"`
 
 	// Check Attribution
-	CheckerID   uint   `json:"checker_id"`   // ID of the user who made the check (0 for system checks)
+	CheckerID   uint   `json:"checkerId"`    // ID of the user who made the check (0 for system checks)
 	CheckerType string `json:"checker_type"` // "SYSTEM", "OWNER", or "CLAIMER"
 
 	// Relationship to parent Claim

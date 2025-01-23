@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -8,126 +9,6 @@ import (
 	"github.com/bount-ing/bount.ing/api/models"
 	"github.com/bount-ing/bount.ing/api/tools"
 )
-
-func CreateClaim(claimerID uint, issueID uint, pullRequestURL string, claimDetails string) error {
-	// Start transaction
-	tx := db.DB.Begin()
-
-	//find claimer user
-	claimer, err := GetUserByID(claimerID)
-	if err != nil {
-		tx.Rollback()
-		log.Printf("Failed to find claimer %d: %v", claimerID, err)
-		return err
-	}
-
-	// Find all bounties for the issue
-	var bounties []models.Bounty
-	if err := tx.Where("issue_id = ?", issueID).Find(&bounties).Error; err != nil {
-		tx.Rollback()
-		log.Printf("Failed to find bounties for issue %d: %v", issueID, err)
-		return err
-	}
-
-	// Get Host ID from Issue
-	issue, err := GetIssueByID(issueID)
-	if err != nil {
-		tx.Rollback()
-		log.Printf("Failed to find issue %d: %v", issueID, err)
-	}
-
-	//get host id from issue
-	hostID := issue.HostID
-
-	//Get user Ext identities and get the one matching the host id
-	extUser, err := GetExternalIdentityByUserIDAndHostID(claimerID, hostID)
-	if err != nil {
-		tx.Rollback()
-		log.Printf("Failed to find external identity for user %d and host %d: %v", claimerID, hostID, err)
-	}
-
-	// Create a claim for each bounty
-	for _, bounty := range bounties {
-		// First create the claimer's check
-		claimerCheck := &models.ClaimCheck{
-			Found:            false, // Initial state
-			Linked:           false,
-			Accepted:         false,
-			Closed:           false,
-			AuthorUsername:   extUser.Username,
-			AuthorExternalID: extUser.ID,
-			RepoOwner:        "", // These will be populated when PR is verified
-			RepoName:         "",
-			PRNumber:         "",
-			CheckerID:        claimerID,
-			CheckerType:      "CLAIMER",
-		}
-
-		if err := tx.Create(claimerCheck).Error; err != nil {
-			tx.Rollback()
-			log.Printf("Failed to create claimer check: %v", err)
-			return err
-		}
-
-		// Create the claim with the associated check
-		claim := &models.Claim{
-			ClaimerID:            claimerID,
-			BountyID:             bounty.ID,
-			IssueID:              issueID,
-			PullRequestURL:       pullRequestURL,
-			ClaimDetails:         claimDetails,
-			Status:               "pending",
-			BountyClaimerCheckID: claimerCheck.ID, // Link to the newly created check
-			// Note: BountyOwnerCheckID and BountySystemCheckID will be set later
-			// when those checks are performed
-		}
-
-		if err := tx.Create(claim).Error; err != nil {
-			tx.Rollback()
-			log.Printf("Failed to create claim for bounty %d: %v", bounty.ID, err)
-			return err
-		}
-
-		// Update the claim reference in the check
-		if err := tx.Model(claimerCheck).Update("claim_id", claim.ID).Error; err != nil {
-			tx.Rollback()
-			log.Printf("Failed to update claim reference in check: %v", err)
-			return err
-		}
-	}
-
-	if err := tx.Commit().Error; err != nil {
-		log.Printf("Failed to commit transaction: %v", err)
-		return err
-	}
-
-	mailContent := fmt.Sprintf(
-		`<p>Hi there,</p>
-		<p>You have successfully claimed the bounty for issue %d. The claim is currently pending review.</p>
-		<p>Details:</p>
-		<ul>
-			<li>Issue: %d</li>
-			<li>Pull Request: %s</li>
-		</ul>
-		<p>Thank you for your contribution!</p>`,
-		issueID, issueID, pullRequestURL,
-	)
-
-	// Send email to claimer
-	if err := tools.SendEmail("Bount.ing - Bounty Claimed", mailContent, claimer.Email); err != nil {
-		log.Printf("Failed to send email to claimer %s: %v", claimer.Email, err)
-	}
-
-	return nil
-}
-
-func CreateClaimCheck(verification *models.ClaimCheck) error {
-	if err := db.DB.Create(verification).Error; err != nil {
-		log.Printf("Failed to create Claim Check: %v", err)
-		return err
-	}
-	return nil
-}
 
 func GetClaim(claimID string) (models.Claim, error) {
 	var claim models.Claim
@@ -177,4 +58,177 @@ func DeleteClaim(claimID string) error {
 		return err.Error
 	}
 	return nil
+}
+
+func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetails string, claimCheck models.ClaimCheck) error {
+	// Start transaction
+	tx := db.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Find claimer user
+	claimer, err := GetUserByID(claimerID)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to find claimer %d: %v", claimerID, err)
+	}
+
+	// Get issue and host details
+	issue, err := GetIssueByID(issueID)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to find issue %d: %v", issue.ID, err)
+	}
+
+	// Find all bounties for the issue
+	var bounties []models.Bounty
+	if err := tx.Where("issue_id = ?", issueID).Find(&bounties).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to find bounties for issue %d: %v", issueID, err)
+	}
+
+	// Save the provided claim check
+	claimCheck.CheckerID = claimerID
+	claimCheck.CheckerType = "CLAIMER"
+	if err := tx.Create(&claimCheck).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to create claim check: %v", err)
+	}
+
+	// Create a claim for each bounty
+	for _, bounty := range bounties {
+		ownerClaimCheck := models.ClaimCheck{
+			CheckerID:   bounty.OwnerID, // Assuming Bounty has an OwnerID field
+			CheckerType: "OWNER",
+		}
+		if err := tx.Create(&ownerClaimCheck).Error; err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to create owner claim check: %v", err)
+		}
+		systemClaimCheck := models.ClaimCheck{
+			CheckerID:   0,
+			CheckerType: "SYSTEM",
+		}
+		if err := tx.Create(&systemClaimCheck).Error; err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to create system claim check: %v", err)
+		}
+
+		claim := &models.Claim{
+			ClaimerID:            claimerID,
+			BountyID:             bounty.ID,
+			IssueID:              issueID,
+			PullRequestURL:       pullRequestURL,
+			ClaimDetails:         claimDetails,
+			Status:               "pending",
+			BountyClaimerCheckID: claimCheck.ID,
+			BountyOwnerCheckID:   ownerClaimCheck.ID,
+			BountySystemCheckID:  systemClaimCheck.ID,
+		}
+
+		if err := tx.Create(claim).Error; err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to create claim for bounty %d: %v", bounty.ID, err)
+		}
+	}
+
+	// Commit transaction
+	if err := tx.Commit().Error; err != nil {
+		return fmt.Errorf("failed to commit transaction: %v", err)
+	}
+
+	// Send email (non-blocking)
+	go func() {
+		mailContent := fmt.Sprintf(
+			`<p>Hi there,</p>
+            <p>You have successfully claimed the bounty for issue %d. The claim is currently pending review.</p>
+            <p>Details:</p>
+            <ul>
+                <li>Issue: %d</li>
+                <li>Pull Request: %s</li>
+            </ul>
+            <p>Thank you for your contribution!</p>`,
+			issueID, issueID, pullRequestURL,
+		)
+		if err := tools.SendEmail("Bount.ing - Bounty Claimed", mailContent, claimer.Email); err != nil {
+			log.Printf("Failed to send email to claimer %s: %v", claimer.Email, err)
+		}
+	}()
+
+	return nil
+}
+
+func ApproveClaim(bountyOwnerID uint, claimerCheckID uint, ownerCheck models.ClaimCheck) error {
+	// Begin transaction
+	tx := db.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Fetch the original claimer check
+	var claimerCheck models.ClaimCheck
+	if err := tx.First(&claimerCheck, claimerCheckID).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("claimer check not found: %v", err)
+	}
+
+	// Verify the bounty owner is associated with the claim
+	claim, err := GetClaimByCaimCheck(claimerCheckID)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("claim not found: %v", err)
+	}
+	bounty, err := GetBountyByID(claim.BountyID)
+	if err != nil || bounty.OwnerID != bountyOwnerID {
+		tx.Rollback()
+		return errors.New("unauthorized: not bounty owner")
+	}
+
+	// Validate owner check against claimer check
+	if !validateOwnerCheck(&claimerCheck, &ownerCheck) {
+		tx.Rollback()
+		return errors.New("owner check validation failed")
+	}
+
+	// Set owner check details
+	ownerCheck.CheckerID = bountyOwnerID
+	ownerCheck.CheckerType = "BOUNTY_OWNER"
+
+	// Save owner check
+	if err := tx.Create(&ownerCheck).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to save owner check: %v", err)
+	}
+
+	// Update claim with owner check and status
+	claim.BountyOwnerCheckID = ownerCheck.ID
+	claim.Status = "in_review"
+	if err := tx.Save(&claim).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to update claim: %v", err)
+	}
+
+	return tx.Commit().Error
+}
+
+func validateOwnerCheck(claimerCheck, ownerCheck *models.ClaimCheck) bool {
+	// Implement validation logic
+	// Compare relevant fields between claimer and owner checks
+	return ownerCheck.PRNumber == claimerCheck.PRNumber &&
+		ownerCheck.RepoName == claimerCheck.RepoName &&
+		ownerCheck.RepoOwner == claimerCheck.RepoOwner
+}
+
+func GetClaimByCaimCheck(claimerCheckID uint) (models.Claim, error) {
+	var claim models.Claim
+	err := db.DB.Where("bounty_claimer_check_id = ?", claimerCheckID).First(&claim)
+	if err.Error != nil {
+		return claim, err.Error
+	}
+	return claim, nil
 }
