@@ -76,8 +76,8 @@ func GetMyIssues(userID uint) ([]models.Issue, error) {
 	err := db.DB.Preload("Bounties").
 		Preload("Bounties.Variables").
 		Preload("Bounties.Claims", "status = ?", "pending"). // Only pending claims
-		Preload("Bounties.Claims.OwnerPRVerification").      // Owner PR verification
-		Preload("Bounties.Claims.AuthorPRVerification").     // Author PR verification
+		Preload("Bounties.Claims.BountyOwnerCheck").         // Owner PR verification
+		Preload("Bounties.Claims.BountyClaimerCheck").       // Author PR verification
 		Find(&issues).Error
 
 	if err != nil {
