@@ -297,13 +297,26 @@ export const useUserStore = defineStore('user', () => {
       const response = await api.get('/v1/users/me', {
         headers: { Authorization: authHeader.value },
       });
+      
       user.value = response.data;
       localStorage.setItem('user', JSON.stringify(response.data));
       console.log('User information:', user.value); // Log the user information
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch user info:', error);
+      
+      if (error.response && error.response.status === 401) {
+        // Reset stored values on unauthorized error
+        user.value = null;
+        loggedIn.value = false;
+        localStorage.removeItem('user');
+        localStorage.removeItem('authToken'); // Assuming authToken is stored
+        console.warn('Unauthorized. User data has been reset.');
+        //redirect to login page
+        router.push({ path: '/login' });
+      }
     }
   }
+  
 
   function parseJwt(token: string): Record<string, any> | null {
     try {
