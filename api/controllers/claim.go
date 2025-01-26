@@ -229,6 +229,16 @@ func ApproveClaim(bountyOwnerID uint, claimID uint, ownerCheck models.ClaimCheck
 		return fmt.Errorf("failed to commit transaction: %v", err)
 	}
 
+	//Retrieve bounty & update status
+	bounty, err = GetBountyByID(claim.BountyID)
+	if err != nil {
+		log.Print(err)
+	}
+	bounty.Status = "closed"
+	if err := db.DB.Save(&bounty).Error; err != nil {
+		log.Print(err)
+	}
+
 	// Send email (non-blocking)
 	go func() {
 		mailContent := fmt.Sprintf(

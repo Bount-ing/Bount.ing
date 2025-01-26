@@ -10,10 +10,12 @@ import (
 )
 
 func CreateBounty(bounty *models.Bounty) error {
-	// Save the bounty and associated relationships to the database
+	bounty.Status = "open"
+
 	if err := db.DB.Create(&bounty).Error; err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -137,7 +139,10 @@ func GetPublicBountiesByIssue() ([]models.Issue, error) {
 	// Fetch all issues with associated bounties and their variables
 	var issues []models.Issue
 
-	err := db.DB.Preload("Bounties").Preload("Bounties.Variables").Find(&issues)
+	err := db.DB.
+		Preload("Bounties", "status = ?", "open").
+		Preload("Bounties.Variables").
+		Find(&issues)
 
 	if err.Error != nil {
 		log.Print(err.Error)
