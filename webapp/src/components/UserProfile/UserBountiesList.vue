@@ -12,14 +12,18 @@
 
     <!-- Issues with Bounties -->
     <div v-else-if="issues && issues.length">
-      <div v-for="issue in issues" :key="issue.ID" class="mb-6 border border-gray-200 rounded-lg p-4 shadow">
+      <div
+        v-for="issue in issues"
+        :key="issue.ID"
+        class="mb-6 border border-gray-200 rounded-lg p-4 shadow"
+      >
         <!-- Issue Header -->
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-xl font-semibold text-primary">
             {{ issue.Title || 'Untitled Issue' }}
           </h3>
           <div
-            v-if="issue.Bounties.some(bounty => bounty.claims && bounty.claims.length)"
+            v-if="issue.Bounties.some((bounty) => bounty.claims && bounty.claims.length)"
             class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm"
           >
             Claimed
@@ -56,46 +60,126 @@
               </button>
             </div>
 
-            <!-- Claims -->
-            <div v-if="bounty.claims && bounty.claims.length" class="mt-4">
-              <h4 class="text-lg font-medium text-primary mb-2">Claims:</h4>
+            <!-- Claims Approval Section -->
+            <div v-if="bounty.claims && bounty.claims.length" class="mt-6">
+              <h2 class="text-lg font-semibold text-primary-light mb-4">Claims for Verification</h2>
               <div
                 v-for="claim in bounty.claims"
-                :key="claim.ID"
-                class="border-t border-gray-200 pt-2 mt-2"
+                :key="claim.id"
+                class="bg-secondary rounded-lg p-4 shadow-md mb-4"
               >
-                <div class="flex justify-between items-center">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
+                    <h3 class="text-md font-semibold text-primary">Claim Details</h3>
+                    <p class="text-gray-300">{{ claim.claimDetails || 'No details provided' }}</p>
                     <a
                       :href="claim.prUrl"
                       target="_blank"
-                      class="text-blue-600 hover:underline"
+                      class="text-blue-500 hover:underline mt-2 inline-block"
                     >
                       View Pull Request
                     </a>
-                    <span class="ml-2 text-sm text-gray-600">
-                      Status: {{ claim.status || 'Pending' }}
-                    </span>
                   </div>
-                  <!-- Actions -->
-                  <div v-if="claim.status === 'pending'" class="space-x-2">
+                  <div>
+                    <h3 class="text-md font-semibold text-primary">PR Verification</h3>
+                    <table class="w-full bg-secondary-dark rounded-lg">
+                      <tr>
+                        <td class="px-4 py-2 text-gray-300">PR Found</td>
+                        <td class="px-4 py-2">
+                          <span
+                            :class="claim.prVerification?.found ? 'text-green-500' : 'text-red-500'"
+                          >
+                            {{ claim.prVerification?.found ? '✔' : '❌' }}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-2 text-gray-300">PR Linked</td>
+                        <td class="px-4 py-2">
+                          <span
+                            :class="
+                              claim.prVerification?.linked ? 'text-green-500' : 'text-red-500'
+                            "
+                          >
+                            {{ claim.prVerification?.linked ? '✔' : '❌' }}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-2 text-gray-300">PR Accepted</td>
+                        <td class="px-4 py-2">
+                          <span
+                            :class="
+                              claim.prVerification?.accepted ? 'text-green-500' : 'text-red-500'
+                            "
+                          >
+                            {{ claim.prVerification?.accepted ? '✔' : '❌' }}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-2 text-gray-300">Issue Closed</td>
+                        <td class="px-4 py-2">
+                          <span
+                            :class="
+                              claim.prVerification?.closed ? 'text-green-500' : 'text-red-500'
+                            "
+                          >
+                            {{ claim.prVerification?.closed ? '✔' : '❌' }}
+                          </span>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Claim Actions -->
+                <div
+                  class="mt-4 flex justify-between items-center space-x-4"
+                  v-if="claim.status === 'pending'"
+                >
+                  <button
+                    @click="recheckPR(claim.prUrl, issue)"
+                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
+                  >
+                    <svg
+                      v-if="claim.recheckLoading"
+                      class="animate-spin h-5 w-5 mr-2"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Recheck PR
+                  </button>
+                  <div class="flex space-x-4">
                     <button
                       @click="approveClaim(claim.ID)"
-                      class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                      class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
                     >
-                      Approve
+                      Approve Claim
                     </button>
                     <button
-                      @click="rejectClaim(claim.ID)"
-                      class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                      @click="rejectClaim(claim.id)"
+                      class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                     >
-                      Reject
+                      Reject Claim
                     </button>
                   </div>
                 </div>
-                <p v-if="claim.claimDetails" class="mt-2 text-sm text-gray-600">
-                  {{ claim.claimDetails }}
-                </p>
               </div>
             </div>
           </li>
@@ -108,15 +192,20 @@
   </div>
 </template>
 
-
-
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { api } from '@/stores/api'
+import axios from 'axios' // Ensure axios is available
+import { useUserStore } from '../../stores/user';
+
+const userStore = useUserStore();
+
 
 const issues = ref([])
 const loading = ref(true)
 const error = ref(null)
+const prStatus = ref(null) // PR status information
+const prStatusChecked = ref(false) // Flag to track if PR has been checked
 
 const groupedBounties = computed(() => {
   if (!issues.value) return []
@@ -169,16 +258,64 @@ const fetchBounties = async () => {
 
 const approveClaim = async (claimId) => {
   try {
-    await api.patch(`/v1/claims/${claimId}`, {
-      status: 'approved'
-    })
-    await fetchBounties() // Refresh data
+    // Find the specific claim to get its details
+    let claimDetails = null;
+    for (const issue of issues.value) {
+      for (const bounty of issue.Bounties || []) {
+        for (const claim of bounty.claims || []) {
+          if (claim.ID === claimId) {
+            claimDetails = claim;
+            break;
+          }
+        }
+        if (claimDetails) break;
+      }
+      if (claimDetails) break;
+    }
+
+    if (!claimDetails) {
+      throw new Error('Claim not found');
+    }
+
+    if (!claimDetails) {
+      throw new Error('Claim not found');
+    }
+
+    // Parse PR URL to get repository details
+    const prUrlValue = new URL(claimDetails.prUrl);
+    const prParts = prUrlValue.pathname.split('/');
+    const repoOwner = prParts[1];
+    const repoName = prParts[2];
+    const prNumber = prParts[4];
+
+    const approvalData = {
+      status: 'approved',
+      bountyClaimerCheck: {
+        found: claimDetails.prVerification?.found,
+        linked: claimDetails.prVerification?.linked,
+        accepted: claimDetails.prVerification?.accepted,
+        closed: claimDetails.prVerification?.closed,
+        authorUsername: claimDetails.authorUsername,
+        authorExternalId: claimDetails.authorExternalId,
+        repoOwner: String(repoOwner),
+        repoName: String(repoName),
+        prNumber: String(prNumber),
+        checkerType: "OWNER",
+        checkerId: userStore.user.ID
+      }
+    };
+
+    console.log('Raw outgoing request:', JSON.stringify(approvalData, null, 2));
+
+    const response = await api.post(`/v1/claims/${claimId}/approve`, approvalData);
+
+    console.log('Claim approval response:', response);
+    await fetchBounties(); // Refresh data
   } catch (error) {
-    console.error('Error approving claim:', error)
-    error.value = 'Failed to approve claim. Please try again.'
+    console.error('Error approving claim:', error);
+    error.value = error.response?.data?.message || 'Failed to approve claim. Please try again.';
   }
 }
-
 const rejectClaim = async (claimId) => {
   const reason = window.prompt('Please provide a reason for rejection:')
   if (reason === null) return // User cancelled
@@ -222,6 +359,88 @@ const formatDate = (date) => {
     return new Date(date).toLocaleDateString()
   } catch {
     return 'Invalid Date'
+  }
+}
+
+const recheckPR = async (prUrl, issue) => {
+  console.log('Checking PR status for URL:', prUrl)
+
+  if (!prUrl) {
+    prStatusChecked.value = false
+    return
+  }
+
+  try {
+    const prUrlValue = new URL(prUrl)
+    const prParts = prUrlValue.pathname.split('/')
+
+    if (prParts.length < 5 || prParts[3] !== 'pull') {
+      console.warn('Invalid PR URL format')
+      prStatusChecked.value = false
+      return
+    }
+
+    const repoOwner = prParts[1]
+    const repoName = prParts[2]
+    const prNumber = prParts[4]
+
+    console.log(`Fetching PR status for ${repoOwner}/${repoName}#${prNumber}`)
+
+    const response = await axios.get(
+      `https://api.github.com/repos/${repoOwner}/${repoName}/pulls/${prNumber}`
+    )
+
+    if (response.status === 404) {
+      prStatus.value = null
+      error.value = `PR #${prNumber} not found in repository ${repoOwner}/${repoName}. Please verify the PR URL.`
+      prStatusChecked.value = true
+      return
+    }
+
+    const prData = response.data
+
+    prStatus.value = {
+      found: prData ? true : false,
+      linked: prData && prData.issue_url === issue.value?.issueUrl,
+      accepted: prData && prData.merged_at !== null,
+      closed: prData && prData.state === 'closed',
+      // Add author information
+      authorUsername: prData.user?.login || 'Unknown',
+      authorExternalId: prData.user?.id || null,
+      authorAvatar: prData.user?.avatar_url || null
+    }
+
+    prStatusChecked.value = true
+
+
+    issues.value.forEach(issueItem => {
+      issueItem.Bounties?.forEach(bounty => {
+        bounty.claims?.forEach(claim => {
+          if (claim.prUrl === prUrl) {
+            claim.prVerification = {
+              found: prData ? true : false,
+              linked: prData && prData.issue_url === issue?.issueUrl,
+              accepted: prData && prData.merged_at !== null,
+              closed: prData && prData.state === 'closed'
+            }
+          }
+        })
+      })
+    })
+    issues.value = [...issues.value]
+
+
+    console.log('PR Author:', prStatus.value.authorUsername)
+    console.log('PR Status:', prStatus.value)
+  } catch (err) {
+    console.error('Error fetching PR data from GitHub:', err)
+    prStatus.value = null
+    if (err.response && err.response.status === 404) {
+      error.value = 'PR not found. Please check the PR URL.'
+    } else {
+      error.value = 'Failed to fetch PR status. Please try again later.'
+    }
+    prStatusChecked.value = true
   }
 }
 

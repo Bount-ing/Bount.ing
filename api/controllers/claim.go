@@ -161,7 +161,9 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 	return nil
 }
 
-func ApproveClaim(bountyOwnerID uint, claimerCheckID uint, ownerCheck models.ClaimCheck) error {
+func ApproveClaim(bountyOwnerID uint, claimID uint, ownerCheck models.ClaimCheck) error {
+	log.Printf("Approving claim %d by bounty owner %d", claimID, bountyOwnerID)
+	log.Printf("Owner check: %+v", ownerCheck)
 	// Begin transaction
 	tx := db.DB.Begin()
 	defer func() {
@@ -170,23 +172,25 @@ func ApproveClaim(bountyOwnerID uint, claimerCheckID uint, ownerCheck models.Cla
 		}
 	}()
 
-	// Fetch the original claimer check
-	var claimerCheck models.ClaimCheck
-	if err := tx.First(&claimerCheck, claimerCheckID).Error; err != nil {
-		tx.Rollback()
-		return fmt.Errorf("claimer check not found: %v", err)
-	}
-
-	// Verify the bounty owner is associated with the claim
-	claim, err := GetClaimByCaimCheck(claimerCheckID)
-	if err != nil {
+	// Fetch the claim
+	var claim models.Claim
+	if err := tx.First(&claim, claimID).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("claim not found: %v", err)
 	}
+
+	// Verify the bounty owner is associated with the claim
 	bounty, err := GetBountyByID(claim.BountyID)
 	if err != nil || bounty.OwnerID != bountyOwnerID {
 		tx.Rollback()
 		return errors.New("unauthorized: not bounty owner")
+	}
+
+	// Fetch the original claimer check
+	var claimerCheck models.ClaimCheck
+	if err := tx.First(&claimerCheck, claim.BountyClaimerCheckID).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("claimer check not found: %v", err)
 	}
 
 	// Validate owner check against claimer check
@@ -195,25 +199,71 @@ func ApproveClaim(bountyOwnerID uint, claimerCheckID uint, ownerCheck models.Cla
 		return errors.New("owner check validation failed")
 	}
 
+	//retrive preexisting owner check
+	var preexistingOwnerCheck models.ClaimCheck
+	if err := tx.First(&preexistingOwnerCheck, claim.BountyOwnerCheckID).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("preexisting owner check not found: %v", err)
+	}
+
 	// Set owner check details
 	ownerCheck.CheckerID = bountyOwnerID
-	ownerCheck.CheckerType = "BOUNTY_OWNER"
+	ownerCheck.CheckerType = "OWNER"
 
 	// Save owner check
-	if err := tx.Create(&ownerCheck).Error; err != nil {
+	if err := tx.Save(&ownerCheck).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("failed to save owner check: %v", err)
 	}
 
 	// Update claim with owner check and status
 	claim.BountyOwnerCheckID = ownerCheck.ID
-	claim.Status = "in_review"
+	claim.Status = "approved"
 	if err := tx.Save(&claim).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("failed to update claim: %v", err)
 	}
 
-	return tx.Commit().Error
+	// Commit transaction
+	if err := tx.Commit().Error; err != nil {
+		return fmt.Errorf("failed to commit transaction: %v", err)
+	}
+
+	// Send email (non-blocking)
+	go func() {
+		mailContent := fmt.Sprintf(
+			`<p>Hi there,</p>
+			<p>Your claim for bounty %d has been approved by the bounty owner.</p>
+			<p>Details:</p>
+			<ul>
+				<li>Issue: %d</li>
+				<li>Pull Request: %s</li>
+			</ul>
+			<p>Thank you for your contribution!</p>`,
+			bounty.ID, claim.IssueID, claim.PullRequestURL,
+		)
+
+		//get claimer
+		claimer, err := GetUserByID(claim.ClaimerID)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+
+		if err := tools.SendEmail(claimer.Email, "Bount.ing - Bounty Claim Approved", mailContent); err != nil {
+			log.Printf("Failed to send email to claimer %s: %v", claimer.Email, err)
+		}
+	}()
+
+	//process paiment
+	go func() {
+		// Process payment
+		if err := ProcessPayment(claimerCheck.CheckerID, bounty.ID); err != nil {
+			log.Printf("Failed to process payment for claimer %d: %v", claimerCheck.CheckerID, err)
+		}
+	}()
+
+	return nil
 }
 
 func validateOwnerCheck(claimerCheck, ownerCheck *models.ClaimCheck) bool {

@@ -312,7 +312,7 @@ export const useUserStore = defineStore('user', () => {
         localStorage.removeItem('authToken'); // Assuming authToken is stored
         console.warn('Unauthorized. User data has been reset.');
         //redirect to login page
-        router.push({ path: '/login' });
+        router.push({ path: '/' });
       }
     }
   }
@@ -345,7 +345,6 @@ export const useUserStore = defineStore('user', () => {
       loggedIn.value = false
 
       // Redirect to the home page
-      router.push({ path: '/' })
     } catch (error) {
       console.error('Logout failed:', error)
       throw new Error('Logout error')

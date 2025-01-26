@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/bount-ing/bount.ing/api/auth"
 	"github.com/bount-ing/bount.ing/api/controllers"
@@ -113,17 +114,29 @@ func ApproveClaim(ctx *gin.Context) {
 	}
 
 	var request struct {
-		BountyOwnerID  uint              `json:"bounty_owner_id"`
-		ClaimerCheckID uint              `json:"claimer_check_id"`
-		OwnerCheck     models.ClaimCheck `json:"owner_check"`
+		Status             string            `json:"status"`
+		BountyClaimerCheck models.ClaimCheck `json:"bountyClaimerCheck"`
 	}
 
-	if err := ctx.BindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+	claimID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid claim ID"})
 		return
 	}
 
-	err = controllers.ApproveClaim(request.BountyOwnerID, request.ClaimerCheckID, request.OwnerCheck)
+	uintClaimID := uint(claimID)
+
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload", "details": err.Error()})
+		return
+	}
+
+	// Assuming the ApproveClaim controller method needs these parameters
+	err = controllers.ApproveClaim(
+		request.BountyClaimerCheck.CheckerID,
+		uintClaimID,
+		request.BountyClaimerCheck,
+	)
 	if err != nil {
 		if errors.Is(err, errors.New("unauthorized: not bounty owner")) {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
@@ -133,5 +146,5 @@ func ApproveClaim(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "Claim approved successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "Claim approved successfully", "status": request.Status})
 }
