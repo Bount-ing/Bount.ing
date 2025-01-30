@@ -50,7 +50,6 @@ func SetupRouter() *gin.Engine {
 
 	user := needAuth.Group("/users")
 	user.GET("/me", handlers.GetCurrentUser)
-	user.POST("/stripe", handlers.ConnectStripe)
 
 	adminBounties := needAdmin.Group("/bounties")
 	adminBounties.GET("/unconfirmed", handlers.GetAllUnconfirmedBounties)

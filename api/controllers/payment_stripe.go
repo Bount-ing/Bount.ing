@@ -13,11 +13,11 @@ import (
 	"github.com/stripe/stripe-go/setupintent"
 )
 
-func CreateStripeSetupIntent(bounty *models.Bounty, payerStripeCustomerID string) (*stripe.SetupIntent, error) {
+func CreateStripeSetupIntent(bounty *models.Bounty, bountyOwnerStripeID string) (*stripe.SetupIntent, error) {
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 
 	params := &stripe.SetupIntentParams{
-		Customer:           stripe.String(payerStripeCustomerID),
+		Customer:           stripe.String(bountyOwnerStripeID),
 		PaymentMethodTypes: stripe.StringSlice([]string{"card"}),
 		Usage:              stripe.String("off_session"), // Save for future payments
 	}
@@ -30,11 +30,11 @@ func CreateStripeSetupIntent(bounty *models.Bounty, payerStripeCustomerID string
 	return setupIntent, nil
 }
 
-func PayoutBounty(bounty models.Bounty, payerStripeCustomerID, stripeConnectedAccountID string) error {
+func PayoutBounty(bounty models.Bounty, bountyOwnerStripeID, bountyHunterStripeID string) error {
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 
 	// Fetch customer to get their default payment method
-	customer, err := customer.Get(payerStripeCustomerID, nil)
+	customer, err := customer.Get(bountyOwnerStripeID, nil)
 	if err != nil {
 		return errors.New("failed to retrieve Stripe Customer: " + err.Error())
 	}
@@ -46,7 +46,7 @@ func PayoutBounty(bounty models.Bounty, payerStripeCustomerID, stripeConnectedAc
 	paymentMethodID := customer.InvoiceSettings.DefaultPaymentMethod.ID
 
 	// Ensure that the connected account ID is provided
-	if stripeConnectedAccountID == "" {
+	if bountyHunterStripeID == "" {
 		return errors.New("stripe connected account id is required for payouts")
 	}
 
@@ -54,12 +54,12 @@ func PayoutBounty(bounty models.Bounty, payerStripeCustomerID, stripeConnectedAc
 	params := &stripe.PaymentIntentParams{
 		Amount:               stripe.Int64(int64(bounty.ClaimedAmount * 100)), // Convert to cents
 		Currency:             stripe.String(bounty.Currency),
-		Customer:             stripe.String(payerStripeCustomerID),
+		Customer:             stripe.String(bountyOwnerStripeID),
 		PaymentMethod:        stripe.String(paymentMethodID), // Corrected to fetch from Customer
 		Confirm:              stripe.Bool(true),
 		ApplicationFeeAmount: stripe.Int64(int64(bounty.ClaimedAmount * 0.05 * 100)), // Example 5% fee
 		TransferData: &stripe.PaymentIntentTransferDataParams{
-			Destination: stripe.String(stripeConnectedAccountID), // Send funds to the recipient
+			Destination: stripe.String(bountyHunterStripeID), // Send funds to the recipient
 		},
 	}
 

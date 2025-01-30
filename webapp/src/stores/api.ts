@@ -8,6 +8,7 @@ import type {
 } from 'axios';
 import { useUserStore } from '@/stores/user';
 import { useNaviStore } from '@/stores/navigation';
+import { nextTick } from 'vue';
 import router from '@/router';  // Changed from named to default import
 
 interface RetryConfig extends InternalAxiosRequestConfig {
@@ -71,6 +72,26 @@ api.interceptors.request.use(
     }
 );
 
+const handleAuthError = async () => {
+    const userStore = useUserStore();
+    const navi = useNaviStore();
+    
+    userStore.logout();
+    navi.UnsetLoading();
+    
+    // Use nextTick to ensure store updates are processed
+    await nextTick();
+    
+    // Check if we're not already on the signin page to prevent redirect loops
+    if (router.currentRoute.value.path !== '/signin') {
+        // Use replace instead of push to prevent back navigation to failed page
+        await router.replace({
+            path: '/signin',
+            query: { redirect: router.currentRoute.value.fullPath }
+        });
+    }
+};
+
 api.interceptors.response.use(
     (response: AxiosResponse): AxiosResponse => {
         const navi = useNaviStore();
@@ -82,13 +103,9 @@ api.interceptors.response.use(
         const userStore = useUserStore();
         const originalRequest = error.config as RetryConfig;
 
-        // Handle 401 errors
         if (error.response?.status === 401) {
-            // If refresh token fails or user is logged in but token is invalid
             if (originalRequest.url?.includes('/refresh') || originalRequest._retry) {
-                userStore.logout();
-                navi.UnsetLoading();
-                router.push('/signin');
+                await handleAuthError();
                 return Promise.reject(error);
             }
 
@@ -100,10 +117,8 @@ api.interceptors.response.use(
                     await userStore.refreshJwt();
                     isRefreshing = false;
                     
-                    // Process queued requests
                     processQueue(null, userStore.authHeader);
                     
-                    // Retry original request with new token
                     if (originalRequest.headers) {
                         originalRequest.headers['Authorization'] = userStore.authHeader;
                     }
@@ -111,13 +126,10 @@ api.interceptors.response.use(
                 } catch (refreshError) {
                     isRefreshing = false;
                     processQueue(refreshError as Error, null);
-                    userStore.logout();
-                    navi.UnsetLoading();
-                    router.push('/signin');
+                    await handleAuthError();
                     return Promise.reject(refreshError);
                 }
             } else {
-                // Queue failed requests while refresh is in progress
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
                 }).then(() => {

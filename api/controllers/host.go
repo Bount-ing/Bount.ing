@@ -22,6 +22,15 @@ func GetHost(hostID string) (models.Host, error) {
 	return host, nil
 }
 
+func GetHostFromAddress(hostAddress string) (models.Host, error) {
+	var host models.Host
+	err := db.DB.Where("address = ?", hostAddress).First(&host)
+	if err.Error != nil {
+		return host, err.Error
+	}
+	return host, nil
+}
+
 func GetHosts() ([]models.Host, error) {
 	var hosts []models.Host
 	err := db.DB.Find(&hosts)
