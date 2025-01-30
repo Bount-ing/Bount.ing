@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/bount-ing/bount.ing/api/controllers"
@@ -20,7 +21,7 @@ func OAuthStripeCallback(c *gin.Context) {
 	state := c.DefaultQuery("state", "")
 
 	// extract the state json payload (bs64 encoded)
-	statePayload, err := controllers.DecryptAndReadOAuthState(state, "https://connect.stripe.com")
+	statePayload, err := controllers.DecryptAndReadOAuthState(state, "https://stripe.com")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to decode state"})
 		return
@@ -32,16 +33,21 @@ func OAuthStripeCallback(c *gin.Context) {
 		return
 	}
 
+	// Set your Stripe secret key
+	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
+
 	// Exchange the authorization code for an access token
 	params := &stripe.OAuthTokenParams{
 		GrantType: stripe.String("authorization_code"),
 		Code:      stripe.String(code),
+		// Add these required parameters
+		ClientSecret: stripe.String(stripe.Key),
 	}
 
 	// Make the OAuth token request
 	token, err := oauth.New(params)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to exchange code for token"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to exchange code for token: " + err.Error()})
 		return
 	}
 
@@ -52,5 +58,8 @@ func OAuthStripeCallback(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Connected account ID saved"})
+	// Redirect the user back to the frontend
+	redirectURL := os.Getenv("STRIPE_REDIRECT_URL")
+
+	c.Redirect(http.StatusFound, redirectURL)
 }

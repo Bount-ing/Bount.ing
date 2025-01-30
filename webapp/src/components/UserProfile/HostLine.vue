@@ -98,11 +98,9 @@ const initiateGitHubOAuth = () => {
     const scope = 'read:user user:email read:org'
     const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`
 
-    // Store state in session for verification
-    // document.cookie = `oauth_state=${state}; path=/; Secure; SameSite=None; HttpOnly`;
+
     document.cookie = `oauth_state=${state}; path=/; SameSite=None; HttpOnly`
 
-    //send a random cookie to the server
     // Redirect to GitHub for OAuth
     window.location.href = authUrl
   })
@@ -120,13 +118,10 @@ const initiateStripeOAuth = () => {
     console.log('Response:', response)
     const state = response.data.state
     const scope = 'read_write';
-    const authUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${clientId}&scope=${scope}&state=${state}`
+    const authUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${clientId}&scope=${scope}&state=${state}&redirect_uri=${redirectUri}`
 
-    // Store state in session for verification
-    // document.cookie = `oauth_state=${state}; path=/; Secure; SameSite=None; HttpOnly`;
     document.cookie = `oauth_state=${state}; path=/; SameSite=None; HttpOnly`
 
-    //send a random cookie to the server
     // Redirect to Stripe for OAuth
     window.location.href = authUrl
   })

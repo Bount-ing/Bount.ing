@@ -45,16 +45,19 @@ func SaveStripeConnectedAccountID(stateUserID uint, stripeUserID string) error {
 		return fmt.Errorf("failed to get user identities: %w", err)
 	}
 	for _, identity := range userIdentities {
-		if identity.Host.Address == "https://github.com" && identity.UserExternalID != stripeUserID {
+		if identity.Host.Address == "https://stripe.com" && identity.UserExternalID != stripeUserID {
 			return fmt.Errorf("user already has another Stripe identity associated")
-		} else if identity.Host.Address == "https://github.com" && identity.UserExternalID == stripeUserID {
+		} else if identity.Host.Address == "https://stripe.com" && identity.UserExternalID == stripeUserID {
 			// return ok
 			return nil
 		}
 	}
 
+	//fetch host id
+	host, err := GetHostFromAddress("https://stripe.com")
+
 	// Check 2: stripeUser.ID doesn't already have an identity
-	hostIdentities, err := GetHostIdentitiesFromAddress("https://github.com")
+	hostIdentities, err := GetHostIdentitiesFromAddress("https://stripe.com")
 	if err != nil {
 		return fmt.Errorf("failed to get host identities: %w", err)
 	}
@@ -68,7 +71,7 @@ func SaveStripeConnectedAccountID(stateUserID uint, stripeUserID string) error {
 	newIdentity := &models.Identity{
 		UserExternalID: stripeUserID,
 		UserID:         stateUserID,
-		HostID:         1, // Stripe host ID
+		HostID:         host.ID, // Stripe host ID
 	}
 
 	err = CreateIdentity(newIdentity)
