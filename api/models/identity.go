@@ -9,13 +9,14 @@ type Identity struct {
 	gorm.Model
 	ID uint
 
-	HostID   uint
-	Username string
-	Email    string
+	Username       string
+	Email          string
+	UserExternalID string
 
 	// Relationships
 	UserID uint `gorm:"not null"` // Foreign key
 	User   User `gorm:"references:ID"`
+	HostID uint `gorm:"not null"` // Foreign key
 	Host   Host `gorm:"foreignKey:HostID"`
 }
 

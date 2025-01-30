@@ -12,6 +12,8 @@ const router = useRouter();
 //redirect to dashboard if user is logged in
 if (isLoggedIn.value) {
 	router.push({ path: '/dashboard' });
+} else {
+	router.push({ path: '/signin' });
 }
 
 </script>

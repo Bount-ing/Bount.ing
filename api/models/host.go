@@ -16,6 +16,7 @@ type Host struct {
 	OrganizationID uint
 	Repositories   []Repository `gorm:"foreignKey:HostID"`
 	LogoUrl        string
+	Identities     []Identity `gorm:"foreignKey:HostID"`
 }
 
 func HostsSeed() {

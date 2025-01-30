@@ -8,8 +8,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/bount-ing/bount.ing/api/controllers"
+	"github.com/bount-ing/bount.ing/api/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,34 +20,26 @@ const GithubTokenURL = "https://github.com/login/oauth/access_token"
 func OAuthGithubCallback(c *gin.Context) {
 	AppRedirURL := os.Getenv("GITHUB_REDIRECT_URL")
 	code := c.DefaultQuery("code", "")
-	state := c.DefaultQuery("state", "") // Capturing state from the query string
+	state := c.DefaultQuery("state", "")
 	log.Printf("Received code: %s, state: %s", code, state)
-	// Log all incoming cookies
-	cookies := c.Request.Cookies()
-	for _, cookie := range cookies {
-		log.Printf("Cookie: %s = %s", cookie.Name, cookie.Value)
+
+	// extract the state json payload (bs64 encoded)
+	statePayload, err := controllers.DecryptAndReadOAuthState(state, "https://github.com")
+	if err != nil {
+		log.Printf("Error decoding state: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to decode state"})
+		return
 	}
-	/*
+	log.Printf("Decoded state: %s", state)
+	log.Printf("Decoded state payload: %+v", statePayload)
 
-		if code == "" || state == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing code or state parameter"})
-			return
-		}
-			// Retrieve the state from the cookie set during the OAuth initiation
-			storedState, err := c.Cookie("oauth_state")
-			if err != nil {
-				log.Printf("Error retrieving stored state: %v", err)
-				c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid state parameter"})
-				return
-			}
+	// Verify the state is not expired
+	if statePayload.ExpiresAt.Before(time.Now()) {
+		log.Printf("State expired: %v", statePayload.ExpiresAt)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "State expired"})
+		return
+	}
 
-			// Validate the state to prevent CSRF attacks
-			if state != storedState {
-				log.Printf("State mismatch: expected %s, got %s", storedState, state)
-				c.JSON(http.StatusBadRequest, gin.H{"error": "CSRF validation failed"})
-				return
-			}
-	*/
 	// Proceed with token exchange if state is valid
 	requestData := url.Values{
 		"client_id":     {os.Getenv("GITHUB_CLIENT_ID")},
@@ -91,7 +85,7 @@ func OAuthGithubCallback(c *gin.Context) {
 	log.Printf("GitHub token: %v", githubToken)
 
 	// Optionally verify the token (to check validity)
-	err = VerifyGitHubToken(githubToken.AccessToken)
+	err = VerifyGitHubToken(githubToken.AccessToken, statePayload.UserID)
 	if err != nil {
 		log.Printf("Error verifying GitHub token: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify GitHub token"})
@@ -105,7 +99,7 @@ func OAuthGithubCallback(c *gin.Context) {
 	c.Redirect(http.StatusFound, fmt.Sprintf("%s?github_token=%s", AppRedirURL, githubToken.AccessToken))
 }
 
-func VerifyGitHubToken(token string) error {
+func VerifyGitHubToken(token string, stateUserID uint) error {
 	const githubUserAPIURL = "https://api.github.com/user"
 	const githubEmailsAPIURL = "https://api.github.com/user/emails"
 
@@ -191,10 +185,46 @@ func VerifyGitHubToken(token string) error {
 		}
 	}
 
-	//find user by email
-	_, err = controllers.GetUserByEmail(githubUser.Email)
+	//convert githubUser.ID to string
+	githubUserID := fmt.Sprint(githubUser.ID)
+
+	// Check 1: stateUserID doesn't already have a github identity
+	userIdentities, err := controllers.GetUserIdentities(stateUserID)
 	if err != nil {
-		return fmt.Errorf("failed to get user by email: %w", err)
+		return fmt.Errorf("failed to get user identities: %w", err)
+	}
+	for _, identity := range userIdentities {
+		if identity.Host.Address == "https://github.com" && identity.UserExternalID != githubUserID {
+			return fmt.Errorf("user already has a GitHub identity associated")
+		} else if identity.Host.Address == "https://github.com" && identity.UserExternalID == githubUserID {
+			// return ok
+			return nil
+		}
+	}
+
+	// Check 2: githubUser.ID doesn't already have an identity
+	hostIdentities, err := controllers.GetHostIdentitiesFromAddress("https://github.com")
+	if err != nil {
+		return fmt.Errorf("failed to get host identities: %w", err)
+	}
+	for _, identity := range hostIdentities {
+		if identity.UserExternalID == githubUserID {
+			return fmt.Errorf("GitHub identity already has a user associated")
+		}
+	}
+
+	// Create a new identity for the user
+	newIdentity := &models.Identity{
+		Username:       githubUser.Login,
+		Email:          githubUser.Email,
+		UserExternalID: githubUserID,
+		UserID:         stateUserID,
+		HostID:         1, // GitHub host ID
+	}
+
+	err = controllers.CreateIdentity(newIdentity)
+	if err != nil {
+		return fmt.Errorf("failed to create identity: %w", err)
 	}
 
 	return nil
