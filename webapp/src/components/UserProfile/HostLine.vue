@@ -73,6 +73,14 @@ const toggleConnection = () => {
       userStore[actionType + 'Github'](props.host)
       emit('host-action', { type: actionType, host: props.host })
     }
+  } else if (props.host.Address.includes('stripe.com')) {
+    if (!props.host.connected) {
+      initiateStripeOAuth() // Trigger OAuth flow if not already connected
+    } else {
+      const actionType = 'disconnect'
+      userStore[actionType + 'Stripe'](props.host)
+      emit('host-action', { type: actionType, host: props.host })
+    }
   }
 }
 
@@ -96,6 +104,30 @@ const initiateGitHubOAuth = () => {
 
     //send a random cookie to the server
     // Redirect to GitHub for OAuth
+    window.location.href = authUrl
+  })
+}
+
+const initiateStripeOAuth = () => {
+  const clientId = import.meta.env.VITE_STRIPE_CLIENT_ID
+  const redirectUri = import.meta.env.VITE_STRIPE_REDIRECT_URI
+
+  const oauthProvider = 'https://stripe.com'
+  //encode base 64
+  const encodedOauthProvider = btoa(oauthProvider)
+  //get the state from the server
+  api.get(`/v1/oauth/${encodedOauthProvider}`).then((response) => {
+    console.log('Response:', response)
+    const state = response.data.state
+    const scope = 'read_write';
+    const authUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${clientId}&scope=${scope}&state=${state}`
+
+    // Store state in session for verification
+    // document.cookie = `oauth_state=${state}; path=/; Secure; SameSite=None; HttpOnly`;
+    document.cookie = `oauth_state=${state}; path=/; SameSite=None; HttpOnly`
+
+    //send a random cookie to the server
+    // Redirect to Stripe for OAuth
     window.location.href = authUrl
   })
 }

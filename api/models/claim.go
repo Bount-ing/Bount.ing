@@ -8,12 +8,13 @@ import (
 // Claim represents the claim with two PRVerification objects, one for the owner and one for the author
 type Claim struct {
 	gorm.Model
-	ClaimerID      uint   `json:"claimerId"`
-	BountyID       uint   `json:"bountyId"`
-	IssueID        uint   `json:"issueId"`
-	PullRequestURL string `json:"prUrl"`
-	ClaimDetails   string `json:"claimDetails"`
-	Status         string `json:"status"`
+	ClaimerID      uint    `json:"claimerId"`
+	BountyID       uint    `json:"bountyId"`
+	IssueID        uint    `json:"issueId"`
+	PullRequestURL string  `json:"prUrl"`
+	ClaimDetails   string  `json:"claimDetails"`
+	Status         string  `json:"status"`
+	ClaimedAmount  float64 `json:"claimedAmount"`
 
 	// Relationships
 	Bounty             Bounty     `gorm:"foreignKey:BountyID"`

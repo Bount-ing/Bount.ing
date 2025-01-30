@@ -117,8 +117,16 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 			return fmt.Errorf("failed to create system claim check: %v", err)
 		}
 
+		// Calculate the claimed amount
+		claimedAmount, err := GetCurrentBountyAmount(bounty.ID)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to calculate claimed amount for bounty %d: %v", bounty.ID, err)
+		}
+
 		claim := &models.Claim{
 			ClaimerID:            claimerID,
+			ClaimedAmount:        claimedAmount,
 			BountyID:             bounty.ID,
 			IssueID:              issueID,
 			PullRequestURL:       pullRequestURL,
@@ -132,6 +140,13 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 		if err := tx.Create(claim).Error; err != nil {
 			tx.Rollback()
 			return fmt.Errorf("failed to create claim for bounty %d: %v", bounty.ID, err)
+		}
+
+		//update claimed amount
+		bounty.ClaimedAmount = claimedAmount
+		if err := tx.Save(&bounty).Error; err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to update bounty %d: %v", bounty.ID, err)
 		}
 	}
 

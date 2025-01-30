@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/bount-ing/bount.ing/api/db"
 	"github.com/bount-ing/bount.ing/api/models"
@@ -11,7 +12,36 @@ import (
 
 func CreateBounty(bounty *models.Bounty) error {
 	bounty.Status = "open"
+	ownerStripeID := ""
+	stripeAccountFound := false
 
+	// Fetch users identities where the host is stripe
+	identities, err := GetUserIdentities(bounty.OwnerID)
+	if err != nil {
+		return err
+	}
+
+	for _, identity := range identities {
+		if identity.Host.Address == "https://stripe.com" {
+			ownerStripeID = identity.UserExternalID
+			stripeAccountFound = true
+		}
+	}
+
+	if !stripeAccountFound {
+		return errors.New("user does not have a stripe account")
+	}
+
+	// Step 1: Create a SetupIntent in Stripe
+	setupIntent, err := CreateStripeSetupIntent(bounty, ownerStripeID)
+	if err != nil {
+		return err
+	}
+
+	// Step 2: Store the SetupIntent ID in the bounty
+	bounty.StripeInvoiceID = setupIntent.ID
+
+	// Step 3: Save the bounty in the database
 	if err := db.DB.Create(&bounty).Error; err != nil {
 		return err
 	}
@@ -163,4 +193,54 @@ func GetBountyByID(bountyID uint) (models.Bounty, error) {
 	}
 
 	return bounty, nil
+}
+
+const (
+	Crescendo   string = "crescendo"
+	Flat        string = "flat"
+	Decrescendo string = "decrescendo"
+)
+
+func GetCurrentBountyAmount(bountyID uint) (float64, error) {
+	var bounty models.Bounty
+
+	// Fetch the bounty details
+	err := db.DB.First(&bounty, bountyID).Error
+	if err != nil {
+		log.Print(err)
+		return 0, err
+	}
+
+	// Initialize the total bounty amount with the fixed amount
+	totalAmount := bounty.Amount
+
+	// Get the current time
+	currentTime := time.Now()
+
+	// Loop through all variable amounts for this bounty
+	for _, variable := range bounty.Variables {
+		// Check if current time is within the variable's timeframe
+		if currentTime.After(variable.StartAt) && currentTime.Before(variable.EndAt) {
+			// Calculate the variable bounty depending on the direction
+			switch variable.Direction {
+			case Crescendo:
+				// Calculate Crescendo (increasing)
+				// Assuming some linear increase for simplicity
+				duration := variable.EndAt.Sub(variable.StartAt)
+				elapsed := currentTime.Sub(variable.StartAt)
+				totalAmount += float64(variable.Amount) * (elapsed / duration).Seconds()
+			case Flat:
+				// Flat means no change, so we just add the full amount
+				totalAmount += float64(variable.Amount)
+			case Decrescendo:
+				// Calculate Decrescendo (decreasing)
+				// Assuming a linear decrease
+				duration := variable.EndAt.Sub(variable.StartAt)
+				elapsed := currentTime.Sub(variable.StartAt)
+				totalAmount += float64(variable.Amount) * (1 - (elapsed / duration).Seconds())
+			}
+		}
+	}
+
+	return totalAmount, nil
 }

@@ -31,6 +31,7 @@ type BountyVariable struct {
 type Bounty struct {
 	gorm.Model
 	Amount          float64          `json:"amount" binding:"required"`
+	ClaimedAmount   float64          `json:"claimedAmount"`
 	Currency        string           `json:"currency" binding:"required"`
 	IssueURL        string           `json:"issueUrl"`
 	IssueImageURL   string           `json:"issue_image_url"`

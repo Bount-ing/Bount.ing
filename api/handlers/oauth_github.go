@@ -195,7 +195,7 @@ func VerifyGitHubToken(token string, stateUserID uint) error {
 	}
 	for _, identity := range userIdentities {
 		if identity.Host.Address == "https://github.com" && identity.UserExternalID != githubUserID {
-			return fmt.Errorf("user already has a GitHub identity associated")
+			return fmt.Errorf("user already has another GitHub identity associated")
 		} else if identity.Host.Address == "https://github.com" && identity.UserExternalID == githubUserID {
 			// return ok
 			return nil
@@ -208,8 +208,8 @@ func VerifyGitHubToken(token string, stateUserID uint) error {
 		return fmt.Errorf("failed to get host identities: %w", err)
 	}
 	for _, identity := range hostIdentities {
-		if identity.UserExternalID == githubUserID {
-			return fmt.Errorf("GitHub identity already has a user associated")
+		if identity.UserExternalID == githubUserID && identity.UserID != stateUserID {
+			return fmt.Errorf("GitHub identity already has another user associated")
 		}
 	}
 

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -23,9 +24,55 @@ func ProcessPayment(claimerID uint, bountyID uint) error {
 	}
 
 	claimerEmail := claimer.Email
-	bountyAmount := bounty.Amount
 
-	paymentMsg := fmt.Sprintf("You have been paid %d for Bounty %d", bountyAmount, bountyID)
+	bountyHunterIdentities, err := GetUserIdentities(claimerID)
+	if err != nil {
+		log.Print(err)
+	}
+
+	stripeBountyHunterID := ""
+	stripeBountyHunterIDFound := false
+	for _, identity := range bountyHunterIdentities {
+		if identity.Host.Address == "https://stripe.com" {
+			stripeBountyHunterID = identity.UserExternalID
+			stripeBountyHunterIDFound = true
+		}
+	}
+
+	if !stripeBountyHunterIDFound {
+		//set bounty status to "payment_pending"
+		bounty.Status = "payment_pending"
+		err = UpdateBounty(bounty)
+		if err != nil {
+			log.Print(err)
+		}
+		return errors.New("user does not have a stripe account")
+	}
+
+	bountyOwnerIdentities, err := GetUserIdentities(bounty.OwnerID)
+	stripeBountyOwnerID := ""
+	stripeBountyOwnerIDFound := false
+	for _, identity := range bountyOwnerIdentities {
+		if identity.Host.Address == "https://stripe.com" {
+			stripeBountyOwnerID = identity.UserExternalID
+			stripeBountyOwnerIDFound = true
+		}
+	}
+
+	if !stripeBountyOwnerIDFound {
+		bounty.Status = "payment_pending"
+		err = UpdateBounty(bounty)
+		if err != nil {
+			log.Print(err)
+		}
+		return errors.New("user does not have a stripe account")
+	}
+
+	//func PayoutBounty(bounty *models.Bounty, payerStripeCustomerID, stripeConnectedAccountID string) error
+
+	PayoutBounty(bounty, stripeBountyHunterID, stripeBountyOwnerID)
+
+	paymentMsg := fmt.Sprintf("You have been paid %.f for Bounty %d", bounty.ClaimedAmount, bountyID)
 
 	tools.SendEmail(claimerEmail, "Payment Confirmation", paymentMsg)
 
