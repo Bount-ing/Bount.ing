@@ -76,6 +76,7 @@ interface User {
   repos?: Repo[]
   hosts?: { [host: string]: HostData }
   issues?: Issue[]
+  importedIssues?: Issue[]
   orgs?: any[]
 }
 
@@ -115,6 +116,7 @@ export const useUserStore = defineStore('user', () => {
   const githubUser = ref<GithubUser | null>(null)
   const hosts = ref<{ [host: string]: HostData }>({})
   const issues = ref<Issue[]>([])
+  const importedIssues = ref<Issue[]>([])
   const repos = ref<Repo[]>([])
   const orgs = ref<any[]>([])
 
@@ -387,6 +389,7 @@ export const useUserStore = defineStore('user', () => {
     githubUser,
     hosts,
     issues,
+    importedIssues,
     repos,
     orgs,
     syncGithubData,
