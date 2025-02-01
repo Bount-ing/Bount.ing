@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/base64"
 	"log"
 	"net/http"
 	"net/url"
@@ -126,4 +127,24 @@ func GetIssueBounties(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, bounties)
+}
+
+func CreateIssueFromURL(ctx *gin.Context) {
+	//get url from param
+	encodedURL := ctx.Param("url")
+	//decode base64 url
+	decodedURL, err := base64.StdEncoding.DecodeString(encodedURL)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to decode URL"})
+		return
+	}
+	urlString := string(decodedURL)
+
+	issue, err := controllers.CreateIssueFromGitHub(urlString)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, issue)
 }

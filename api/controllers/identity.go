@@ -10,12 +10,14 @@ import (
 func GetUserIdentities(userID uint) ([]models.Identity, error) {
 	var identities []models.Identity
 
-	if err := db.DB.Where("user_id = ?", userID).Find(&identities).Error; err != nil {
+	//preload host
+	if err := db.DB.Preload("Host").Where("user_id = ?", userID).Find(&identities).Error; err != nil {
 		return identities, err
 	}
 
 	return identities, nil
 }
+
 func GetHostIdentitiesFromAddress(hostAddress string) ([]models.Identity, error) {
 	var identities []models.Identity
 
@@ -37,7 +39,7 @@ func CreateIdentity(identity *models.Identity) error {
 	return nil
 }
 
-func SaveStripeConnectedAccountID(stateUserID uint, stripeUserID string) error {
+func SaveStripeConnectedAccountID(stateUserID uint, stripeUserAccountID, stripeUserCustomerID string) error {
 
 	// Check 1: stateUserID doesn't already have a github identity
 	userIdentities, err := GetUserIdentities(stateUserID)
@@ -45,9 +47,9 @@ func SaveStripeConnectedAccountID(stateUserID uint, stripeUserID string) error {
 		return fmt.Errorf("failed to get user identities: %w", err)
 	}
 	for _, identity := range userIdentities {
-		if identity.Host.Address == "https://stripe.com" && identity.UserExternalID != stripeUserID {
+		if identity.Host.Address == "https://stripe.com" && identity.UserExternalID != stripeUserAccountID {
 			return fmt.Errorf("user already has another Stripe identity associated")
-		} else if identity.Host.Address == "https://stripe.com" && identity.UserExternalID == stripeUserID {
+		} else if identity.Host.Address == "https://stripe.com" && identity.UserExternalID == stripeUserAccountID {
 			// return ok
 			return nil
 		}
@@ -62,16 +64,17 @@ func SaveStripeConnectedAccountID(stateUserID uint, stripeUserID string) error {
 		return fmt.Errorf("failed to get host identities: %w", err)
 	}
 	for _, identity := range hostIdentities {
-		if identity.UserExternalID == stripeUserID && identity.UserID != stateUserID {
+		if identity.UserExternalID == stripeUserAccountID && identity.UserID != stateUserID {
 			return fmt.Errorf("Stripe identity already has another user associated")
 		}
 	}
 
 	// Create a new identity for the user
 	newIdentity := &models.Identity{
-		UserExternalID: stripeUserID,
-		UserID:         stateUserID,
-		HostID:         host.ID, // Stripe host ID
+		UserExternalID:          stripeUserAccountID,
+		UserExternalSecondaryID: stripeUserCustomerID,
+		UserID:                  stateUserID,
+		HostID:                  host.ID, // Stripe host ID
 	}
 
 	err = CreateIdentity(newIdentity)

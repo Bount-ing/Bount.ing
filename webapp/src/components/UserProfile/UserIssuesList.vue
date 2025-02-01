@@ -1,5 +1,6 @@
 <template>
   <div class="issue-container">
+    <GitHubIssueImport />
     <h2 class="text-2xl font-semibold mb-4">Issues</h2>
 
     <!-- Display message if no issues are found -->
@@ -12,56 +13,59 @@
         :key="issue.id"
         class="bg-secondary p-4 rounded-lg flex items-start space-x-4 shadow-lg hover:shadow-xl transition-shadow duration-300"
       >
-        <!-- Double coin avatar container -->
-        <div class="avatar-container relative flex space-x-2 mr-4">
-          <!-- Repository owner avatar, overlaps on the right half of the first avatar -->
-          <img
-            :src="issue.repo_avatar"
-            alt="Repository Owner Avatar"
-            class="w-16 h-16 rounded-full border-gray-700 shadow-md"
-          />
-          <!-- Issue creator avatar -->
-          <img
-            v-if="issue.user.avatar_url !== issue.repo_avatar"
-            :src="issue.user.avatar_url"
-            alt="Issue Creator Avatar"
-            class="w-10 h-10 rounded-full border-gray-700 absolute -right-4 bottom-0 shadow-md"
-          />
-        </div>
+        <div v-if="issue && issue.Title">
+          <!-- Double coin avatar container -->
+          <div class="avatar-container relative flex space-x-2 mr-4">
+            <!-- Repository owner avatar, overlaps on the right half of the first avatar -->
+            <img
+              :src="issue.avatarUrl"
+              alt="Repository Owner Avatar"
+              class="w-16 h-16 rounded-full border-gray-700 shadow-md"
+            />
 
-        <!-- Issue details -->
-        <div class="flex-1">
-          <div class="text-lg font-medium">
-            <a :href="issue.html_url" target="_blank" class="text-blue-400 hover:underline">
-              {{ issue.title }}
-            </a>
+            <img
+              v-if="issue?.user?.avatar_url && issue?.user?.avatar_url !== issue?.repo_avatar"
+              :src="issue.user.avatar_url"
+              alt="Issue Creator Avatar"
+              class="w-10 h-10 rounded-full border-gray-700 absolute -right-4 bottom-0 shadow-md"
+            />
           </div>
-          <p class="text-gray-300 text-sm mb-2">
-            {{ issue.body || 'No description available' }}
-          </p>
 
-          <!-- Issue status (e.g., open/closed) -->
-          <div class="text-sm text-gray-500">
-            <span
-              :class="{
-                'text-secondary font-semibold bg-primary py-1 px-3 rounded-full':
-                  issue.state === 'open',
-                'text-secondary font-semibold bg-error-light py-1 px-3 rounded-full':
-                  issue.state === 'closed'
-              }"
-            >
-              {{ issue.state.charAt(0).toUpperCase() + issue.state.slice(1) }}
-            </span>
+          <!-- Issue details -->
+          <div class="flex-1">
+            <div class="text-lg font-medium">
+              <a :href="issue.html_url" target="_blank" class="text-blue-400 hover:underline">
+                {{ issue.Title }}
+              </a>
+            </div>
+            <p class="text-gray-300 text-sm mb-2">
+              {{ issue.body || 'No description available' }}
+            </p>
+
+            <!-- Issue status (e.g., open/closed) -->
+            <div class="text-sm text-gray-500">
+              <span
+                v-if="issue?.status"
+                :class="{
+                  'text-secondary font-semibold bg-primary py-1 px-3 rounded-full':
+                    issue.state === 'open',
+                  'text-secondary font-semibold bg-error-light py-1 px-3 rounded-full':
+                    issue.state === 'closed'
+                }"
+              >
+                {{ issue?.state?.charAt(0).toUpperCase() + issue?.state?.slice(1) || 'Unknown' }}
+              </span>
+            </div>
           </div>
-        </div>
 
-        <!-- Button to set bounty -->
-        <button
-          @click="openBountyModal(issue)"
-          class="mt-2 px-4 py-2 bg-primary text-secondary font-semibold rounded-full hover:bg-primary-dark transition-all"
-        >
-          Set Bounty
-        </button>
+          <!-- Button to set bounty -->
+          <button
+            @click="openBountyModal(issue)"
+            class="mt-2 px-4 py-2 bg-primary text-secondary font-semibold rounded-full hover:bg-primary-dark transition-all"
+          >
+            Set Bounty
+          </button>
+        </div>
       </li>
     </ul>
 
@@ -225,9 +229,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { api } from '@/stores/api'
+import GitHubIssueImport from '../GitHubIssueImport.vue'
 
 const issues = ref([])
 const userStore = useUserStore()
@@ -296,57 +301,15 @@ const submitBounty = async () => {
   let apiIssueId
 
   try {
-    const encodedIssueUrl = encodeURIComponent(selectedIssue.value.html_url)
-
-    // Check if the issue already exists (with custom validation for non-2xx responses)
-    const checkIssueResponse = await api.get(`/v1/issues-by-url/${encodedIssueUrl}`, {
-      validateStatus: (status) => {
-        // Consider 2xx, 404, and 204 as valid responses
-        return (status >= 200 && status < 300) || status === 404 || status === 204
-      }
-    })
-
-    // When using axios, the data is directly on the `data` property of the response object
-    if (checkIssueResponse.status === 200) {
-      // If the issue exists, extract the id
-      const existingIssue = checkIssueResponse.data // Directly use `data` here
-      if (existingIssue?.ID) {
-        apiIssueId = existingIssue.ID
-      } else {
-        console.error('Issue found but no id in response.')
-        return
-      }
-    } else if (checkIssueResponse.status === 204 || checkIssueResponse.status === 404) {
-      // Handle the case when the issue doesn't exist (either 404 or 204)
-      const issueData = {
-        title: selectedIssue.value.title,
-        body: selectedIssue.value.body,
-        issueUrl: selectedIssue.value.html_url,
-        avatarUrl: selectedIssue.value.repo_avatar,
-        state: selectedIssue.value.state
-      }
-
-      await api.post('/v1/issues', issueData)
-
-      // After creation, try to fetch the issue again
-      const response = await api.get(`/v1/issues-by-url/${encodedIssueUrl}`)
-      if (response.status === 200) {
-        const newIssue = response.data // Directly use `data` here
-        console.log('New issue created:', newIssue)
-        if (newIssue?.ID) {
-          apiIssueId = newIssue.ID
-        } else {
-          console.error('New issue created but no id found in response.')
-          return
-        }
-      } else {
-        console.error('Failed to fetch issue after creation:', response.statusText)
-        return
-      }
-    } else {
-      console.error('Unexpected response when checking issue:', checkIssueResponse.statusText)
-      return
+    const issueData = {
+      title: selectedIssue.value.title,
+      body: selectedIssue.value.body,
+      issueUrl: selectedIssue.value.html_url,
+      avatarUrl: selectedIssue.value.repo_avatar,
+      state: selectedIssue.value.state
     }
+
+    await api.post('/v1/issues', issueData)
 
     // Proceed with bounty creation if the amount is valid
     if (amount.value >= 10) {
@@ -373,7 +336,6 @@ const submitBounty = async () => {
 
       const bountyResponse = await api.post('/v1/bounties', bountyData)
 
-
       console.log('Bounty set successfully!')
       closeBountyModal()
     } else {
@@ -383,6 +345,15 @@ const submitBounty = async () => {
     console.error('Error during bounty submission process:', error)
   }
 }
+
+watch(
+  () => userStore.issues,
+  (newIssues) => {
+    console.log('Updated issues:', newIssues)
+    issues.value = newIssues || []
+  },
+  { immediate: true } // Ensures it runs on component mount
+)
 </script>
 
 <style scoped>

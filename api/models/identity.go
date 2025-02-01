@@ -9,9 +9,10 @@ type Identity struct {
 	gorm.Model
 	ID uint
 
-	Username       string
-	Email          string
-	UserExternalID string
+	Username                string
+	Email                   string
+	UserExternalID          string
+	UserExternalSecondaryID string
 
 	// Relationships
 	UserID uint `gorm:"not null"` // Foreign key

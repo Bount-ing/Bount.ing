@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
 import type { EditableUserFields } from '@/types/user';
 import { DEFAULT_USER_VALUES } from '@/types/user';
+import router from '@/router'
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
@@ -70,6 +71,9 @@ onMounted(async () => {
     resetForm();
     isLoading.value = false;
     console.log('User data loaded:', user.value);
+    if (!user.value) {
+      router.push('/signin');
+    }
   } catch (err) {
     console.error('Failed to load user data:', err);
     error.value = 'Unable to load user data. Please try refreshing the page.';

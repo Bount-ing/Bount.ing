@@ -12,29 +12,36 @@ import (
 
 func CreateBounty(bounty *models.Bounty) error {
 	bounty.Status = "open"
-	ownerStripeID := ""
+	ownerStripeAccountID := ""
+	ownerStripeCustomerID := ""
 	stripeAccountFound := false
 
+	log.Printf("Creating Bounty - Owner ID: %d", bounty.OwnerID)
 	// Fetch users identities where the host is stripe
 	identities, err := GetUserIdentities(bounty.OwnerID)
 	if err != nil {
+		log.Printf("Error fetching user identities: %s", err)
 		return err
 	}
 
 	for _, identity := range identities {
+		log.Printf("Identity: %+v", identity)
 		if identity.Host.Address == "https://stripe.com" {
-			ownerStripeID = identity.UserExternalID
+			ownerStripeAccountID = identity.UserExternalID
+			ownerStripeCustomerID = identity.UserExternalSecondaryID
 			stripeAccountFound = true
 		}
 	}
 
 	if !stripeAccountFound {
+		log.Printf("User does not have a stripe account")
 		return errors.New("user does not have a stripe account")
 	}
 
 	// Step 1: Create a SetupIntent in Stripe
-	setupIntent, err := CreateStripeSetupIntent(bounty, ownerStripeID)
+	setupIntent, err := CreateStripeSetupIntent(bounty, ownerStripeCustomerID, ownerStripeAccountID)
 	if err != nil {
+		log.Printf("Error creating Stripe SetupIntent: %s", err)
 		return err
 	}
 
@@ -43,6 +50,7 @@ func CreateBounty(bounty *models.Bounty) error {
 
 	// Step 3: Save the bounty in the database
 	if err := db.DB.Create(&bounty).Error; err != nil {
+		log.Printf("Error creating bounty: %s", err)
 		return err
 	}
 

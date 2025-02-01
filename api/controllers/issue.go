@@ -1,11 +1,17 @@
 package controllers
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
+	"net/http"
 	"sort"
+	"strings"
 
 	"github.com/bount-ing/bount.ing/api/db"
 	"github.com/bount-ing/bount.ing/api/models"
+	"gorm.io/gorm"
 )
 
 func CreateIssue(issue models.Issue) (models.Issue, error) {
@@ -154,4 +160,90 @@ func GetIssueByID(issueID uint) (models.Issue, error) {
 		return issue, err.Error
 	}
 	return issue, nil
+}
+
+// First, let's add a method to extract owner and repo from the URL
+func ParseGitHubURL(url string) (owner, repo string, err error) {
+	// GitHub issue URLs are in the format: https://github.com/owner/repo/issues/number
+	parts := strings.Split(url, "/")
+	if len(parts) < 5 {
+		return "", "", fmt.Errorf("invalid GitHub URL format")
+	}
+	return parts[3], parts[4], nil
+}
+
+type GitHubUser struct {
+	AvatarURL string `json:"avatar_url"`
+}
+
+func GetGitHubAvatarURL(username string) (string, error) {
+	url := fmt.Sprintf("https://api.github.com/users/%s", username)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("GitHub API returned status: %d", resp.StatusCode)
+	}
+
+	var user GitHubUser
+	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+		return "", err
+	}
+
+	return user.AvatarURL, nil
+}
+
+func CreateIssueFromGitHub(url string) (*models.Issue, error) {
+	githubCtrl := NewGitHubController()
+
+	// Fetch issue from GitHub
+	githubIssue, err := githubCtrl.FetchGitHubIssue(url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch GitHub issue: %v", err)
+	}
+
+	//extract login from githubIssueurl
+	ownerLogin := strings.Split(url, "/")[3]
+
+	avatarURL, err := GetGitHubAvatarURL(ownerLogin)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch GitHub avatar URL: %v", err)
+	}
+
+	// Convert GitHub issue to our Issue model
+	issue := &models.Issue{
+		ForeignID:   fmt.Sprintf("github_%d", githubIssue.ID),
+		HostID:      1,
+		URL:         githubIssue.HTMLURL,
+		AvatarURL:   avatarURL,
+		Title:       githubIssue.Title,
+		Description: githubIssue.Body,
+		Status:      githubIssue.State,
+	}
+
+	// Check if issue already exists
+	var existingIssue models.Issue
+	err = db.DB.Where("foreign_id = ?", issue.ForeignID).First(&existingIssue).Error
+
+	// If the error is anything other than "record not found", return the error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("failed to query existing issue: %v", err)
+	}
+
+	// If we found an existing issue, return it
+	if err == nil {
+		return &existingIssue, nil
+	}
+
+	// Create the issue
+	createdIssue, err := CreateIssue(*issue)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create issue: %v", err)
+	}
+
+	return &createdIssue, nil
 }

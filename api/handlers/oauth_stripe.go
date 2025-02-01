@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -33,6 +34,14 @@ func OAuthStripeCallback(c *gin.Context) {
 		return
 	}
 
+	//get user from db
+	user, err := controllers.GetUserByID(statePayload.UserID)
+	if err != nil {
+		log.Printf("Failed to fetch user: %s", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
+		return
+	}
+
 	// Set your Stripe secret key
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 
@@ -51,8 +60,17 @@ func OAuthStripeCallback(c *gin.Context) {
 		return
 	}
 
+	log.Printf("Stripe token: %+v", token)
+
+	accountID := token.StripeUserID
+	customerID, err := controllers.GetOrCreateCustomerID(token.AccessToken, token.StripeUserID, user.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch or create customer ID: " + err.Error()})
+		return
+	}
+
 	// Save the connected account ID to the user's profile
-	err = controllers.SaveStripeConnectedAccountID(statePayload.UserID, token.StripeUserID)
+	err = controllers.SaveStripeConnectedAccountID(statePayload.UserID, accountID, customerID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save connected account ID"})
 		return
