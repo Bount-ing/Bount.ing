@@ -65,7 +65,7 @@
     "payments": "Payments",
     "organizations": "Organizations",
     "settings": "Settings",
-    "import_issues": "Import Issues from GitHub URL",
+    "import_issue": "Import Issues from GitHub URL",
     "payment_setup": "Payment Setup"
   },
   "payment": {

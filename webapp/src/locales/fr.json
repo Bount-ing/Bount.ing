@@ -20,18 +20,18 @@
             "rememberMe": "Souviens-toi de moi",
             "forgotPassword": "Mot de passe oublié ?",
             "enter": "Entrer",
-            "noAccount": "Vous n'avez pas de compte ? Inscrivez-vous."
+            "noAccount": "Pas de compte ? Inscrivez-vous."
         }
     },
     "bounties": {
         "no_bounties_found": "Aucune prime trouvée.",
-        "select_bounty_type": "Sélectionner le type de prime",
-        "create_increasing_bounty": "Créez une prime croissante.",
+        "select_bounty_type": "Sélectionnez le type de prime",
+        "create_increasing_bounty": "Créer une prime croissante",
         "create_single_bounty": "Créer une seule prime",
-        "create_decreasing_bounty": "Créer une récompense décroissante",
+        "create_decreasing_bounty": "Créer une prime décroissante",
         "claim": "Revendiquer la prime",
-        "raise": "Augmentez la prime.",
-        "bounty_amount": "Montant de la prime",
+        "raise": "Augmentez la récompense.",
+        "bounty_amount": "Montant de la récompense",
         "start_date": "Date de début",
         "end_date": "Date de fin"
     },
@@ -46,7 +46,7 @@
     },
     "issues": {
         "available_issues": "Problèmes disponibles",
-        "private_issue": "Problème privé",
+        "private_issue": "Problème personnel",
         "details_are_confidential": "Les détails sont confidentiels.",
         "need_to_be_logged_in": "Vous devez être connecté et autorisé pour voir cela."
     },
@@ -65,7 +65,7 @@
         "payments": "Paiements",
         "organizations": "Organisations",
         "settings": "Paramètres",
-        "import_issues": "Importer des problèmes à partir de l'URL GitHub",
+        "import_issue": "Problèmes d'importation à partir de l'URL GitHub",
         "payment_setup": "Configuration de paiement"
     },
     "payment": {
@@ -85,11 +85,11 @@
         "spanish": "Espagnol",
         "french": "Français",
         "catalan": "catalan",
-        "portuguese": "Portugais",
+        "portuguese": "portugais",
         "euskera": "Basque"
     },
     "activity": {
-        "action_in_repo": "agi dans le dépôt",
+        "action_in_repo": "agissait dans le dépôt",
         "repo_link": "Cliquez ici pour voir"
     },
     "contact": {
@@ -99,7 +99,7 @@
     },
     "signup": {
         "register": "S'inscrire",
-        "email_label": "Email"
+        "email_label": "E-mail"
     },
     "faq": {
         "support": "Soutien"

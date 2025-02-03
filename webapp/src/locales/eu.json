@@ -1,105 +1,107 @@
 {
     "greeting": "Kaixo",
     "navigation": {
-      "home": "Hasiera",
-      "dashboard": "Kontrol panela",
-      "pricing": "Prezioak",
-      "about": "Guri buruz",
-      "faq": "Maiz galdetutako galderak",
-      "contact": "Harremana"
+        "home": "Etxea",
+        "dashboard": "Kontrol-paneledia",
+        "pricing": "Prezioak",
+        "about": "Guri buruz",
+        "faq": "F.A.Q.",
+        "contact": "Harremanetan jarri gurekin"
     },
     "account": {
-      "signin": "Saioa hasi",
-      "signup": "Erregistratu",
-      "logout": "Saioa itxi",
-      "userCredentials": {
-        "welcome": "Ongi etorri!",
-        "enterCredentials": "Mesedez, sartu zure identifikatzaileak",
-        "email": "Posta elektronikoa",
-        "password": "Pasahitza",
-        "rememberMe": "Gogoratu ni",
-        "forgotPassword": "Ahaztutako pasahitza?",
-        "enter": "Sartu",
-        "noAccount": "Ez daukazu konturik? Erregistratu zaitez"
-      }
+        "signin": "Saioa hasi",
+        "signup": "Iraitu",
+        "logout": "Saioa itxi",
+        "userCredentials": {
+            "welcome": "Ongi etorri berriro!",
+            "enterCredentials": "Mesedez sartu zure akreditazioak.",
+            "email": "Posta elektronikoa",
+            "password": "Pasahitza",
+            "rememberMe": "Gogoratu Nahi Naiz",
+            "forgotPassword": "Pasahitzarik ahaztu al duzu?",
+            "enter": "Sartu",
+            "noAccount": "Ez duzu konturik? Izena eman."
+        }
     },
     "bounties": {
-      "no_bounties_found": "Ez da sari bat aurkitu.",
-      "select_bounty_type": "Hautatu sari motak",
-      "create_increasing_bounty": "Sortu sari igotzen doana",
-      "create_single_bounty": "Sortu sari bakarra",
-      "create_decreasing_bounty": "Sortu sari jaitsi doana",
-      "claim": "Eskaera egin",
-      "raise": "Igotzi saria",
-      "bounty_amount": "Sariaren zenbatekoa",
-      "start_date": "Hasiera data",
-      "end_date": "Amaiera data"
+        "no_bounties_found": "Ez da sariik aurkitu.",
+        "select_bounty_type": "Aukera mota aukeratu",
+        "create_increasing_bounty": "Sortu sari handi bat.",
+        "create_single_bounty": "Sortu irabazi bat.",
+        "create_decreasing_bounty": "Sortu bounty murriztuz.",
+        "claim": "Eskaintza eskuratu.",
+        "raise": "Handiaztu irabazia.",
+        "bounty_amount": "Saria kopurua",
+        "start_date": "Hasiera data",
+        "end_date": "Amaiera data"
     },
     "status": {
-      "status": "Estatua",
-      "type": "Motak",
-      "date": "Data"
+        "status": "Egoera",
+        "type": "Idatzi",
+        "date": "Data"
     },
     "transactions": {
-      "no_transactions_found": "Ez da transakziorik aurkitu.",
-      "amount": "Zenbatekoa"
+        "no_transactions_found": "Ez da transakziorik aurkitu.",
+        "amount": "Kantitate"
     },
     "issues": {
-      "available_issues": "Eskaerak eskuragarri",
-      "private_issue": "Arazo pribatuak",
-      "details_are_confidential": "Xehetasunak konfidentzialeak dira.",
-      "need_to_be_logged_in": "Sartutako eta baimendutako egon behar duzu hori ikusteko."
+        "available_issues": "Araubideak eskuragarri",
+        "private_issue": "Gai pribatu",
+        "details_are_confidential": "Xehetasunak konfidentzialak dira.",
+        "need_to_be_logged_in": "Sartu eta baimenduta egon behar duzu hau ikusteko."
     },
     "profile": {
-      "personal_information": "Informazio pertsonala",
-      "full_name": "Izena eta abizenak",
-      "email_address": "Posta elektronikoa",
-      "phone_number": "Telefono zenbakia",
-      "location": "Kokapena",
-      "about_me": "Nire buruz",
-      "repositories": "Erakusketa",
-      "issues": "Arazoak",
-      "bounties": "Sariak",
-      "badges": "Badinak",
-      "hosts": "Harrapatzaileak",
-      "payments": "Ordainketak",
-      "organizations": "Erakundeak"
+        "personal_information": "Informazio Pertsonala",
+        "full_name": "Izena osoa",
+        "email_address": "Posta helbidea",
+        "phone_number": "Telefono zenbakia",
+        "location": "Kokaleku",
+        "about_me": "Niri buruz",
+        "repositories": "Erakundeak",
+        "issues": "Arazoak",
+        "bounties": "Sariak",
+        "badges": "Iragazkiak",
+        "hosts": "Hosteak",
+        "payments": "Ordainak",
+        "organizations": "Antolakuntzak",
+        "settings": "Ezarpenak",
+        "import_issue": "GitHub URL-tik Arazoak Inportatu",
+        "payment_setup": "Ordainketa Ezarpena"
     },
     "payment": {
-      "finalize": "Amaitu",
-      "card_information": "Txartelaren informazioa",
-      "card_number": "Txartelaren zenbakia",
-      "expiry_date": "Irteera data",
-      "card_holder_name": "Txartelaren jabearen izena"
+        "finalize": "Amaitu",
+        "card_information": "Txartelaren Informazioa",
+        "card_number": "Txartel Zenbakia",
+        "expiry_date": "Iraungarbiako Data",
+        "card_holder_name": "Txartelaren Jabea"
     },
     "legal": {
-      "tos": "Erabilera baldintzak",
-      "privacy_policy": "Pribatutasun politika",
-      "all_rights_reserved": "Eskubide guztiak erreserbatuta"
+        "tos": "Zerbitzu Baldintzak",
+        "privacy_policy": "Pribatutasun Politika",
+        "all_rights_reserved": "Eskubide guztiak erreserbatuta"
     },
     "language": {
-      "english": "Ingeles",
-      "spanish": "Gaztelania",
-      "french": "Frantses",
-      "catalan": "Katalana",
-      "portuguese": "Portugesa",
-      "euskera": "Euskara"
+        "english": "Ingelesa",
+        "spanish": "euskara",
+        "french": "frantses",
+        "catalan": "Katalaniera",
+        "portuguese": "Euskara",
+        "euskera": "Euskara"
     },
     "activity": {
-      "action_in_repo": "egon da biltegian",
-      "repo_link": "Hemen klikatu ikusteko"
+        "action_in_repo": "jokatzaileak biltegian",
+        "repo_link": "Hemen klikatu ikusteko"
     },
     "contact": {
-      "linkedin": "LinkedIn",
-      "discord": "Discord",
-      "github": "Github"
+        "linkedin": "LinkedIn",
+        "discord": "Discord",
+        "github": "GitHub"
     },
     "signup": {
-      "register": "Erregistratu",
-      "email_label": "Posta elektronikoa"
+        "register": "Iraitu",
+        "email_label": "Email"
     },
     "faq": {
-      "support": "Laguntza"
+        "support": "Eraman."
     }
-  }
-  
+}

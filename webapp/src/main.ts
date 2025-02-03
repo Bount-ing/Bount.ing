@@ -11,6 +11,8 @@ import i18n from '../i18n';
 import  createGtag  from 'vue-gtag-next';
 import type GtagPluginOptions from 'vue-gtag-next'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+import '@fortawesome/fontawesome-free/css/all.css';
+
 
 
 

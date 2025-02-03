@@ -5,12 +5,12 @@
         "dashboard": "Tauler de control",
         "pricing": "Preus",
         "about": "Sobre nosaltres",
-        "faq": "Preguntes freqüents.",
+        "faq": "Preguntes més freqüents.",
         "contact": "Contacta'ns"
     },
     "account": {
         "signin": "Iniciar sessió",
-        "signup": "Inscriure's",
+        "signup": "Inscriu-te",
         "logout": "Tancar sessió",
         "userCredentials": {
             "welcome": "Ben tornat!",
@@ -18,20 +18,20 @@
             "email": "Adreça de correu electrònic",
             "password": "Contrasenya",
             "rememberMe": "Recorda'm",
-            "forgotPassword": "Has oblidat la contrasenya?",
+            "forgotPassword": "He oblidat la contrasenya?",
             "enter": "Entrar",
-            "noAccount": "No tens un compte? Registra't."
+            "noAccount": "No tens un compte? Registra't"
         }
     },
     "bounties": {
         "no_bounties_found": "No s'han trobat recompenses.",
         "select_bounty_type": "Selecciona el tipus de recompensa",
-        "create_increasing_bounty": "Crea una recompensa creixent",
-        "create_single_bounty": "Crea una sola recompensa.",
+        "create_increasing_bounty": "Crea una recompensa creixent.",
+        "create_single_bounty": "Crea un sol·licitud de recompensa.",
         "create_decreasing_bounty": "Crea una recompensa decreixent.",
         "claim": "Reclama la recompensa",
-        "raise": "Augmentar la recompensa",
-        "bounty_amount": "Import de la recompensa",
+        "raise": "Augmenta la recompensa.",
+        "bounty_amount": "Quantitat de recompensa",
         "start_date": "Data d'inici",
         "end_date": "Data de finalització"
     },
@@ -48,7 +48,7 @@
         "available_issues": "Problemes disponibles",
         "private_issue": "Assumpte privat",
         "details_are_confidential": "Els detalls són confidencials.",
-        "need_to_be_logged_in": "Heu necessàriament estar connectat i autoritzat per veure això."
+        "need_to_be_logged_in": "Heu de ser identificat i autoritzat per veure això."
     },
     "profile": {
         "personal_information": "Informació personal",
@@ -65,7 +65,7 @@
         "payments": "Pagaments",
         "organizations": "Organitzacions",
         "settings": "Configuració",
-        "import_issues": "Problemes d'importació des de l'URL de GitHub",
+        "import_issue": "Problemes d'importació des de l'URL de GitHub",
         "payment_setup": "Configuració de pagament"
     },
     "payment": {
@@ -84,12 +84,12 @@
         "english": "Anglès",
         "spanish": "català",
         "french": "Francès",
-        "catalan": "català",
+        "catalan": "Català",
         "portuguese": "Portuguès",
-        "euskera": "basc català"
+        "euskera": "Basc català"
     },
     "activity": {
-        "action_in_repo": "actuà en el repositori",
+        "action_in_repo": "actuat en el repositori",
         "repo_link": "Fes clic aquí per veure"
     },
     "contact": {
@@ -98,7 +98,7 @@
         "github": "GitHub"
     },
     "signup": {
-        "register": "Inscriu-te",
+        "register": "Inscriure's",
         "email_label": "Correu electrònic"
     },
     "faq": {
