@@ -3,10 +3,10 @@ import { ref, computed } from 'vue'
 import { sha256 } from 'js-sha256'
 import { useRoute } from 'vue-router'
 import { api } from '@/stores/api.ts'
-import { useNotificationsStore } from '@/stores/notification.ts'
+import { notify } from "@kyvg/vue3-notification" 
 import { useUserStore } from '@/stores/user.ts'
+import  router  from '@/router'
 
-const notifStore = useNotificationsStore()
 const userStore = useUserStore()
 
 
@@ -55,7 +55,12 @@ const verifyLink = () => {
 		.then((response) => {
 			verifCode.value = route.params.verifCode
 			validVerifCode.value = true
-			notifStore.success('Link verified')
+			notify({
+				title: "Success!",
+				text: "Link verified successfully",
+				type: "success",
+				duration: 5000
+			})
 		})
 		.catch((error) => {
 			console.log(error)
@@ -71,11 +76,25 @@ const sendPassword = () => {
 	api
 		.post('/v1/signup/password', data)
 		.then((response) => {
-			notifStore.success('Password set successfully')
+			notify(
+				{
+					title: "Success!",
+					text: "Password set successfully",
+					type: "success",
+					duration: 5000
+				}
+			)
 			autoLogin()
 		})
 		.catch((error) => {
-			notifStore.error('Error setting password')
+			notify(
+				{
+					title: "Error",
+					text: "Failed to set password",
+					type: "error",
+					duration: 5000
+				}
+			)
 			console.log(error)
 		})
 }

@@ -63,7 +63,10 @@
     "badges": "Badges",
     "hosts": "Hosts",
     "payments": "Payments",
-    "organizations": "Organizations"
+    "organizations": "Organizations",
+    "settings": "Settings",
+    "import_issues": "Import Issues from GitHub URL",
+    "payment_setup": "Payment Setup"
   },
   "payment": {
     "finalize": "Finalize",

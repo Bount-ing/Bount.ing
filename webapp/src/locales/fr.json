@@ -11,7 +11,7 @@
     "account": {
         "signin": "Se connecter",
         "signup": "Inscription",
-        "logout": "Se déconnecter",
+        "logout": "Déconnexion",
         "userCredentials": {
             "welcome": "Bienvenue de nouveau !",
             "enterCredentials": "Veuillez entrer vos identifiants.",
@@ -20,15 +20,15 @@
             "rememberMe": "Souviens-toi de moi",
             "forgotPassword": "Mot de passe oublié ?",
             "enter": "Entrer",
-            "noAccount": "Pas de compte ? Inscrivez-vous."
+            "noAccount": "Vous n'avez pas de compte ? Inscrivez-vous."
         }
     },
     "bounties": {
         "no_bounties_found": "Aucune prime trouvée.",
         "select_bounty_type": "Sélectionner le type de prime",
-        "create_increasing_bounty": "Créer une prime croissante",
+        "create_increasing_bounty": "Créez une prime croissante.",
         "create_single_bounty": "Créer une seule prime",
-        "create_decreasing_bounty": "Créer une prime décroissante",
+        "create_decreasing_bounty": "Créer une récompense décroissante",
         "claim": "Revendiquer la prime",
         "raise": "Augmentez la prime.",
         "bounty_amount": "Montant de la prime",
@@ -63,7 +63,10 @@
         "badges": "Badges",
         "hosts": "Hôtes",
         "payments": "Paiements",
-        "organizations": "Organisations"
+        "organizations": "Organisations",
+        "settings": "Paramètres",
+        "import_issues": "Importer des problèmes à partir de l'URL GitHub",
+        "payment_setup": "Configuration de paiement"
     },
     "payment": {
         "finalize": "Finaliser",
@@ -82,7 +85,7 @@
         "spanish": "Espagnol",
         "french": "Français",
         "catalan": "catalan",
-        "portuguese": "portugais",
+        "portuguese": "Portugais",
         "euskera": "Basque"
     },
     "activity": {

@@ -1,105 +1,107 @@
 {
     "greeting": "Hola",
     "navigation": {
-      "home": "Inici",
-      "dashboard": "Tauler de control",
-      "pricing": "Preus",
-      "about": "Qui som",
-      "faq": "Preguntes freqüents",
-      "contact": "Contacta'ns"
+        "home": "Inici",
+        "dashboard": "Tauler de control",
+        "pricing": "Preus",
+        "about": "Sobre nosaltres",
+        "faq": "Preguntes freqüents.",
+        "contact": "Contacta'ns"
     },
     "account": {
-      "signin": "Iniciar sessió",
-      "signup": "Registrar-se",
-      "logout": "Tancar sessió",
-      "userCredentials": {
-        "welcome": "Benvingut de nou!",
-        "enterCredentials": "Si us plau, introdueix les teves credencials",
-        "email": "Correu electrònic",
-        "password": "Contrasenya",
-        "rememberMe": "Recorda'm",
-        "forgotPassword": "Has oblidat la contrasenya?",
-        "enter": "Entrar",
-        "noAccount": "No tens compte? Registra't"
-      }
+        "signin": "Iniciar sessió",
+        "signup": "Inscriure's",
+        "logout": "Tancar sessió",
+        "userCredentials": {
+            "welcome": "Ben tornat!",
+            "enterCredentials": "Si us plau, introdueix les teves credencials.",
+            "email": "Adreça de correu electrònic",
+            "password": "Contrasenya",
+            "rememberMe": "Recorda'm",
+            "forgotPassword": "Has oblidat la contrasenya?",
+            "enter": "Entrar",
+            "noAccount": "No tens un compte? Registra't."
+        }
     },
     "bounties": {
-      "no_bounties_found": "No s'ha trobat cap recompensa.",
-      "select_bounty_type": "Selecciona el tipus de recompensa",
-      "create_increasing_bounty": "Crear recompensa creixent",
-      "create_single_bounty": "Crear recompensa única",
-      "create_decreasing_bounty": "Crear recompensa decreixent",
-      "claim": "Reclamar recompensa",
-      "raise": "Augmentar recompensa",
-      "bounty_amount": "Quantitat de la recompensa",
-      "start_date": "Data d'inici",
-      "end_date": "Data de finalització"
+        "no_bounties_found": "No s'han trobat recompenses.",
+        "select_bounty_type": "Selecciona el tipus de recompensa",
+        "create_increasing_bounty": "Crea una recompensa creixent",
+        "create_single_bounty": "Crea una sola recompensa.",
+        "create_decreasing_bounty": "Crea una recompensa decreixent.",
+        "claim": "Reclama la recompensa",
+        "raise": "Augmentar la recompensa",
+        "bounty_amount": "Import de la recompensa",
+        "start_date": "Data d'inici",
+        "end_date": "Data de finalització"
     },
     "status": {
-      "status": "Estat",
-      "type": "Tipus",
-      "date": "Data"
+        "status": "Estat",
+        "type": "Tipus",
+        "date": "Data"
     },
     "transactions": {
-      "no_transactions_found": "No s'ha trobat cap transacció.",
-      "amount": "Quantitat"
+        "no_transactions_found": "No s'han trobat transaccions.",
+        "amount": "Quantitat"
     },
     "issues": {
-      "available_issues": "Problemes disponibles",
-      "private_issue": "Problema privat",
-      "details_are_confidential": "Els detalls són confidencials.",
-      "need_to_be_logged_in": "Cal estar connectat i autoritzat per veure-ho."
+        "available_issues": "Problemes disponibles",
+        "private_issue": "Assumpte privat",
+        "details_are_confidential": "Els detalls són confidencials.",
+        "need_to_be_logged_in": "Heu necessàriament estar connectat i autoritzat per veure això."
     },
     "profile": {
-      "personal_information": "Informació personal",
-      "full_name": "Nom complet",
-      "email_address": "Correu electrònic",
-      "phone_number": "Número de telèfon",
-      "location": "Ubicació",
-      "about_me": "Sobre mi",
-      "repositories": "Repositoris",
-      "issues": "Problemes",
-      "bounties": "Recompenses",
-      "badges": "Insígnies",
-      "hosts": "Amfitrions",
-      "payments": "Pagaments",
-      "organizations": "Organitzacions"
+        "personal_information": "Informació personal",
+        "full_name": "Nom complet",
+        "email_address": "Adreça de correu electrònic",
+        "phone_number": "Número de telèfon",
+        "location": "Ubicació",
+        "about_me": "Sobre mi",
+        "repositories": "Repositoris",
+        "issues": "Problemes",
+        "bounties": "Recompenses",
+        "badges": "Insígnies",
+        "hosts": "Amfitrions",
+        "payments": "Pagaments",
+        "organizations": "Organitzacions",
+        "settings": "Configuració",
+        "import_issues": "Problemes d'importació des de l'URL de GitHub",
+        "payment_setup": "Configuració de pagament"
     },
     "payment": {
-      "finalize": "Finalitzar",
-      "card_information": "Informació de la targeta",
-      "card_number": "Número de la targeta",
-      "expiry_date": "Data de caducitat",
-      "card_holder_name": "Nom del titular de la targeta"
+        "finalize": "Finalitzar",
+        "card_information": "Informació de la targeta",
+        "card_number": "Número de targeta",
+        "expiry_date": "Data de caducitat",
+        "card_holder_name": "Nom del titular de la targeta"
     },
     "legal": {
-      "tos": "Condicions d'ús",
-      "privacy_policy": "Política de privacitat",
-      "all_rights_reserved": "Tots els drets reservats"
+        "tos": "Termes de servei",
+        "privacy_policy": "Política de privadesa",
+        "all_rights_reserved": "Tots els drets reservats"
     },
     "language": {
-      "english": "Anglès",
-      "spanish": "Espanyol",
-      "french": "Francès",
-      "catalan": "Català",
-      "portuguese": "Portuguès",
-      "euskera": "Basc"
+        "english": "Anglès",
+        "spanish": "català",
+        "french": "Francès",
+        "catalan": "català",
+        "portuguese": "Portuguès",
+        "euskera": "basc català"
     },
     "activity": {
-      "action_in_repo": "ha actuat en el repositori",
-      "repo_link": "Fes clic aquí per veure"
+        "action_in_repo": "actuà en el repositori",
+        "repo_link": "Fes clic aquí per veure"
     },
     "contact": {
-      "linkedin": "LinkedIn",
-      "discord": "Discord",
-      "github": "Github"
+        "linkedin": "LinkedIn",
+        "discord": "Discord",
+        "github": "GitHub"
     },
     "signup": {
-      "register": "Registrar-se",
-      "email_label": "Correu electrònic"
+        "register": "Inscriu-te",
+        "email_label": "Correu electrònic"
     },
     "faq": {
-      "support": "Suport"
+        "support": "Suportar"
     }
-  }
-  
+}
