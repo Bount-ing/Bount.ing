@@ -176,7 +176,7 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 	return nil
 }
 
-func ApproveClaim(bountyOwnerID uint, claimID uint, ownerCheck models.ClaimCheck) error {
+func ApproveClaim(userID, bountyOwnerID uint, claimID uint, ownerCheck models.ClaimCheck) error {
 	log.Printf("Approving claim %d by bounty owner %d", claimID, bountyOwnerID)
 	log.Printf("Owner check: %+v", ownerCheck)
 	// Begin transaction
@@ -196,7 +196,7 @@ func ApproveClaim(bountyOwnerID uint, claimID uint, ownerCheck models.ClaimCheck
 
 	// Verify the bounty owner is associated with the claim
 	bounty, err := GetBountyByID(claim.BountyID)
-	if err != nil || bounty.OwnerID != bountyOwnerID {
+	if err != nil || bounty.OwnerID != bountyOwnerID || bounty.OwnerID != userID {
 		tx.Rollback()
 		return errors.New("unauthorized: not bounty owner")
 	}

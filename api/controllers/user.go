@@ -33,7 +33,16 @@ func CreateUser(user models.User) error {
 		Find(&exists).
 		Error
 	if exists {
-		return ErrUserEmailAlreadyExist
+		//check if user is already verified
+		var u models.User
+		err = db.DB.Where("email = ?", user.Email).First(&u).Error
+		if err == nil && u.Verified {
+
+			return ErrUserEmailAlreadyExist
+		} else if err == nil && !u.Verified {
+			//delete user and create a new one
+			db.DB.Delete(&u)
+		}
 	} else if err != nil {
 		return err
 	}

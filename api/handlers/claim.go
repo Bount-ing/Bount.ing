@@ -133,6 +133,7 @@ func ApproveClaim(ctx *gin.Context) {
 
 	// Assuming the ApproveClaim controller method needs these parameters
 	err = controllers.ApproveClaim(
+		u.ID,
 		request.BountyClaimerCheck.CheckerID,
 		uintClaimID,
 		request.BountyClaimerCheck,

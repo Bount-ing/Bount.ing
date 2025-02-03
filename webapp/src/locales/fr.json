@@ -1,104 +1,104 @@
 {
-  "greeting": "Bonjour",
-  "navigation": {
-    "home": "Accueil",
-    "dashboard": "Tableau de bord",
-    "pricing": "Tarification",
-    "about": "À propos de nous",
-    "faq": "Questions fréquemment posées",
-    "contact": "Contactez-nous"
-  },
-  "account": {
-    "signin": "Se connecter",
-    "signup": "S'inscrire",
-    "logout": "Se déconnecter",
-    "userCredentials": {
-      "welcome": "Bon retour !",
-      "enterCredentials": "Veuillez entrer vos identifiants",
-      "email": "Adresse e-mail",
-      "password": "Mot de passe",
-      "rememberMe": "Se souvenir de moi",
-      "forgotPassword": "Mot de passe oublié ?",
-      "enter": "Entrer",
-      "noAccount": "Vous n'avez pas de compte ? Inscrivez-vous"
+    "greeting": "Bonjour ! Comment puis-je vous aider aujourd'hui ?",
+    "navigation": {
+        "home": "Accueil",
+        "dashboard": "Tableau de bord",
+        "pricing": "Tarification",
+        "about": "À propos de nous",
+        "faq": "F.A.Q. se traduit en français par \"Foire Aux Questions\".",
+        "contact": "Contactez-nous"
+    },
+    "account": {
+        "signin": "Se connecter",
+        "signup": "S'inscrire",
+        "logout": "Déconnexion",
+        "userCredentials": {
+            "welcome": "Bienvenue de nouveau !",
+            "enterCredentials": "Veuillez entrer vos identifiants.",
+            "email": "Adresse e-mail",
+            "password": "Mot de passe",
+            "rememberMe": "Souviens-toi de moi.",
+            "forgotPassword": "Mot de passe oublié ?",
+            "enter": "Entrez",
+            "noAccount": "Vous n'avez pas de compte ? Inscrivez-vous."
+        }
+    },
+    "bounties": {
+        "no_bounties_found": "Aucune récompense trouvée.",
+        "select_bounty_type": "Sélectionnez le type de prime.",
+        "create_increasing_bounty": "Créer une prime croissante.",
+        "create_single_bounty": "Créer une seule prime",
+        "create_decreasing_bounty": "Créer une prime dégressive",
+        "claim": "Revendiquer la prime.",
+        "raise": "Augmentez la prime.",
+        "bounty_amount": "Montant de la prime",
+        "start_date": "Date de début",
+        "end_date": "Date de fin"
+    },
+    "status": {
+        "status": "Statut",
+        "type": "Veuillez préciser ce que vous souhaitez que je traduise en français.",
+        "date": "Date en français se traduit par \"date\"."
+    },
+    "transactions": {
+        "no_transactions_found": "Aucune transaction trouvée.",
+        "amount": "Montant"
+    },
+    "issues": {
+        "available_issues": "Questions disponibles",
+        "private_issue": "Question privée",
+        "details_are_confidential": "Les détails sont confidentiels.",
+        "need_to_be_logged_in": "Vous devez être connecté et autorisé pour voir cela."
+    },
+    "profile": {
+        "personal_information": "Informations personnelles",
+        "full_name": "Nom complet",
+        "email_address": "Adresse e-mail",
+        "phone_number": "Numéro de téléphone",
+        "location": "Emplacement",
+        "about_me": "À propos de moi",
+        "repositories": "Le terme \"repositories\" se traduit en français par \"dépôts\". Cela peut faire référence à des dépôts de code, comme ceux utilisés dans des systèmes de gestion de version tels que Git. Si vous avez besoin d'une traduction ou d'une explication plus spécifique, n'hésitez pas à demander !",
+        "issues": "Problèmes",
+        "bounties": "\"Récompenses\"",
+        "badges": "Badges se traduit en français par \"insignes\" ou \"badges\". Cela dépend du contexte dans lequel le terme est utilisé. Si vous avez un contexte spécifique en tête, n'hésitez pas à le partager pour une traduction plus précise !",
+        "hosts": "Hôtes",
+        "payments": "Paiements",
+        "organizations": "Organisations"
+    },
+    "payment": {
+        "finalize": "Finaliser",
+        "card_information": "Informations sur la carte",
+        "card_number": "Numéro de carte",
+        "expiry_date": "Date d'expiration",
+        "card_holder_name": "Nom du titulaire de la carte"
+    },
+    "legal": {
+        "tos": "Conditions d'utilisation",
+        "privacy_policy": "Politique de confidentialité",
+        "all_rights_reserved": "Tous droits réservés."
+    },
+    "language": {
+        "english": "French",
+        "spanish": "Bien sûr ! Je peux vous aider avec la traduction de l'espagnol vers le français. Que souhaitez-vous traduire ?",
+        "french": "Bonjour ! Comment puis-je vous aider aujourd'hui ?",
+        "catalan": "Catalan is a Romance language spoken in Catalonia, Valencia, the Balearic Islands, and parts of Aragon, as well as in the Roussillon region of France and Andorra. If you need a specific text translated from Catalan to French, please provide the text, and I'll be happy to help!",
+        "portuguese": "D'accord ! Je peux vous aider à traduire du portugais vers le français. Veuillez fournir le texte que vous souhaitez traduire.",
+        "euskera": "Basque translates to \"basque\" in French as well. However, if you are referring to the Basque language or culture, you might say \"basque\" for the language and \"culture basque\" for the culture. If you have specific phrases or text in Basque that you would like translated into French, please provide them!"
+    },
+    "activity": {
+        "action_in_repo": "agir dans le dépôt",
+        "repo_link": "Cliquez ici pour voir."
+    },
+    "contact": {
+        "linkedin": "LinkedIn",
+        "discord": "Discord",
+        "github": "GitHub est une plateforme de développement collaboratif qui permet aux développeurs de stocker, gérer et suivre les modifications de leur code source. Elle utilise Git, un système de contrôle de version, et offre des fonctionnalités telles que la gestion des projets, le suivi des problèmes, et la collaboration en équipe. GitHub est largement utilisé pour le développement de logiciels open source et privés."
+    },
+    "signup": {
+        "register": "S'inscrire",
+        "email_label": "Il semble que vous souhaitiez rédiger un e-mail. Pourriez-vous préciser le contenu ou le sujet de l'e-mail que vous souhaitez traduire en français ?"
+    },
+    "faq": {
+        "support": "Soutien"
     }
-  },
-  "bounties": {
-    "no_bounties_found": "Aucune récompense trouvée.",
-    "select_bounty_type": "Sélectionnez le type de récompense",
-    "create_increasing_bounty": "Créer une récompense croissante",
-    "create_single_bounty": "Créer une récompense unique",
-    "create_decreasing_bounty": "Créer une récompense décroissante",
-    "claim": "Réclamer la récompense",
-    "raise": "Augmenter la récompense",
-    "bounty_amount": "Montant de la récompense",
-    "start_date": "Date de début",
-    "end_date": "Date de fin"
-  },
-  "status": {
-    "status": "Statut",
-    "type": "Type",
-    "date": "Date"
-  },
-  "transactions": {
-    "no_transactions_found": "Aucune transaction trouvée.",
-    "amount": "Montant"
-  },
-  "issues": {
-    "available_issues": "Problèmes disponibles",
-    "private_issue": "Problème privé",
-    "details_are_confidential": "Les détails sont confidentiels.",
-    "need_to_be_logged_in": "Vous devez être connecté et autorisé pour voir cela."
-  },
-  "profile": {
-    "personal_information": "Informations personnelles",
-    "full_name": "Nom complet",
-    "email_address": "Adresse e-mail",
-    "phone_number": "Numéro de téléphone",
-    "location": "Lieu",
-    "about_me": "À propos de moi",
-    "repositories": "Dépôts",
-    "issues": "Problèmes",
-    "bounties": "Récompenses",
-    "badges": "Badges",
-    "hosts": "Hôtes",
-    "payments": "Paiements",
-    "organizations": "Organisations"
-  },
-  "payment": {
-    "finalize": "Finaliser",
-    "card_information": "Informations de la carte",
-    "card_number": "Numéro de la carte",
-    "expiry_date": "Date d'expiration",
-    "card_holder_name": "Nom du titulaire de la carte"
-  },
-  "legal": {
-    "tos": "Conditions d'utilisation",
-    "privacy_policy": "Politique de confidentialité",
-    "all_rights_reserved": "Tous droits réservés"
-  },
-  "language": {
-    "english": "Anglais",
-    "spanish": "Español",
-    "french": "Français",
-    "catalan": "Catalan",
-    "portuguese": "Portugais",
-    "euskera": "Basque"
-  },
-  "activity": {
-    "action_in_repo": "a agi dans le dépôt",
-    "repo_link": "Cliquez ici pour voir"
-  },
-  "contact": {
-    "linkedin": "LinkedIn",
-    "discord": "Discord",
-    "github": "Github"
-  },
-  "signup": {
-    "register": "S'inscrire",
-    "email_label": "Email"
-  },
-  "faq": {
-    "support": "Support"
-  }
 }

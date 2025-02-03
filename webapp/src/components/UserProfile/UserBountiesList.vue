@@ -196,10 +196,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { api } from '@/stores/api'
 import axios from 'axios' // Ensure axios is available
-import { useUserStore } from '../../stores/user';
+import { useUserStore } from '../../stores/user'
 
-const userStore = useUserStore();
-
+const userStore = useUserStore()
 
 const issues = ref([])
 const loading = ref(true)
@@ -259,34 +258,34 @@ const fetchBounties = async () => {
 const approveClaim = async (claimId) => {
   try {
     // Find the specific claim to get its details
-    let claimDetails = null;
+    let claimDetails = null
     for (const issue of issues.value) {
       for (const bounty of issue.Bounties || []) {
         for (const claim of bounty.claims || []) {
           if (claim.ID === claimId) {
-            claimDetails = claim;
-            break;
+            claimDetails = claim
+            break
           }
         }
-        if (claimDetails) break;
+        if (claimDetails) break
       }
-      if (claimDetails) break;
+      if (claimDetails) break
     }
 
     if (!claimDetails) {
-      throw new Error('Claim not found');
+      throw new Error('Claim not found')
     }
 
     if (!claimDetails) {
-      throw new Error('Claim not found');
+      throw new Error('Claim not found')
     }
 
     // Parse PR URL to get repository details
-    const prUrlValue = new URL(claimDetails.prUrl);
-    const prParts = prUrlValue.pathname.split('/');
-    const repoOwner = prParts[1];
-    const repoName = prParts[2];
-    const prNumber = prParts[4];
+    const prUrlValue = new URL(claimDetails.prUrl)
+    const prParts = prUrlValue.pathname.split('/')
+    const repoOwner = prParts[1]
+    const repoName = prParts[2]
+    const prNumber = prParts[4]
 
     const approvalData = {
       status: 'approved',
@@ -300,20 +299,20 @@ const approveClaim = async (claimId) => {
         repoOwner: String(repoOwner),
         repoName: String(repoName),
         prNumber: String(prNumber),
-        checkerType: "OWNER",
+        checkerType: 'OWNER',
         checkerId: userStore.user.ID
       }
-    };
+    }
 
-    console.log('Raw outgoing request:', JSON.stringify(approvalData, null, 2));
+    console.log('Raw outgoing request:', JSON.stringify(approvalData, null, 2))
 
-    const response = await api.post(`/v1/claims/${claimId}/approve`, approvalData);
+    const response = await api.post(`/v1/claims/${claimId}/approve`, approvalData)
 
-    console.log('Claim approval response:', response);
-    await fetchBounties(); // Refresh data
+    console.log('Claim approval response:', response)
+    await fetchBounties() // Refresh data
   } catch (error) {
-    console.error('Error approving claim:', error);
-    error.value = error.response?.data?.message || 'Failed to approve claim. Please try again.';
+    console.error('Error approving claim:', error)
+    error.value = error.response?.data?.message || 'Failed to approve claim. Please try again.'
   }
 }
 const rejectClaim = async (claimId) => {
@@ -339,19 +338,19 @@ const confirmDeleteBounty = async (bountyId) => {
 
   if (isConfirmed) {
     try {
+      // Call API to delete bounty
       await api.delete(`/v1/bounties/${bountyId}`)
-      issues.value = issues.value
-        .map((issue) => ({
-          ...issue,
-          bounties: (issue.bounties || []).filter((bounty) => bounty.id !== bountyId)
-        }))
-        .filter((issue) => issue.bounties && issue.bounties.length > 0)
+
+      // After successful deletion, re-fetch the bounties to update the view
+      await fetchBounties()
+
     } catch (deleteError) {
       console.error('Error deleting bounty:', deleteError)
       error.value = 'Failed to delete bounty. Please try again.'
     }
   }
 }
+
 
 const formatDate = (date) => {
   if (!date) return 'N/A'
@@ -412,10 +411,9 @@ const recheckPR = async (prUrl, issue) => {
 
     prStatusChecked.value = true
 
-
-    issues.value.forEach(issueItem => {
-      issueItem.Bounties?.forEach(bounty => {
-        bounty.claims?.forEach(claim => {
+    issues.value.forEach((issueItem) => {
+      issueItem.Bounties?.forEach((bounty) => {
+        bounty.claims?.forEach((claim) => {
           if (claim.prUrl === prUrl) {
             claim.prVerification = {
               found: prData ? true : false,
@@ -428,7 +426,6 @@ const recheckPR = async (prUrl, issue) => {
       })
     })
     issues.value = [...issues.value]
-
 
     console.log('PR Author:', prStatus.value.authorUsername)
     console.log('PR Status:', prStatus.value)

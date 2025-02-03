@@ -3,7 +3,11 @@
       <h2 class="text-2xl font-semibold mb-4">Issues</h2>
   
       <!-- Display message if no issues are found -->
-      <div v-if="issues.length === 0" class="text-center text-gray-400">No issues found.</div>
+      <div v-if="issues.length === 0" class="text-center text-gray-400">
+        <p>No issues found</p>
+        <p>Connect your GitHub account to see your issues (Host Tab)</p>
+        <p>Alternatively, you can import a new issue from url</p>
+      </div>
   
       <!-- Display list of issues -->
       <ul v-else class="space-y-4">
