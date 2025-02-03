@@ -64,6 +64,7 @@ import UserBountiesList from '../components/UserProfile/UserBountiesList.vue'
 import UserPaymentsList from '../components/UserProfile/UserPaymentsList.vue'
 import UserPersonalInfo from '../components/UserProfile/UserPersonalInfo.vue'
 import ImportIssue from '../components/UserProfile/ImportIssue.vue'
+import PaymentSetup from '../components/UserProfile/PaymentSetup.vue'
 import { useUserStore } from '../stores/user'
 import { useI18n } from 'vue-i18n'
 
@@ -83,7 +84,8 @@ const updateTabs = () => {
     { name: t('profile.issues'), component: UserIssuesList },
     { name: t('profile.import_issue'), component: ImportIssue },
     { name: t('profile.bounties'), component: UserBountiesList },
-    { name: t('profile.payments'), component: UserPaymentsList }
+    { name: t('profile.payments'), component: UserPaymentsList },
+    { name: t('profile.payment_setup'), component: PaymentSetup }
   ]
 }
 

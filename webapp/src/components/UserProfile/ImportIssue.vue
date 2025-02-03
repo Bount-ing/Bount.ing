@@ -298,19 +298,9 @@ const submitBounty = async () => {
     return
   }
 
-  let apiIssueId
+  console.log('Selected issue:', selectedIssue.value)
 
   try {
-    const issueData = {
-      title: selectedIssue.value.title,
-      body: selectedIssue.value.body,
-      issueUrl: selectedIssue.value.html_url,
-      avatarUrl: selectedIssue.value.repo_avatar,
-      state: selectedIssue.value.state
-    }
-
-    await api.post('/v1/issues', issueData)
-
     // Proceed with bounty creation if the amount is valid
     if (amount.value >= 10) {
       const formattedStartDate = startAt.value ? new Date(startAt.value).toISOString() : null
@@ -325,8 +315,8 @@ const submitBounty = async () => {
       const bountyData = {
         amount: amount.value,
         currency: 'EUR',
-        issue_id: apiIssueId,
-        issueUrl: selectedIssue.value.html_url,
+        issue_id: selectedIssue.value.ID,
+        issueUrl: selectedIssue.value.issueUrl,
         issueTitle: selectedIssue.value.title,
         issueBody: selectedIssue.value.body,
         startAt: formattedStartDate,

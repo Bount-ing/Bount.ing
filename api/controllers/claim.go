@@ -168,7 +168,7 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
             <p>Thank you for your contribution!</p>`,
 			issueID, issueID, pullRequestURL,
 		)
-		if err := tools.SendEmail("Bount.ing - Bounty Claimed", mailContent, claimer.Email); err != nil {
+		if err := tools.SendEmail(claimer.Email, "Bount.ing - Bounty Claimed", mailContent); err != nil {
 			log.Printf("Failed to send email to claimer %s: %v", claimer.Email, err)
 		}
 	}()

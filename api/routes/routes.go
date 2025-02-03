@@ -99,5 +99,10 @@ func SetupRouter() *gin.Engine {
 	needAdmin.PUT("/organizations/:id", handlers.UpdateOrganization)
 	needAdmin.DELETE("/organizations/:id", handlers.DeleteOrganization)
 
+	needAuth.POST("/create-setup-intent", handlers.CreateSetupIntent)
+	needAuth.POST("/confirm-setup", handlers.ConfirmSetup)
+	needAuth.GET("/payment-methods", handlers.GetPaymentMethods)
+	needAuth.DELETE("/payment-methods/:id", handlers.RemovePaymentMethod)
+
 	return r
 }

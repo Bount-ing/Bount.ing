@@ -12,11 +12,60 @@ import (
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/customer"
 	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/paymentmethod"
 	"github.com/stripe/stripe-go/setupintent"
 )
 
-func CreateStripeSetupIntent(bounty *models.Bounty, bountyOwnerStripeID string, connectedAccountID string) (*stripe.SetupIntent, error) {
+func CreateStripeSetupIntent(bounty *models.Bounty, ownerID uint, bountyOwnerStripeID string, connectedAccountID string) (*stripe.SetupIntent, error) {
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
+
+	cust, err := customer.Get(bountyOwnerStripeID, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve customer: %v", err)
+	}
+
+	paymentMethods, err := GetPaymentMethods(ownerID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve payment methods: %v", err)
+	}
+	//list payment methods
+	for _, pm := range paymentMethods {
+		log.Printf("Payment Method: %+v", pm)
+	}
+
+	// If customer already has a default payment method, check if it's still valid
+	if cust.InvoiceSettings.DefaultPaymentMethod == nil {
+		log.Printf("Customer %s does not have a default payment method, setting one now...", bountyOwnerStripeID)
+
+		if len(paymentMethods) > 0 {
+			pmID := paymentMethods[0].ID // Pick the first available payment method
+
+			// Attach the payment method to the customer
+			_, err := paymentmethod.Attach(pmID, &stripe.PaymentMethodAttachParams{
+				Customer: stripe.String(bountyOwnerStripeID),
+			})
+			if err != nil {
+				return nil, fmt.Errorf("failed to attach payment method: %v", err)
+			}
+			log.Printf("Successfully attached payment method %s to customer %s", pmID, bountyOwnerStripeID)
+
+			// Set the attached payment method as the default
+			_, err = customer.Update(bountyOwnerStripeID, &stripe.CustomerParams{
+				InvoiceSettings: &stripe.CustomerInvoiceSettingsParams{
+					DefaultPaymentMethod: stripe.String(pmID),
+				},
+			})
+			if err != nil {
+				return nil, fmt.Errorf("failed to set default payment method: %v", err)
+			}
+			log.Printf("Set default payment method %s for customer %s", pmID, bountyOwnerStripeID)
+		} else {
+			return nil, fmt.Errorf("no payment methods available to set as default")
+		}
+
+	}
+
+	log.Printf("Creating SetupIntent for customer %s", bountyOwnerStripeID)
 
 	// Create SetupIntent params with all required fields
 	params := &stripe.SetupIntentParams{
@@ -24,9 +73,6 @@ func CreateStripeSetupIntent(bounty *models.Bounty, bountyOwnerStripeID string, 
 		PaymentMethodTypes: stripe.StringSlice([]string{"card"}),
 		Usage:              stripe.String("off_session"), // Save for future payments
 	}
-
-	// Set the Stripe Connect account context
-	params.SetStripeAccount(connectedAccountID)
 
 	log.Printf("Creating SetupIntent for customer %s in connected account %s",
 		bountyOwnerStripeID, connectedAccountID)
@@ -43,52 +89,67 @@ func CreateStripeSetupIntent(bounty *models.Bounty, bountyOwnerStripeID string, 
 	return setupIntent, nil
 }
 
-func PayoutBounty(bounty models.Bounty, bountyOwnerStripeID, bountyHunterStripeID string) error {
+func PayoutBounty(bounty models.Bounty, bountyOwnerStripeCustomerID, bountyHunterStripeCustomerID, bountyHunterStripeAccountID string) error {
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 
-	// Fetch customer to get their default payment method
-	customer, err := customer.Get(bountyOwnerStripeID, nil)
+	// Validate inputs
+	if bountyHunterStripeAccountID == "" {
+		return errors.New("stripe connected account id is required for payouts")
+	}
+
+	customerParams := &stripe.CustomerParams{}
+
+	customer, err := customer.Get(bountyOwnerStripeCustomerID, customerParams)
 	if err != nil {
-		return errors.New("failed to retrieve Stripe Customer: " + err.Error())
+		log.Printf("Failed to retrieve Stripe Customer: %v", err)
+		return fmt.Errorf("failed to retrieve Stripe Customer: %v", err)
 	}
 
 	if customer.InvoiceSettings.DefaultPaymentMethod == nil {
+		log.Printf("No default payment method found for customer %s", bountyOwnerStripeCustomerID)
 		return errors.New("no default payment method found for customer")
 	}
 
 	paymentMethodID := customer.InvoiceSettings.DefaultPaymentMethod.ID
 
-	// Ensure that the connected account ID is provided
-	if bountyHunterStripeID == "" {
-		return errors.New("stripe connected account id is required for payouts")
-	}
-
-	// Step 1: Create PaymentIntent (charge the payer)
+	// Create PaymentIntent
 	params := &stripe.PaymentIntentParams{
-		Amount:               stripe.Int64(int64(bounty.ClaimedAmount * 100)), // Convert to cents
+		Amount:               stripe.Int64(int64(bounty.ClaimedAmount * 100)),
 		Currency:             stripe.String(bounty.Currency),
-		Customer:             stripe.String(bountyOwnerStripeID),
-		PaymentMethod:        stripe.String(paymentMethodID), // Corrected to fetch from Customer
+		Customer:             stripe.String(bountyOwnerStripeCustomerID),
+		PaymentMethod:        stripe.String(paymentMethodID),
 		Confirm:              stripe.Bool(true),
-		ApplicationFeeAmount: stripe.Int64(int64(bounty.ClaimedAmount * 0.05 * 100)), // Example 5% fee
+		ApplicationFeeAmount: stripe.Int64(int64(bounty.ClaimedAmount * 0.05 * 100)),
 		TransferData: &stripe.PaymentIntentTransferDataParams{
-			Destination: stripe.String(bountyHunterStripeID), // Send funds to the recipient
+			Destination: stripe.String(bountyHunterStripeAccountID),
 		},
+		PaymentMethodTypes: stripe.StringSlice([]string{"card"}),
+		OffSession:         stripe.Bool(true),
 	}
 
-	_, err = paymentintent.New(params)
+	paymentIntent, err := paymentintent.New(params)
 	if err != nil {
-		return errors.New("failed to create PaymentIntent: " + err.Error())
+		log.Printf("Failed to create PaymentIntent: %v", err)
+		return fmt.Errorf("failed to create PaymentIntent: %v", err)
 	}
 
-	// Step 2: Mark bounty as finalized
+	log.Printf("Created PaymentIntent: %s with status: %s", paymentIntent.ID, paymentIntent.Status)
+
+	// Check payment status
+	if paymentIntent.Status != stripe.PaymentIntentStatusSucceeded {
+		return fmt.Errorf("payment intent created but status is %s", paymentIntent.Status)
+	}
+
+	// Update bounty status
 	bounty.Status = "paid"
 	bounty.FinalizedAt = time.Now()
 
 	if err := db.DB.Save(&bounty).Error; err != nil {
-		return err
+		log.Printf("Failed to update bounty status: %v", err)
+		return fmt.Errorf("failed to update bounty status: %v", err)
 	}
 
+	log.Printf("Successfully processed payment for bounty %d", bounty.ID)
 	return nil
 }
 
@@ -97,7 +158,6 @@ func GetOrCreateCustomerID(accessToken, stripeAccountID, email string) (string, 
 	params := &stripe.CustomerListParams{
 		Email: stripe.String(email),
 	}
-	params.SetStripeAccount(stripeAccountID) // Essential: search in connected account
 	log.Printf("List customers Params: %+v", params)
 
 	i := customer.List(params)
@@ -114,7 +174,6 @@ func GetOrCreateCustomerID(accessToken, stripeAccountID, email string) (string, 
 	customerParams := &stripe.CustomerParams{
 		Email: stripe.String(email),
 	}
-	customerParams.SetStripeAccount(stripeAccountID)
 
 	// Add additional metadata to track the customer
 	customerParams.AddMetadata("created_by", "platform")
@@ -131,7 +190,6 @@ func GetOrCreateCustomerID(accessToken, stripeAccountID, email string) (string, 
 
 	// Verify the customer was created by trying to retrieve it
 	verifyParams := &stripe.CustomerParams{}
-	verifyParams.SetStripeAccount(stripeAccountID)
 	_, err = customer.Get(newCustomer.ID, verifyParams)
 	if err != nil {
 		return "", fmt.Errorf("failed to verify new customer in connected account: %v", err)

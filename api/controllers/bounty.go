@@ -16,6 +16,25 @@ func CreateBounty(bounty *models.Bounty) error {
 	ownerStripeCustomerID := ""
 	stripeAccountFound := false
 
+	// Check if the bounty issue url is empty
+	if bounty.IssueURL == "" && bounty.IssueID != 0 {
+		//retreive the issue url from the issue
+		issue, err := GetIssueByID(bounty.IssueID)
+		if err != nil {
+			log.Printf("Error fetching issue: %s", err)
+			return err
+		}
+		bounty.IssueURL = issue.URL
+	} else if bounty.IssueURL != "" && bounty.IssueID == 0 {
+		//retreive the issue id from the issue url
+		issue, err := GetIssueByURL(bounty.IssueURL)
+		if err != nil {
+			log.Printf("Error fetching issue: %s", err)
+			return err
+		}
+		bounty.IssueID = issue.ID
+	}
+
 	log.Printf("Creating Bounty - Owner ID: %d", bounty.OwnerID)
 	// Fetch users identities where the host is stripe
 	identities, err := GetUserIdentities(bounty.OwnerID)
@@ -39,7 +58,7 @@ func CreateBounty(bounty *models.Bounty) error {
 	}
 
 	// Step 1: Create a SetupIntent in Stripe
-	setupIntent, err := CreateStripeSetupIntent(bounty, ownerStripeCustomerID, ownerStripeAccountID)
+	setupIntent, err := CreateStripeSetupIntent(bounty, bounty.OwnerID, ownerStripeCustomerID, ownerStripeAccountID)
 	if err != nil {
 		log.Printf("Error creating Stripe SetupIntent: %s", err)
 		return err

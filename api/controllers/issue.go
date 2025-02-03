@@ -247,3 +247,12 @@ func CreateIssueFromGitHub(url string) (*models.Issue, error) {
 
 	return &createdIssue, nil
 }
+
+func GetIssueByURL(url string) (*models.Issue, error) {
+	var issue models.Issue
+	err := db.DB.Where("url = ?", url).First(&issue)
+	if err.Error != nil {
+		return nil, err.Error
+	}
+	return &issue, nil
+}

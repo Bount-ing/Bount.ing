@@ -8,9 +8,6 @@ import (
 
 type Issue struct {
 	gorm.Model // This embeds fields like ID, CreatedAt, UpdatedAt, DeletedAt
-
-	// Bounting ID
-	LocalID uint
 	// Host / External ID
 	ForeignID string
 	HostID    uint

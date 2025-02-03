@@ -92,6 +92,7 @@ const handleAuthError = async () => {
     }
 };
 
+
 api.interceptors.response.use(
     (response: AxiosResponse): AxiosResponse => {
         const navi = useNaviStore();
@@ -103,11 +104,9 @@ api.interceptors.response.use(
         const userStore = useUserStore();
         const originalRequest = error.config as RetryConfig;
 
-        if (error.response?.status === 401) {
-            if (originalRequest.url?.includes('/refresh') || originalRequest._retry) {
-                await handleAuthError();
-                return Promise.reject(error);
-            }
+        if (error.response?.status === 401 && !originalRequest._retry) {
+
+            originalRequest._retry = true;
 
             if (!isRefreshing) {
                 isRefreshing = true;
