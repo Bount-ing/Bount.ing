@@ -1,40 +1,41 @@
 <script setup>
 import { ref } from 'vue'
-import { notify } from "@kyvg/vue3-notification" // Changed this line
+import { notify } from '@kyvg/vue3-notification' // Changed this line
 import { api } from '@/stores/api.ts'
 
 const userMail = ref('')
 const userExists = ref(false)
 const userCreated = ref(false)
+const pdfUrl = '/Bount.ing-terms-2025-02-04.pdf'
 
 const registerUser = async () => {
   try {
     const response = await api.post('/v1/signup', {
       email: userMail.value
     })
-    
+
     userCreated.value = true
     userExists.value = false
     notify({
-      title: "Success!",
-      text: "Your account has been created successfully",
-      type: "success",
+      title: 'Success!',
+      text: 'Your account has been created successfully',
+      type: 'success',
       duration: 5000
     })
   } catch (error) {
     if (error.response?.status === 409) {
       userExists.value = true
       notify({
-        title: "Account Exists",
-        text: "An account with this email already exists",
-        type: "error",
+        title: 'Account Exists',
+        text: 'An account with this email already exists',
+        type: 'error',
         duration: 5000
       })
     } else {
       notify({
-        title: "Error",
-        text: "Failed to create account. Please try again",
-        type: "error",
+        title: 'Error',
+        text: 'Failed to create account. Please try again',
+        type: 'error',
         duration: 5000
       })
     }
@@ -45,10 +46,11 @@ const registerUser = async () => {
 <template>
   <div class="container mx-auto p-6">
     <!-- Tab Links -->
-    <notifications position="top right" />  <!-- Added this line -->
+    <notifications position="top right" />
+    <!-- Added this line -->
 
     <!-- Registration Form -->
-    <div class="mt-8 p-8 rounded-lg shadow-md max-w-md mx-auto">
+    <div class="mt-8 p-8 rounded-lg shadow-md max-w-2xl mx-auto">
       <div class="mb-6">
         <h2 class="text-2xl font-bold text-primary">Register</h2>
         <p class="text-secondary-light">Setup a new account in a minute.</p>
@@ -66,10 +68,37 @@ const registerUser = async () => {
             placeholder="Enter your email"
             required
           />
-          <small class="text-sm text-secondary-light mt-1 block">We will send a verification code to make sure it's correct.</small>
+          <small class="text-sm text-secondary-light mt-1 block"
+            >We will send a verification code to make sure it's correct.</small
+          >
           <small v-if="userExists" class="text-sm text-red-500 mt-2">User already exists</small>
         </div>
 
+        <section class="bg-secondary-dark container mx-auto px-4 my-6 py-6 rounded-lg text-primary w-full">
+          <h1 class="text-4xl font-bold text-center mb-6">Terms of Service</h1>
+          <p class="text-lg text-center mb-4">
+            You can view the Terms of Service in the embedded PDF below.
+          </p>
+          <div class="pdf-container">
+            <iframe :src="pdfUrl" width="100%" height="600px" style="border: none"></iframe>
+          </div>
+        </section>
+
+        <!-- Agreement Checkbox -->
+        <div class="mb-4 flex items-center">
+          <input
+            type="checkbox"
+            id="agreement"
+            class="mr-2"
+            required
+          />
+          <label for="agreement" class="text-sm text-gray-600">
+            I agree to the
+            <router-link to="/terms" class="text-primary font-semibold">Terms of Service</router-link>
+          </label>
+
+          <small class="text-sm text-red-500 ml-2">* Required</small>
+        </div>
         <!-- Submit Button -->
         <div class="mb-4">
           <button
@@ -84,8 +113,9 @@ const registerUser = async () => {
       <!-- Direction to Sign In -->
       <div class="mt-4 text-center">
         <p class="text-gray-600">
-          Already have an account? Click on the 
-          <router-link to="/signin" class="text-primary font-semibold">Sign In</router-link> button above.
+          Already have an account? Click on the
+          <router-link to="/signin" class="text-primary font-semibold">Sign In</router-link> button
+          above.
         </p>
       </div>
     </div>
