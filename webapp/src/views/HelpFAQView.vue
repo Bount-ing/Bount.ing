@@ -46,7 +46,7 @@
             <p class="text-lg mb-4">
               Bounties are paid out using Stripe, from the bounty emitter to the bounty claimer. When a bounty is fully
               resolved, it goes through the stages of being open, claimed, and then marked as resolved after the issue
-              is closed. There is a fee of 4.2% on public repository bounties and 7% on private ones. If the claim is
+              is closed. There is a fee of 4.2% on public repository bounties and 10% on private ones. If the claim is
               rejected, the transaction won't be processed.
             </p>
           </div>
