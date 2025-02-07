@@ -1,10 +1,12 @@
 <template>
-  <div>
-    <h2 class="text-3xl font-semibold mb-4 text-gray-900">Bounties</h2>
+  <div class="py-4 my-4">
+    <h2 class="text-3xl font-semibold mx-4 my-2 ">Open Bounties</h2>
+    <h3 class="text-xl font-semibold mx-4 my-2 ">Bounties are rewards offered for solving specific issues.</h3>
     <div v-if="groupedBounties.length === 0" class="text-center text-gray-400">
       No bounties found.
     </div>
     <ul v-else class="space-y-4 p-4">
+  
       <BountyItem
         v-for="(group, index) in groupedBounties"
         :key="index"
