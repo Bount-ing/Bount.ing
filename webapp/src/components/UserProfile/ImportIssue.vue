@@ -154,18 +154,8 @@ const submitBounty = async (bountyData) => {
       return
     }
 
-    const bountyResponse = await api.post('/v1/bounties', bountyData)
+    await api.post('/v1/bounties', bountyData)
 
-    if (!bountyResponse.ok) {
-      console.log('❌ API returned error:', bountyResponse.status) // Debugging
-      const errorText = await bountyResponse.text()
-      throw new Error(
-        `Server error (${bountyResponse.status}): ${errorText || 'Something went wrong'}`
-      )
-    }
-
-    const createdBounty = await bountyResponse.json()
-    console.log('✅ Created bounty:', createdBounty)
     closeBountyModal()
   } catch (error) {
   console.log('❌ Caught error in catch block:', error); // Debugging
