@@ -48,7 +48,7 @@ const loading = ref(false)
 const error = ref('')
 
 const validateGitHubUrl = (url) => {
-  const githubIssueRegex = /^https:\/\/github\.com\/[\w-]+\/[\w-]+\/issues\/\d+$/
+  const githubIssueRegex = /^https:\/\/github\.com\/[\w-]+\/[\w.-]+\/issues\/\d+$/;
   return githubIssueRegex.test(url)
 }
 
