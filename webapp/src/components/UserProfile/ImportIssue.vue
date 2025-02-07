@@ -69,173 +69,27 @@
       </li>
     </ul>
 
-    <!-- Bounty Modal -->
-    <div
-      v-if="isBountyModalOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center mt-16"
-    >
-      <div class="bg-secondary p-6 rounded-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <h3 class="text-2xl font-semibold mb-6 text-center">Set Bounty for Issue</h3>
-
-        <form @submit.prevent="submitBounty">
-          <!-- Bounty Amount -->
-          <div class="mb-5">
-            <label for="bounty" class="block text-sm font-medium mb-2"
-              >Bounty Amount (in euros)</label
-            >
-            <input
-              v-model="amount"
-              id="bounty"
-              type="number"
-              min="10"
-              required
-              class="border px-4 py-2 w-full rounded-lg bg-secondary focus:ring-2 focus:ring-green-500"
-              placeholder="Enter bounty amount"
-              aria-label="Bounty Amount"
-            />
-          </div>
-
-          <!-- Start Date -->
-          <div class="mb-5">
-            <label for="start-date" class="block text-sm font-medium mb-2">Start Date</label>
-            <input
-              v-model="startAt"
-              id="start-date"
-              type="date"
-              required
-              class="border px-4 py-2 w-full rounded-lg bg-secondary focus:ring-2 focus:ring-green-500"
-              aria-label="Start Date"
-            />
-          </div>
-
-          <!-- End Date -->
-          <div class="mb-5">
-            <label for="end-date" class="block text-sm font-medium mb-2">End Date</label>
-            <input
-              v-model="endAt"
-              id="end-date"
-              type="date"
-              required
-              min="2024-01-01"
-              class="border px-4 py-2 w-full rounded-lg bg-secondary focus:ring-2 focus:ring-green-500"
-              aria-label="End Date"
-            />
-          </div>
-
-          <!-- Variables for bounty adjustments -->
-          <div
-            v-if="variables.length > 0"
-            v-for="(variable, index) in variables"
-            :key="index"
-            class="mb-5"
-          >
-            <h4 class="text-sm font-semibold mb-2">Variable {{ index + 1 }}</h4>
-
-            <div class="mb-3">
-              <label class="block text-sm">Direction</label>
-              <select
-                v-model="variable.direction"
-                required
-                class="border px-4 py-2 w-full rounded-lg bg-secondary focus:ring-2 focus:ring-green-500"
-                aria-label="Variable Direction"
-              >
-                <option value="increase">Increase</option>
-                <option value="decrease">Decrease</option>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <label for="variable-amount-{{ index }}" class="block text-sm"
-                >Max Amount (in euros)</label
-              >
-              <input
-                v-model="variable.amount"
-                id="variable-amount-{{ index }}"
-                type="number"
-                min="1"
-                required
-                class="border px-4 py-2 w-full rounded-lg bg-secondary focus:ring-2 focus:ring-green-500"
-                placeholder="Amount"
-                aria-label="Variable Amount"
-              />
-            </div>
-
-            <div class="mb-3">
-              <label for="variable-start-date-{{ index }}" class="block text-sm">Start Date</label>
-              <input
-                v-model="variable.startAt"
-                id="variable-start-date-{{ index }}"
-                type="date"
-                required
-                class="border px-4 py-2 w-full rounded-lg bg-secondary focus:ring-2 focus:ring-green-500"
-                placeholder="Start Date"
-                aria-label="Variable Start Date"
-              />
-            </div>
-
-            <div class="mb-3">
-              <label for="variable-end-date-{{ index }}" class="block text-sm">End Date</label>
-              <input
-                v-model="variable.endAt"
-                id="variable-end-date-{{ index }}"
-                type="date"
-                required
-                class="border px-4 py-2 w-full rounded-lg bg-secondary focus:ring-2 focus:ring-green-500"
-                placeholder="End Date"
-                aria-label="Variable End Date"
-              />
-            </div>
-
-            <!-- Remove Variable Button -->
-            <button
-              type="button"
-              @click="removeVariable(index)"
-              class="text-red-500 mt-2 hover:text-red-700 transition-all"
-            >
-              Remove Variable
-            </button>
-          </div>
-
-          <!-- Add Variable Button -->
-          <div class="mb-5">
-            <button
-              type="button"
-              @click="addVariable"
-              class="px-6 py-3 bg-secondary-light text-white rounded-lg hover:text-secondary-dark transition-all"
-            >
-              Add Variable
-            </button>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex justify-between mt-6">
-            <button
-              type="submit"
-              class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-all focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              Set Bounty
-            </button>
-            <button
-              @click="closeBountyModal"
-              class="px-6 py-3 bg-secondary-light text-white rounded-lg hover:text-secondary-dark transition-all focus:outline-none focus:ring-2 focus:ring-gray-500"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <BountyModal
+      :is-open="isBountyModalOpen"
+      :selected-issue="selectedIssue"
+      @close="closeBountyModal"
+      @submit="submitBounty"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { useErrorStore } from '@/stores/errors'
 import { api } from '@/stores/api'
 import GitHubIssueImport from '../GitHubIssueImport.vue'
+import BountyModal from '../BountyModal.vue'
+
+const userStore = useUserStore()
+const errorStore = useErrorStore()
 
 const issues = ref([])
-const userStore = useUserStore()
 const isBountyModalOpen = ref(false)
 const amount = ref(0)
 const startAt = ref('')
@@ -292,48 +146,61 @@ const createIssue = async () => {
   }
 }
 
-const submitBounty = async () => {
-  if (!selectedIssue.value) {
-    console.error('No issue selected')
-    return
-  }
-
-  console.log('Selected issue:', selectedIssue.value)
-
+const submitBounty = async (bountyData) => {
   try {
-    // Proceed with bounty creation if the amount is valid
-    if (amount.value >= 10) {
-      const formattedStartDate = startAt.value ? new Date(startAt.value).toISOString() : null
-      const formattedEndDate = endAt.value ? new Date(endAt.value).toISOString() : null
-
-      const formattedVariables = variables.value.map((variable) => ({
-        ...variable,
-        startAt: variable.startAt ? new Date(variable.startAt).toISOString() : null,
-        endAt: variable.endAt ? new Date(variable.endAt).toISOString() : null
-      }))
-
-      const bountyData = {
-        amount: amount.value,
-        currency: 'EUR',
-        issue_id: selectedIssue.value.ID,
-        issueUrl: selectedIssue.value.issueUrl,
-        issueTitle: selectedIssue.value.title,
-        issueBody: selectedIssue.value.body,
-        startAt: formattedStartDate,
-        endAt: formattedEndDate,
-        variables: formattedVariables
-      }
-
-      const bountyResponse = await api.post('/v1/bounties', bountyData)
-
-      console.log('Bounty set successfully!')
-      closeBountyModal()
-    } else {
-      console.error('Bounty amount must be at least 10')
+    if (bountyData.amount < 10) {
+      console.log('❌ Bounty amount too low')
+      errorStore.showError('Bounty amount must be at least 10')
+      return
     }
+
+    const bountyResponse = await api.post('/v1/bounties', bountyData)
+
+    if (!bountyResponse.ok) {
+      console.log('❌ API returned error:', bountyResponse.status) // Debugging
+      const errorText = await bountyResponse.text()
+      throw new Error(
+        `Server error (${bountyResponse.status}): ${errorText || 'Something went wrong'}`
+      )
+    }
+
+    const createdBounty = await bountyResponse.json()
+    console.log('✅ Created bounty:', createdBounty)
+    closeBountyModal()
   } catch (error) {
-    console.error('Error during bounty submission process:', error)
+  console.log('❌ Caught error in catch block:', error); // Debugging
+
+  // Check if it's an Axios or fetch-style error
+  if (error.response) {
+    // If error response is present, check the status code
+    if (error.response.status === 500) {
+      if (error.response.data && error.response.data.error) {
+        const errorMessage = error.response.data.error.toLowerCase();
+        
+        if (errorMessage.includes('user does not have a stripe account')) {
+          errorStore.showError(
+            "It seems you don't have a Stripe account connected. Please create one or link your account to proceed. Dashboard > Hosts > Connect Stripe. Then go to payment methods to add one."
+          );
+        } else {
+          errorStore.showError(
+            "There was a server issue. Please try again later."
+          );
+        }
+      } else {
+        errorStore.showError('An unexpected server error occurred.');
+      }
+    } else {
+      // If other HTTP status codes, handle them appropriately
+      errorStore.showError(error.response.data.message || 'An unexpected error occurred.');
+    }
+  } else if (error.message.toLowerCase().includes('stripe')) {
+    errorStore.showError(
+      "It seems you don't have any payment methods set up. Please add a payment method to your account."
+    );
+  } else {
+    errorStore.showError(error.message || 'An unexpected error occurred');
   }
+}
 }
 
 watch(

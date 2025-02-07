@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { api } from './api'
 import router from '../router'
+import { useErrorStore } from './errors'
 
 interface Issue {
   id: number
@@ -264,61 +265,64 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function login(creds: LoginCredentials): Promise<void> {
+    const errorStore = useErrorStore()
+
     try {
-      // 1. Sign in and get tokens
       const response = await api.post('/v1/signin', creds)
-      const { accessToken, refreshToken } = response.data
 
-      if (!accessToken || !refreshToken) {
-        throw new Error('Missing tokens in response')
-      }
 
-      // 2. Store tokens
-      localStorage.setItem('token', accessToken)
-      localStorage.setItem('refreshToken', refreshToken)
-      token.value = accessToken
-      loggedIn.value = true
+    const { accessToken, refreshToken } = response.data
 
-      // 3. Parse JWT
-      const decodedJwt = parseJwt(accessToken)
-      if (!decodedJwt?.UID) {
-        // Changed from userId to UID
-        throw new Error('Invalid token: missing UID')
-      }
-      localStorage.setItem('userId', decodedJwt.UID.toString())
-
-      await getUserInfo()
-    } catch (error) {
-      console.error('Login failed:', error)
-      throw new Error(error instanceof Error ? error.message : 'Invalid credentials or login error')
+    if (!accessToken || !refreshToken) {
+      throw new Error('Missing tokens in response')
     }
+
+    // 2. Store tokens
+    localStorage.setItem('token', accessToken)
+    localStorage.setItem('refreshToken', refreshToken)
+    token.value = accessToken
+    loggedIn.value = true
+
+    // 3. Parse JWT
+    const decodedJwt = parseJwt(accessToken)
+    if (!decodedJwt?.UID) {
+      // Changed from userId to UID
+      throw new Error('Invalid token: missing UID')
+    }
+    localStorage.setItem('userId', decodedJwt.UID.toString())
+
+    await getUserInfo()
+  } catch (error: any) {
+    console.error('Login failed:', error)
+    errorStore.showError('Login failed. Please check your credentials and try again.')
+    return
+  }
   }
 
   async function getUserInfo(): Promise<void> {
     try {
       const response = await api.get('/v1/users/me', {
-        headers: { Authorization: authHeader.value },
-      });
-      
-      user.value = response.data;
-      localStorage.setItem('user', JSON.stringify(response.data));
-      console.log('User information:', user.value); // Log the user information
+        headers: { Authorization: authHeader.value }
+      })
+
+      user.value = response.data
+      localStorage.setItem('user', JSON.stringify(response.data))
+      console.log('User information:', user.value) // Log the user information
     } catch (error: any) {
-      console.error('Failed to fetch user info:', error);
-      
+      console.error('Failed to fetch user info:', error)
+
       if (error.response && error.response.status === 401) {
         // Reset stored values on unauthorized error
-        user.value = null;
-        loggedIn.value = false;
-        localStorage.removeItem('user');
-        localStorage.removeItem('authToken'); // Assuming authToken is stored
-        console.warn('Unauthorized. User data has been reset.');
+        user.value = null
+        loggedIn.value = false
+        localStorage.removeItem('user')
+        localStorage.removeItem('authToken') // Assuming authToken is stored
+        console.warn('Unauthorized. User data has been reset.')
         //redirect to login page
-        router.push({ path: '/signin' });
+        router.push({ path: '/signin' })
       }
     }
   }
-  
 
   function parseJwt(token: string): Record<string, any> | null {
     try {

@@ -1,8 +1,11 @@
 <script setup>
 import LandingHeader from '@/components/UI/PublicHeader.vue';
+import { useErrorStore } from '@/stores/errors';
+import ErrorModal from '@/components/ErrorModal.vue';
 
-
+const errorStore = useErrorStore();
 </script>
+
 <template>
 	<div class="fullscreen">
 		<section class="user-form-part">
@@ -16,6 +19,12 @@ import LandingHeader from '@/components/UI/PublicHeader.vue';
 				<RouterView />
 			</div>
 		</section>
+		<ErrorModal
+			:isOpen="errorStore.isOpen"
+			:message="errorStore.message"
+			:isError="errorStore.isError"
+			@close="errorStore.closeError"
+		/>
 	</div>
 </template>
 

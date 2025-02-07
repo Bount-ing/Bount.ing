@@ -8,8 +8,10 @@ import type {
 } from 'axios';
 import { useUserStore } from '@/stores/user';
 import { useNaviStore } from '@/stores/navigation';
+import {useErrorStore} from '@/stores/errors';
 import { nextTick } from 'vue';
 import router from '@/router';  // Changed from named to default import
+
 
 interface RetryConfig extends InternalAxiosRequestConfig {
     _retry?: boolean;
@@ -72,79 +74,6 @@ api.interceptors.request.use(
     }
 );
 
-const handleAuthError = async () => {
-    const userStore = useUserStore();
-    const navi = useNaviStore();
-    
-    userStore.logout();
-    navi.UnsetLoading();
-    
-    // Use nextTick to ensure store updates are processed
-    await nextTick();
-    
-    // Check if we're not already on the signin page to prevent redirect loops
-    if (router.currentRoute.value.path !== '/signin') {
-        // Use replace instead of push to prevent back navigation to failed page
-        await router.replace({
-            path: '/signin',
-            query: { redirect: router.currentRoute.value.fullPath }
-        });
-    }
-};
 
-
-api.interceptors.response.use(
-    (response: AxiosResponse): AxiosResponse => {
-        const navi = useNaviStore();
-        navi.UnsetLoading();
-        return response;
-    },
-    async (error: AxiosError): Promise<AxiosError | AxiosResponse> => {
-        const navi = useNaviStore();
-        const userStore = useUserStore();
-        const originalRequest = error.config as RetryConfig;
-
-        if (error.response?.status === 401 && !originalRequest._retry) {
-
-            originalRequest._retry = true;
-
-            if (!isRefreshing) {
-                isRefreshing = true;
-                originalRequest._retry = true;
-
-                try {
-                    await userStore.refreshJwt();
-                    isRefreshing = false;
-                    
-                    processQueue(null, userStore.authHeader);
-                    
-                    if (originalRequest.headers) {
-                        originalRequest.headers['Authorization'] = userStore.authHeader;
-                    }
-                    return api(originalRequest);
-                } catch (refreshError) {
-                    isRefreshing = false;
-                    processQueue(refreshError as Error, null);
-                   // await handleAuthError();
-                    return Promise.reject(refreshError);
-                }
-            } else {
-                return new Promise((resolve, reject) => {
-                    failedQueue.push({ resolve, reject });
-                }).then(() => {
-                    if (originalRequest.headers) {
-                        originalRequest.headers['Authorization'] = userStore.authHeader;
-                    }
-                    return api(originalRequest);
-                }).catch(err => {
-                    return Promise.reject(err);
-                });
-            }
-        }
-
-        navi.UnsetLoading();
-        return Promise.reject(error);
-    }
-);
 
 export default api;
