@@ -13,8 +13,15 @@
         :group="group"
         :index="index"
         :calculateCurrentAmount="calculateCurrentAmount"
+        @raise-bounty-modal="raiseBountyModal"
       />
     </ul>
+    <BountyModal
+      :is-open="isBountyModalOpen"
+      :selected-issue="selectedIssue"
+      @close="closeBountyModal"
+      @submit="submitBounty"
+    />
   </div>
 </template>
 
@@ -22,6 +29,11 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { api } from '@/stores/api'
 import BountyItem from '@/components/BountyItem.vue'
+import BountyModal from '@/components/BountyModal.vue'
+
+
+const isBountyModalOpen = ref(false)
+const selectedIssue = ref(null)
 
 const groupedBounties = ref([]) // Reactive state to hold grouped bounties
 let intervalId = null // Variable to store the interval ID for cleanup
@@ -151,6 +163,66 @@ function isActive(startAt, endAt) {
   if (end && now > end) return false // Already ended
   return true // Active
 }
+
+const raiseBountyModal = (issue) => {
+  selectedIssue.value = issue
+  isBountyModalOpen.value = true
+}
+
+const closeBountyModal = () => {
+  isBountyModalOpen.value = false
+  selectedIssue.value = null
+  //refresh bounties
+  fetchBounties()
+}
+
+const submitBounty = async (bountyData) => {
+  try {
+    if (bountyData.amount < 10) {
+      console.log('❌ Bounty amount too low')
+      errorStore.showError('Bounty amount must be at least 10')
+      return
+    }
+
+    await api.post('/v1/bounties', bountyData)
+
+    closeBountyModal()
+  } catch (error) {
+  console.log('❌ Caught error in catch block:', error); // Debugging
+
+  // Check if it's an Axios or fetch-style error
+  if (error.response) {
+    // If error response is present, check the status code
+    if (error.response.status === 500) {
+      if (error.response.data && error.response.data.error) {
+        const errorMessage = error.response.data.error.toLowerCase();
+        
+        if (errorMessage.includes('user does not have a stripe account')) {
+          errorStore.showError(
+            "It seems you don't have a Stripe account connected. Please create one or link your account to proceed. Dashboard > Hosts > Connect Stripe. Then go to payment methods to add one."
+          );
+        } else {
+          errorStore.showError(
+            "There was a server issue. Please try again later."
+          );
+        }
+      } else {
+        errorStore.showError('An unexpected server error occurred.');
+      }
+    } else {
+      // If other HTTP status codes, handle them appropriately
+      errorStore.showError(error.response.data.message || 'An unexpected error occurred.');
+    }
+  } else if (error.message.toLowerCase().includes('stripe')) {
+    errorStore.showError(
+      "It seems you don't have any payment methods set up. Please add a payment method to your account."
+    );
+  } else {
+    errorStore.showError(error.message || 'An unexpected error occurred');
+  }
+}
+}
+
 // Set up an interval to recalculate every second
 onMounted(() => {
   fetchBounties() // Initial fetch

@@ -163,6 +163,7 @@
   
   <script setup>
   import { ref, watch } from 'vue'
+  import { defineProps, defineEmits, onMounted } from 'vue'
   
   const props = defineProps({
     isOpen: {
@@ -235,5 +236,10 @@
     if (newValue) {
       resetForm()
     }
+  })
+
+  onMounted(() => {
+    console.log('BountyModal component mounted')
+    console.log('Selected Issue:', props.selectedIssue)
   })
   </script>

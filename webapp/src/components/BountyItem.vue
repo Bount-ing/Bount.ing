@@ -44,6 +44,12 @@
       <!-- Raise and Claim Buttons Section -->
       <div class="flex flex-col items-center space-y-2">
         <button
+          @click="raiseBountyModal(group)"
+          class="bg-secondary text-primary-light py-1 px-4 text-sm font-semibold transform transition-transform duration-200 hover:scale-105 hover:bg-warning-light hover:text-secondary border-primary-light border rounded-md shadow-md"
+        >
+          Raise
+        </button>
+        <button
           @click="navigateToPage(group, 'claim')"
           class="bg-secondary text-primary-light py-1 px-4 text-sm font-semibold transform transition-transform duration-200 hover:scale-105 hover:bg-warning-light hover:text-secondary border-primary-light border rounded-md shadow-md"
         >
@@ -56,6 +62,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { defineProps, defineEmits } from 'vue'
 
 // Props
 defineProps({
@@ -65,6 +72,14 @@ defineProps({
 })
 
 const router = useRouter()
+
+// Emits
+const emit = defineEmits(['raise-bounty-modal'])
+
+
+function raiseBountyModal(group) {
+  emit('raise-bounty-modal', group)
+}
 
 // Navigate to the target page
 function navigateToPage(group, action) {

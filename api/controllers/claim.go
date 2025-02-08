@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/bount-ing/bount.ing/api/db"
 	"github.com/bount-ing/bount.ing/api/models"
@@ -157,17 +158,37 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 
 	// Send email (non-blocking)
 	go func() {
+		claimedAt := time.Now().Format("2006-01-02 15:04:05")
+
+		var bountyDetails string
+		for _, bounty := range bounties {
+			claimedAmount, err := GetCurrentBountyAmount(bounty.ID)
+			if err != nil {
+				log.Printf("Failed to calculate claimed amount for bounty %d: %v", bounty.ID, err)
+				continue
+			}
+			bountyDetails += fmt.Sprintf("<li><strong>Bounty ID:</strong> %d - <strong>Claimed Amount:</strong> %.2f</li>", bounty.ID, claimedAmount)
+		}
+
 		mailContent := fmt.Sprintf(
-			`<p>Hi there,</p>
-            <p>You have successfully claimed the bounty for issue %d. The claim is currently pending review.</p>
-            <p>Details:</p>
-            <ul>
-                <li>Issue: %d</li>
-                <li>Pull Request: %s</li>
-            </ul>
-            <p>Thank you for your contribution!</p>`,
-			issueID, issueID, pullRequestURL,
+			`<p>Hi %s,</p>
+			<p>You have successfully claimed the bounty for <strong><a href="%s">Issue #%d</a></strong>. The claim is currently pending review.</p>
+			<hr>
+			<h3>Claim Details:</h3>
+			<ul>
+				<li><strong>Issue:</strong> <a href="%s">%s</a></li>
+				<li><strong>Pull Request:</strong> <a href="%s">%s</a></li>
+				<li><strong>Claim Date:</strong> %s</li>
+			</ul>
+			<hr>
+			<h3>Bounties Claimed:</h3>
+			<ul>
+				%s
+			</ul>
+			<p>Thank you for your contribution!</p>`,
+			claimer.Username, issue.URL, issueID, issue.URL, issue.URL, pullRequestURL, pullRequestURL, claimedAt, bountyDetails,
 		)
+
 		if err := tools.SendEmail(claimer.Email, "Bount.ing - Bounty Claimed", mailContent); err != nil {
 			log.Printf("Failed to send email to claimer %s: %v", claimer.Email, err)
 		}
