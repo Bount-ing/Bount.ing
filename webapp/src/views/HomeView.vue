@@ -27,14 +27,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { api } from '@/stores/api'
-import { useErrorStore } from '@/stores/errors'
 import BountyItem from '@/components/BountyItem.vue'
 import BountyModal from '@/components/BountyModal.vue'
 
-const errorStore = useErrorStore()
+import { ref, onMounted, onUnmounted } from 'vue'
+import { api } from '@/stores/api'
+import { useNotificationStore } from '@/stores/notification.ts'
 
+const notificationStore = useNotificationStore()
 const isBountyModalOpen = ref(false)
 const selectedIssue = ref(null)
 
@@ -183,11 +183,13 @@ const submitBounty = async (bountyData) => {
   try {
     if (bountyData.amount < 10) {
       console.log('❌ Bounty amount too low')
-      errorStore.showError('Bounty amount must be at least 10')
+      notificationStore.showNotification('Bounty amount must be at least $10', error)
       return
     }
 
     await api.post('/v1/bounties', bountyData)
+
+    notificationStore.showNotification('Bounty submitted successfully', success)
 
     closeBountyModal()
   } catch (error) {
@@ -201,29 +203,31 @@ const submitBounty = async (bountyData) => {
           const errorMessage = error.response.data.error.toLowerCase()
 
           if (errorMessage.includes('user does not have a stripe account')) {
-            errorStore.showError(
-              "It seems you don't have a Stripe account connected. Please create one or link your account to proceed. Dashboard > Hosts > Connect Stripe. Then go to payment methods to add one."
+            notificationStore.showNotification(
+              "It seems you don't have any payment methods set up. Please add a payment method to your account. Dashboard > Hosts > Stripe Connect",
+              error
             )
           } else {
-            errorStore.showError('There was a server issue. Please try again later.')
+            notificationStore.showNotification(error.response.data.error, error)
           }
         } else {
-          errorStore.showError('An unexpected server error occurred.')
+          notificationStore.showNotification('An unexpected error occurred.', error)
         }
       } else {
-        // If other HTTP status codes, handle them appropriately
-        errorStore.showError(error.response.data.message || 'An unexpected error occurred.')
+        notificationStore.showNotification(error.response.data.error, error)
       }
     } else if (error.message.toLowerCase().includes('stripe')) {
-      errorStore.showError(
-        "It seems you don't have any payment methods set up. Please add a payment method to your account."
+      notificationStore.showNotification(
+        "It seems you don't have any payment methods set up. Please add a payment method to your account. Dashboard > Hosts > Stripe Connect",
+        error
       )
     } else if (error.response.status === 401 || error.response.status === 403) {
-      errorStore.showError(
-        'You are not authorized to perform this action. Make sure you are logged in.'
+      notificationStore.showNotification(
+        'You are not authorized to perform this action. Make sure you are logged in.',
+        error
       )
     } else {
-      errorStore.showError(error.message || 'An unexpected error occurred')
+      notificationStore.showNotification('A wild error appeared!. Please try again later.', error)
     }
   }
 }

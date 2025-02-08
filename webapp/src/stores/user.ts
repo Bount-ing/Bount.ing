@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { api } from './api'
 import router from '../router'
-import { useErrorStore } from './errors'
+import { useNotificationStore } from '@/stores/notification'
 
 interface Issue {
   id: number
@@ -265,7 +265,7 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function login(creds: LoginCredentials): Promise<void> {
-    const errorStore = useErrorStore()
+    const notificationStore = useNotificationStore()
 
     try {
       const response = await api.post('/v1/signin', creds)
@@ -294,7 +294,7 @@ export const useUserStore = defineStore('user', () => {
     await getUserInfo()
   } catch (error: any) {
     console.error('Login failed:', error)
-    errorStore.showError('Login failed. Please check your credentials and try again.')
+    notificationStore.showNotification('Login failed. Please try again.', 'error')
     return
   }
   }

@@ -3,12 +3,12 @@ import { ref, computed } from 'vue'
 import { sha256 } from 'js-sha256'
 import { useRoute } from 'vue-router'
 import { api } from '@/stores/api.ts'
-import { notify } from "@kyvg/vue3-notification" 
+import { useNotificationStore } from '@/stores/notification.ts'
 import { useUserStore } from '@/stores/user.ts'
 import  router  from '@/router'
 
 const userStore = useUserStore()
-
+const notificationStore = useNotificationStore()
 
 const route = useRoute()
 
@@ -55,15 +55,10 @@ const verifyLink = () => {
 		.then((response) => {
 			verifCode.value = route.params.verifCode
 			validVerifCode.value = true
-			notify({
-				title: "Success!",
-				text: "Link verified successfully",
-				type: "success",
-				duration: 5000
-			})
 		})
 		.catch((error) => {
 			console.log(error)
+			notificationStore.showNotification("Invalid or expired link. Please contact support@bount.ing.", "error")
 		})
 }
 
@@ -76,14 +71,7 @@ const sendPassword = () => {
 	api
 		.post('/v1/signup/password', data)
 		.then((response) => {
-			notify(
-				{
-					title: "Success!",
-					text: "Password set successfully",
-					type: "success",
-					duration: 5000
-				}
-			)
+			notificationStore.showNotification("Password set successfully", "success")
 			autoLogin()
 		})
 		.catch((error) => {

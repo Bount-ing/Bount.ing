@@ -1,7 +1,9 @@
 <script setup>
 import { ref } from 'vue'
-import { notify } from '@kyvg/vue3-notification' // Changed this line
 import { api } from '@/stores/api.ts'
+import { useNotificationStore } from '@/stores/notification.ts'
+
+const notificationStore = useNotificationStore()
 
 const userMail = ref('')
 const userExists = ref(false)
@@ -16,28 +18,13 @@ const registerUser = async () => {
 
     userCreated.value = true
     userExists.value = false
-    notify({
-      title: 'Success!',
-      text: 'Your account has been created successfully',
-      type: 'success',
-      duration: 5000
-    })
+    notificationStore.showNotification("Account created successfully. Please check your email for a verification code.", 'success')
   } catch (error) {
     if (error.response?.status === 409) {
       userExists.value = true
-      notify({
-        title: 'Account Exists',
-        text: 'An account with this email already exists',
-        type: 'error',
-        duration: 5000
-      })
+      notificationStore.showNotification("User already exists", 'error')
     } else {
-      notify({
-        title: 'Error',
-        text: 'Failed to create account. Please try again',
-        type: 'error',
-        duration: 5000
-      })
+      notificationStore.showNotification("A wild error appeared!. Please try again later.", 'error')
     }
   }
 }
@@ -45,10 +32,6 @@ const registerUser = async () => {
 
 <template>
   <div class="container mx-auto p-6">
-    <!-- Tab Links -->
-    <notifications position="top right" />
-    <!-- Added this line -->
-
     <!-- Registration Form -->
     <div class="mt-8 p-8 rounded-lg shadow-md max-w-2xl mx-auto">
       <div class="mb-6">

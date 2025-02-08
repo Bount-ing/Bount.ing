@@ -1,14 +1,15 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user.ts'
-import { useErrorStore } from '@/stores/errors.ts'
 import { api } from '@/stores/api.ts'
 import { sha256 } from 'js-sha256'
 import { useRouter } from 'vue-router'
+import { useNotificationStore } from '@/stores/notification.ts'
 
 const router = useRouter()
 const userStore = useUserStore()
-const errorStore = useErrorStore()
+const notificationStore = useNotificationStore()
+
 
 const showPassword = ref(false)
 const mail = ref('')
@@ -24,7 +25,7 @@ const userLogin = async () => {
     await userStore.login(data)
     router.push('/profile')
   } catch (error) {
-    errorStore.setError(error.message)
+    notificationStore.showNotification("Invalid credentials", "error")
   }
 }
 </script>

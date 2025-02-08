@@ -8,14 +8,9 @@ import type {
 } from 'axios';
 import { useUserStore } from '@/stores/user';
 import { useNaviStore } from '@/stores/navigation';
-import {useErrorStore} from '@/stores/errors';
-import { nextTick } from 'vue';
-import router from '@/router';  // Changed from named to default import
+import { useNotificationStore } from '@/stores/notification';
 
 
-interface RetryConfig extends InternalAxiosRequestConfig {
-    _retry?: boolean;
-}
 
 interface QueueItem {
     resolve: (value?: unknown) => void;
@@ -41,8 +36,6 @@ export const api: AxiosInstance = axios.create({
     withCredentials: true 
 });
 
-// Keep track of refresh token request to prevent multiple simultaneous refreshes
-let isRefreshing = false;
 let failedQueue: QueueItem[] = [];
 
 const processQueue = (error: Error | null, token: string | null = null): void => {
@@ -73,6 +66,26 @@ api.interceptors.request.use(
         return Promise.reject(error);
     }
 );
+
+api.interceptors.response.use(
+    (response: AxiosResponse) => {
+        const navi = useNaviStore();
+        navi.UnsetLoading();
+        return response;
+    },
+    (error: AxiosError) => {
+        const navi = useNaviStore();
+        const notificationStore = useNotificationStore();
+        navi.UnsetLoading();
+
+        if (error.response?.status === 401) {
+            notificationStore.showNotification('Your session has expired. Please log in again.', 'warning');
+        }
+        
+        return Promise.reject(error);
+    }
+);
+
 
 
 

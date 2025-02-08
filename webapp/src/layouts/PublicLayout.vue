@@ -1,25 +1,27 @@
 <script setup>
 import Header from '@/components/UI/PublicHeader.vue'
 import Footer from '@/components/UI/Footer.vue'
-import ErrorModal from '@/components/ErrorModal.vue'
-import { useErrorStore } from '@/stores/errors'
+import NotificationModal from '@/components/NotificationModal.vue'
+import { useNotificationStore } from '@/stores/notification.ts'
+import { onMounted } from 'vue'
 
-const errorStore = useErrorStore()
+const notificationStore = useNotificationStore()
+
+onMounted(() => {
+  notificationStore.showNotification('Welcome to the Public Layout!', 'info')
+})
 </script>
 
 <template>
   <div>
     <Header />
-
     <router-view />
-
     <Footer />
-    <!-- Global Error Modal -->
-    <ErrorModal
-      :isOpen="errorStore.isOpen"
-      :message="errorStore.message"
-      :isError="errorStore.isError"
-      @close="errorStore.closeError"
+    <NotificationModal
+      :isOpen="notificationStore.isOpen"
+      :message="notificationStore.message"
+      :type="notificationStore.type"
+      @close="notificationStore.closeNotification"
     />
   </div>
 </template>

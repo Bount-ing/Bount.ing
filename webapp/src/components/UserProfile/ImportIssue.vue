@@ -79,15 +79,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import { useUserStore } from '@/stores/user'
-import { useErrorStore } from '@/stores/errors'
-import { api } from '@/stores/api'
 import GitHubIssueImport from '../GitHubIssueImport.vue'
 import BountyModal from '../BountyModal.vue'
 
+import { ref, onMounted, watch } from 'vue'
+import { useUserStore } from '@/stores/user'
+import { useNotificationStore } from '@/stores/notification'
+import { api } from '@/stores/api'
+
 const userStore = useUserStore()
-const errorStore = useErrorStore()
+const notificationStore = useNotificationStore()
 
 const issues = ref([])
 const isBountyModalOpen = ref(false)
@@ -150,7 +151,10 @@ const submitBounty = async (bountyData) => {
   try {
     if (bountyData.amount < 10) {
       console.log('❌ Bounty amount too low')
-      errorStore.showError('Bounty amount must be at least 10')
+      notificationStore.showNotification({
+        type: 'error',
+        message: 'Bounty amount must be at least $10'
+      })
       return
     }
 
@@ -168,27 +172,40 @@ const submitBounty = async (bountyData) => {
         const errorMessage = error.response.data.error.toLowerCase();
         
         if (errorMessage.includes('user does not have a stripe account')) {
-          errorStore.showError(
-            "It seems you don't have a Stripe account connected. Please create one or link your account to proceed. Dashboard > Hosts > Connect Stripe. Then go to payment methods to add one."
-          );
+          notificationStore.showNotification({
+            type: 'error',
+            message:
+              "It seems you don't have any payment methods set up. Please add a payment method to your account. Dashboard > Hosts > Stripe Connect"
+          });
         } else {
-          errorStore.showError(
-            "There was a server issue. Please try again later."
-          );
+          notificationStore.showNotification({
+            type: 'error',
+            message: error.response.data.error
+          });
         }
       } else {
-        errorStore.showError('An unexpected server error occurred.');
+        notificationStore.showNotification({
+          type: 'error',
+          message: 'An unexpected error occurred.'
+        });
       }
     } else {
-      // If other HTTP status codes, handle them appropriately
-      errorStore.showError(error.response.data.message || 'An unexpected error occurred.');
+      notificationStore.showNotification({
+        type: 'error',
+        message: error.response.data.error
+      });
     }
   } else if (error.message.toLowerCase().includes('stripe')) {
-    errorStore.showError(
-      "It seems you don't have any payment methods set up. Please add a payment method to your account."
-    );
+    notificationStore.showNotification({
+      type: 'error',
+      message:
+        "It seems you don't have any payment methods set up. Please add a payment method to your account. Dashboard > Hosts > Stripe Connect"
+    });
   } else {
-    errorStore.showError(error.message || 'An unexpected error occurred');
+    notificationStore.showNotification({
+      type: 'error',
+      message: error.message
+    });
   }
 }
 }

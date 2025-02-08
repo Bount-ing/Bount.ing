@@ -296,10 +296,12 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '../stores/user';
 import { api } from '@/stores/api'
+import { useNotificationStore } from '@/stores/notification'
 import axios from 'axios' // Ensure axios is available
 
 
 const userStore = useUserStore();
+const notificationStore = useNotificationStore();
 
 const route = useRoute()
 
@@ -494,10 +496,9 @@ const submitClaim = async () => {
     prStatus.value = null
     prStatusChecked.value = false
 
-    alert('Claim submitted successfully!')
+    notificationStore.showNotification('Claim submitted successfully', 'success')
   } catch (err) {
-    console.error('Error submitting claim:', err)
-    submitError.value = err.response?.data?.message || 'Failed to submit claim. Please try again.'
+    notificationStore.showNotification('Failed to submit claim. Please try again later.', 'error')
   } finally {
     submitting.value = false
   }

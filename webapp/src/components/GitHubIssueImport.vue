@@ -39,10 +39,11 @@
 import { ref } from 'vue'
 import { api } from '@/stores/api'
 import { useUserStore } from '@/stores/user'
-import { useErrorStore } from '@/stores/errors'
+import { useNotificationStore } from '@/stores/notification'
 
 const userStore = useUserStore()
-const errorStore = useErrorStore()
+const notificationStore = useNotificationStore()
+
 
 const emit = defineEmits(['issueImported'])
 
