@@ -28,9 +28,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { api } from '@/stores/api'
+import { useErrorStore } from '@/stores/errors'
 import BountyItem from '@/components/BountyItem.vue'
 import BountyModal from '@/components/BountyModal.vue'
 
+const errorStore = useErrorStore()
 
 const isBountyModalOpen = ref(false)
 const selectedIssue = ref(null)
