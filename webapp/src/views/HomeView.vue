@@ -1,12 +1,13 @@
 <template>
   <div class="py-4 my-4">
-    <h2 class="text-3xl font-semibold mx-4 my-2 ">Open Bounties</h2>
-    <h3 class="text-xl font-semibold mx-4 my-2 ">Bounties are rewards offered for solving specific issues.</h3>
+    <h2 class="text-3xl font-semibold mx-4 my-2">Open Bounties</h2>
+    <h3 class="text-xl font-semibold mx-4 my-2">
+      Bounties are rewards offered for solving specific issues.
+    </h3>
     <div v-if="groupedBounties.length === 0" class="text-center text-gray-400">
       No bounties found.
     </div>
     <ul v-else class="space-y-4 p-4">
-  
       <BountyItem
         v-for="(group, index) in groupedBounties"
         :key="index"
@@ -190,39 +191,41 @@ const submitBounty = async (bountyData) => {
 
     closeBountyModal()
   } catch (error) {
-  console.log('❌ Caught error in catch block:', error); // Debugging
+    console.log('❌ Caught error in catch block:', error) // Debugging
 
-  // Check if it's an Axios or fetch-style error
-  if (error.response) {
-    // If error response is present, check the status code
-    if (error.response.status === 500) {
-      if (error.response.data && error.response.data.error) {
-        const errorMessage = error.response.data.error.toLowerCase();
-        
-        if (errorMessage.includes('user does not have a stripe account')) {
-          errorStore.showError(
-            "It seems you don't have a Stripe account connected. Please create one or link your account to proceed. Dashboard > Hosts > Connect Stripe. Then go to payment methods to add one."
-          );
+    // Check if it's an Axios or fetch-style error
+    if (error.response) {
+      // If error response is present, check the status code
+      if (error.response.status === 500) {
+        if (error.response.data && error.response.data.error) {
+          const errorMessage = error.response.data.error.toLowerCase()
+
+          if (errorMessage.includes('user does not have a stripe account')) {
+            errorStore.showError(
+              "It seems you don't have a Stripe account connected. Please create one or link your account to proceed. Dashboard > Hosts > Connect Stripe. Then go to payment methods to add one."
+            )
+          } else {
+            errorStore.showError('There was a server issue. Please try again later.')
+          }
         } else {
-          errorStore.showError(
-            "There was a server issue. Please try again later."
-          );
+          errorStore.showError('An unexpected server error occurred.')
         }
       } else {
-        errorStore.showError('An unexpected server error occurred.');
+        // If other HTTP status codes, handle them appropriately
+        errorStore.showError(error.response.data.message || 'An unexpected error occurred.')
       }
+    } else if (error.message.toLowerCase().includes('stripe')) {
+      errorStore.showError(
+        "It seems you don't have any payment methods set up. Please add a payment method to your account."
+      )
+    } else if (error.response.status === 401 || error.response.status === 403) {
+      errorStore.showError(
+        'You are not authorized to perform this action. Make sure you are logged in.'
+      )
     } else {
-      // If other HTTP status codes, handle them appropriately
-      errorStore.showError(error.response.data.message || 'An unexpected error occurred.');
+      errorStore.showError(error.message || 'An unexpected error occurred')
     }
-  } else if (error.message.toLowerCase().includes('stripe')) {
-    errorStore.showError(
-      "It seems you don't have any payment methods set up. Please add a payment method to your account."
-    );
-  } else {
-    errorStore.showError(error.message || 'An unexpected error occurred');
   }
-}
 }
 
 // Set up an interval to recalculate every second
