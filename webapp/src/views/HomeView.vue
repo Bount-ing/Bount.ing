@@ -189,7 +189,7 @@ const submitBounty = async (bountyData) => {
 
     await api.post('/v1/bounties', bountyData)
 
-    notificationStore.showNotification('Bounty submitted successfully', success)
+    notificationStore.showNotification('Bounty submitted successfully', 'success')
 
     closeBountyModal()
   } catch (error) {
@@ -206,6 +206,11 @@ const submitBounty = async (bountyData) => {
             notificationStore.showNotification(
               "It seems you don't have any payment methods set up. Please add a payment method to your account. Dashboard > Hosts > Stripe Connect",
               error
+            )
+          } else if (errorMessage.includes('no payment methods found for customer')) {
+            notificationStore.showNotification(
+              'No payment methods found. Please add a payment method to set bounties. Dashboard > Payment Methods',
+              'error'
             )
           } else {
             notificationStore.showNotification(error.response.data.error, error)

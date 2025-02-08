@@ -223,16 +223,16 @@ func GetBountyByID(bountyID uint) (models.Bounty, error) {
 }
 
 const (
-	Crescendo   string = "crescendo"
+	Crescendo   string = "increase"
 	Flat        string = "flat"
-	Decrescendo string = "decrescendo"
+	Decrescendo string = "decrease"
 )
 
 func GetCurrentBountyAmount(bountyID uint) (float64, error) {
 	var bounty models.Bounty
 
-	// Fetch the bounty details
-	err := db.DB.First(&bounty, bountyID).Error
+	// Fetch the bounty details and preload the related variables
+	err := db.DB.Preload("Variables").First(&bounty, bountyID).Error
 	if err != nil {
 		log.Print(err)
 		return 0, err
@@ -241,33 +241,56 @@ func GetCurrentBountyAmount(bountyID uint) (float64, error) {
 	// Initialize the total bounty amount with the fixed amount
 	totalAmount := bounty.Amount
 
-	// Get the current time
+	// Get the current time (ensure it matches the timezone of StartAt/EndAt)
 	currentTime := time.Now()
 
 	// Loop through all variable amounts for this bounty
 	for _, variable := range bounty.Variables {
+		// Log the current variable and time information
+		log.Printf("Processing variable: Amount=%v, Direction=%v, StartAt=%v, EndAt=%v", variable.Amount, variable.Direction, variable.StartAt, variable.EndAt)
+
 		// Check if current time is within the variable's timeframe
 		if currentTime.After(variable.StartAt) && currentTime.Before(variable.EndAt) {
+			log.Printf("Variable is within timeframe: CurrentTime=%v, StartAt=%v, EndAt=%v", currentTime, variable.StartAt, variable.EndAt)
+
 			// Calculate the variable bounty depending on the direction
 			switch variable.Direction {
 			case Crescendo:
 				// Calculate Crescendo (increasing)
-				// Assuming some linear increase for simplicity
 				duration := variable.EndAt.Sub(variable.StartAt)
 				elapsed := currentTime.Sub(variable.StartAt)
-				totalAmount += float64(variable.Amount) * (elapsed / duration).Seconds()
+
+				log.Printf("Crescendo calculation: elapsed=%v seconds, duration=%v seconds", elapsed.Seconds(), duration.Seconds())
+
+				if duration.Seconds() > 0 {
+					increaseAmount := float64(variable.Amount) * (elapsed.Seconds() / duration.Seconds())
+					log.Printf("Crescendo increaseAmount=%v", increaseAmount)
+					totalAmount += increaseAmount
+				}
 			case Flat:
 				// Flat means no change, so we just add the full amount
+				log.Printf("Flat: Adding full amount=%v", float64(variable.Amount))
 				totalAmount += float64(variable.Amount)
 			case Decrescendo:
 				// Calculate Decrescendo (decreasing)
-				// Assuming a linear decrease
 				duration := variable.EndAt.Sub(variable.StartAt)
 				elapsed := currentTime.Sub(variable.StartAt)
-				totalAmount += float64(variable.Amount) * (1 - (elapsed / duration).Seconds())
+
+				log.Printf("Decrescendo calculation: elapsed=%v seconds, duration=%v seconds", elapsed.Seconds(), duration.Seconds())
+
+				if duration.Seconds() > 0 {
+					decreaseAmount := float64(variable.Amount) * (1 - (elapsed.Seconds() / duration.Seconds()))
+					log.Printf("Decrescendo decreaseAmount=%v", decreaseAmount)
+					totalAmount += decreaseAmount
+				}
 			}
+		} else {
+			log.Printf("Variable is not within timeframe, skipping: CurrentTime=%v, StartAt=%v, EndAt=%v", currentTime, variable.StartAt, variable.EndAt)
 		}
 	}
+
+	// Final log of the total amount
+	log.Printf("Final total bounty amount: %v", totalAmount)
 
 	return totalAmount, nil
 }

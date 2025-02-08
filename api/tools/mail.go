@@ -115,6 +115,12 @@ var MailTemplate = `
             color: #008888;
             text-decoration: none;
         }
+        li strong {
+            color: #fff;
+        }
+        li {
+            color: #fff;
+        }
     </style>
 </head>
 <body>

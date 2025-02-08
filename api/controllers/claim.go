@@ -99,8 +99,18 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 		return fmt.Errorf("failed to create claim check: %v", err)
 	}
 
+	var bountyDetails string
+
 	// Create a claim for each bounty
 	for _, bounty := range bounties {
+		// Calculate the claimed amount for this bounty
+		claimedAmount, err := GetCurrentBountyAmount(bounty.ID)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to calculate claimed amount for bounty %d: %v", bounty.ID, err)
+		}
+
+		// Save the owner claim check
 		ownerClaimCheck := models.ClaimCheck{
 			CheckerID:   bounty.OwnerID, // Assuming Bounty has an OwnerID field
 			CheckerType: "OWNER",
@@ -109,6 +119,8 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 			tx.Rollback()
 			return fmt.Errorf("failed to create owner claim check: %v", err)
 		}
+
+		// Save the system claim check
 		systemClaimCheck := models.ClaimCheck{
 			CheckerID:   0,
 			CheckerType: "SYSTEM",
@@ -118,13 +130,7 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 			return fmt.Errorf("failed to create system claim check: %v", err)
 		}
 
-		// Calculate the claimed amount
-		claimedAmount, err := GetCurrentBountyAmount(bounty.ID)
-		if err != nil {
-			tx.Rollback()
-			return fmt.Errorf("failed to calculate claimed amount for bounty %d: %v", bounty.ID, err)
-		}
-
+		// Create the claim for the bounty
 		claim := &models.Claim{
 			ClaimerID:            claimerID,
 			ClaimedAmount:        claimedAmount,
@@ -143,12 +149,42 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 			return fmt.Errorf("failed to create claim for bounty %d: %v", bounty.ID, err)
 		}
 
-		//update claimed amount
+		// Update claimed amount in bounty
 		bounty.ClaimedAmount = claimedAmount
 		if err := tx.Save(&bounty).Error; err != nil {
 			tx.Rollback()
 			return fmt.Errorf("failed to update bounty %d: %v", bounty.ID, err)
 		}
+
+		// Accumulate bounty details for email
+		bountyDetails += fmt.Sprintf("<li><strong>Bounty ID:</strong> %d - <strong>Claimed Amount:</strong> %.2f</li>", bounty.ID, claimedAmount)
+
+		// Send email (non-blocking) to bounty owner
+		go func() {
+			mailContent := fmt.Sprintf(
+				`<p>Hi there,</p>
+				<p>A new claim has been made for bounty %d.</p>
+				<p>Details:</p>
+				<ul>
+					<li>Issue: %d</li>
+					<li>Pull Request: %s</li>
+				</ul>
+				<p> Please review the claim and approve or reject it.</p>
+				<p> Dashboard: <a href="https://bount.ing/profile">Review your Bounties</a></p>
+				<p>Thank you for your contribution!</p>`,
+				bounty.ID, issueID, pullRequestURL,
+			)
+
+			owner, err := GetUserByID(bounty.OwnerID)
+			if err != nil {
+				log.Printf("Failed to find bounty owner %d: %v", bounty.OwnerID, err)
+				return
+			}
+
+			if err := tools.SendEmail(owner.Email, "Bount.ing - New Bounty Claim", mailContent); err != nil {
+				log.Printf("Failed to send email to bounty owner %s: %v", owner.Email, err)
+			}
+		}()
 	}
 
 	// Commit transaction
@@ -159,16 +195,6 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 	// Send email (non-blocking)
 	go func() {
 		claimedAt := time.Now().Format("2006-01-02 15:04:05")
-
-		var bountyDetails string
-		for _, bounty := range bounties {
-			claimedAmount, err := GetCurrentBountyAmount(bounty.ID)
-			if err != nil {
-				log.Printf("Failed to calculate claimed amount for bounty %d: %v", bounty.ID, err)
-				continue
-			}
-			bountyDetails += fmt.Sprintf("<li><strong>Bounty ID:</strong> %d - <strong>Claimed Amount:</strong> %.2f</li>", bounty.ID, claimedAmount)
-		}
 
 		mailContent := fmt.Sprintf(
 			`<p>Hi %s,</p>

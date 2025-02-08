@@ -151,63 +151,60 @@ const submitBounty = async (bountyData) => {
   try {
     if (bountyData.amount < 10) {
       console.log('❌ Bounty amount too low')
-      notificationStore.showNotification({
-        type: 'error',
-        message: 'Bounty amount must be at least $10'
-      })
+      notificationStore.showNotification('Bounty amount must be at least $10', 'error')
       return
     }
 
     await api.post('/v1/bounties', bountyData)
-
+    notificationStore.showNotification('Bounty submitted successfully', "success")
     closeBountyModal()
   } catch (error) {
-  console.log('❌ Caught error in catch block:', error); // Debugging
+    console.log('❌ Caught error in catch block:', error) // Debugging
 
-  // Check if it's an Axios or fetch-style error
-  if (error.response) {
-    // If error response is present, check the status code
-    if (error.response.status === 500) {
-      if (error.response.data && error.response.data.error) {
-        const errorMessage = error.response.data.error.toLowerCase();
-        
-        if (errorMessage.includes('user does not have a stripe account')) {
-          notificationStore.showNotification({
-            type: 'error',
-            message:
-              "It seems you don't have any payment methods set up. Please add a payment method to your account. Dashboard > Hosts > Stripe Connect"
-          });
+    // Check if it's an Axios or fetch-style error
+    if (error.response) {
+      // If error response is present, check the status code
+      if (error.response.status === 500) {
+        if (error.response.data && error.response.data.error) {
+          const errorMessage = error.response.data.error.toLowerCase()
+
+          if (errorMessage.includes('user does not have a stripe account')) {
+            notificationStore.showNotification(
+              "You don't have a Stripe account. Please create one to set bounties. Dashboard > Hosts > Stripe Connect",
+              'error'
+            )
+          } else if (errorMessage.includes('no payment methods found for customer')) {
+            notificationStore.showNotification(
+              'No payment methods found. Please add a payment method to set bounties. Dashboard > Payment Methods',
+              'error'
+            )
+          } else {
+            notificationStore.showNotification(
+              'A wild error appeared!. Please try again later. Error Code: 0001',
+              'error'
+            )
+          }
         } else {
-          notificationStore.showNotification({
-            type: 'error',
-            message: error.response.data.error
-          });
+          notificationStore.showNotification(
+            'A wild server error appeared!. Please try again later. Error Code: 0002',
+            'error'
+          )
         }
       } else {
-        notificationStore.showNotification({
-          type: 'error',
-          message: 'An unexpected error occurred.'
-        });
+        notificationStore.showNotification(
+          'A wild error appeared!. Please try again later. Error Code: 0003',
+          'error'
+        )
       }
+    } else if (error.message.toLowerCase().includes('stripe')) {
+      notificationStore.showNotification(
+        "You don't have a Stripe account. Please create one to set bounties. Dashboard > Hosts > Stripe Connect",
+        'error'
+      )
     } else {
-      notificationStore.showNotification({
-        type: 'error',
-        message: error.response.data.error
-      });
+      notificationStore.showNotification('A wild error appeared!. Please try again later. Error Code: 0004', 'error')
     }
-  } else if (error.message.toLowerCase().includes('stripe')) {
-    notificationStore.showNotification({
-      type: 'error',
-      message:
-        "It seems you don't have any payment methods set up. Please add a payment method to your account. Dashboard > Hosts > Stripe Connect"
-    });
-  } else {
-    notificationStore.showNotification({
-      type: 'error',
-      message: error.message
-    });
   }
-}
 }
 
 watch(

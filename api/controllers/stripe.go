@@ -28,6 +28,13 @@ func CreateStripeSetupIntent(bounty *models.Bounty, ownerID uint, bountyOwnerStr
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve payment methods: %v", err)
 	}
+
+	// check len of paymentMethods
+	if len(paymentMethods) == 0 {
+		log.Printf("No payment methods found for customer %s", bountyOwnerStripeID)
+		return nil, errors.New("no payment methods found for customer")
+	}
+
 	//list payment methods
 	for _, pm := range paymentMethods {
 		log.Printf("Payment Method: %+v", pm)
