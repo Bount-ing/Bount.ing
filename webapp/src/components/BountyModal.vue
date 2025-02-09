@@ -10,7 +10,7 @@
           <!-- Bounty Amount -->
           <div class="mb-5">
             <label for="bounty" class="block text-sm font-medium mb-2">
-              Bounty Amount (in euros)
+              Bounty Amount (in euros)<br/>The price that you indicate here cover the fees of the platform.
             </label>
             <input
               v-model="localAmount"

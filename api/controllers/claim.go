@@ -157,7 +157,7 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 		}
 
 		// Accumulate bounty details for email
-		bountyDetails += fmt.Sprintf("<li><strong>Bounty ID:</strong> %d - <strong>Claimed Amount:</strong> %.2f</li>", bounty.ID, claimedAmount)
+		bountyDetails += fmt.Sprintf("<li><strong>Bounty ID:</strong> %d - <strong>Claimed Amount:</strong> %.2f</li>", bounty.ID, claimedAmount*(1-0.042))
 
 		// Send email (non-blocking) to bounty owner
 		go func() {

@@ -78,7 +78,7 @@ func ProcessPayment(claimerID uint, bountyID uint) error {
 
 	PayoutBounty(bounty, stripeBountyOwnerCustomerID, stripeBountyHunterCustomerID, stripeBountyHunterAccountID)
 
-	paymentMsg := fmt.Sprintf("You have been paid %.f for Bounty %d", bounty.ClaimedAmount, bountyID)
+	paymentMsg := fmt.Sprintf("You have been paid %.2f for Bounty %d", bounty.ClaimedAmount*(1-0.042), bountyID)
 
 	tools.SendEmail(claimerEmail, "Payment Confirmation", paymentMsg)
 

@@ -86,7 +86,7 @@ function calculateTotalAmount(bounty) {
   }
 
   // Ensure amount is a valid number
-  const amount = bounty.amount !== undefined && bounty.amount !== null ? Number(bounty.amount) : 0
+  const amount = bounty.amount !== undefined && bounty.amount !== null ? Number(bounty.amount*(1-0.042)) : 0
 
   if (isNaN(amount)) {
     console.error(
@@ -114,7 +114,7 @@ function calculateTotalAmount(bounty) {
     bounty.variables.forEach((variable) => {
       // Validate variable amount
       const variableAmount =
-        variable.amount !== undefined && variable.amount !== null ? Number(variable.amount) : 0
+        variable.amount !== undefined && variable.amount !== null ? Number(variable.amount*(1-0.042)) : 0
 
       if (isNaN(variableAmount)) {
         console.error(

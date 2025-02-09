@@ -49,7 +49,7 @@
                 <div>
                   <div class="flex items-baseline gap-2 mb-2">
                     <span class="text-2xl font-bold text-primary">
-                      {{ bounty.amount }} {{ bounty.currency }}
+                      {{ bounty.amount*(1-0.042) }} {{ bounty.currency }}
                     </span>
                   </div>
                   <div class="text-gray-300 space-y-1">
