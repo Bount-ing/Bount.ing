@@ -83,9 +83,9 @@ const userLogin = async () => {
               }}</label>
             </div>
             <div>
-              <a href="#" class="text-sm text-primary hover:text-primary-light">{{
-                $t('account.userCredentials.forgotPassword')
-              }}</a>
+              <router-link to="/reset-password" class="text-primary hover:text-primary-light">
+                {{ $t('account.userCredentials.forgotPassword') }}
+              </router-link>
             </div>
           </div>
 

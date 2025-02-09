@@ -232,34 +232,52 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function refreshJwt(): Promise<boolean> {
-    const storedToken = localStorage.getItem('token')
-    if (!storedToken) {
-      logout()
+    const refreshToken = localStorage.getItem('refreshToken')
+    if (!refreshToken) {
+      await logout()
       return false
     }
 
     try {
-      const response = await axios.post(
-        'https://api.example.com/auth/refresh',
+      // Use the api instance we created with proper base URL
+      const response = await api.post(
+        '/v1/refresh',
         {},
         {
-          headers: { Authorization: `Bearer ${storedToken}` }
+          headers: {
+            Cookie: `refreshTkn=${refreshToken}`
+          }
         }
       )
 
-      const newToken = response.data.token
-      if (!newToken) {
-        logout()
+      const { accessToken, refreshToken: newRefreshToken } = response.data
+      if (!accessToken || !newRefreshToken) {
+        await logout()
         return false
       }
 
-      localStorage.setItem('token', newToken)
-      token.value = newToken
+      // Update both tokens
+      localStorage.setItem('token', accessToken)
+      localStorage.setItem('refreshToken', newRefreshToken)
+      token.value = accessToken
       loggedIn.value = true
+
+      // Verify the new token is valid
+      const decodedJwt = parseJwt(accessToken)
+      if (!decodedJwt?.UID) {
+        await logout()
+        return false
+      }
+
+      // Update user information with new token
+      await getUserInfo()
       return true
     } catch (error) {
       console.error('Token refresh failed:', error)
-      logout()
+      const notificationStore = useNotificationStore()
+      notificationStore.showNotification('Session expired. Please log in again.', 'warning')
+      await logout()
+      router.push('/signin')
       return false
     }
   }
@@ -269,34 +287,33 @@ export const useUserStore = defineStore('user', () => {
 
     try {
       const response = await api.post('/v1/signin', creds)
+      const { accessToken, refreshToken } = response.data
 
+      if (!accessToken || !refreshToken) {
+        throw new Error('Missing tokens in response')
+      }
 
-    const { accessToken, refreshToken } = response.data
+      localStorage.setItem('token', accessToken)
+      localStorage.setItem('refreshToken', refreshToken)
+      token.value = accessToken
+      loggedIn.value = true
 
-    if (!accessToken || !refreshToken) {
-      throw new Error('Missing tokens in response')
+      const decodedJwt = parseJwt(accessToken)
+      if (!decodedJwt?.UID) {
+        throw new Error('Invalid token: missing UID')
+      }
+      localStorage.setItem('userId', decodedJwt.UID.toString())
+
+      await getUserInfo()
+      router.push('/profile')
+    } catch (error: any) {
+      console.error('Login failed:', error)
+      notificationStore.showNotification(
+        error.response?.data?.reason || 'Login failed. Please try again.',
+        'error'
+      )
+      throw error
     }
-
-    // 2. Store tokens
-    localStorage.setItem('token', accessToken)
-    localStorage.setItem('refreshToken', refreshToken)
-    token.value = accessToken
-    loggedIn.value = true
-
-    // 3. Parse JWT
-    const decodedJwt = parseJwt(accessToken)
-    if (!decodedJwt?.UID) {
-      // Changed from userId to UID
-      throw new Error('Invalid token: missing UID')
-    }
-    localStorage.setItem('userId', decodedJwt.UID.toString())
-
-    await getUserInfo()
-  } catch (error: any) {
-    console.error('Login failed:', error)
-    notificationStore.showNotification('Login failed. Please try again.', 'error')
-    return
-  }
   }
 
   async function getUserInfo(): Promise<void> {

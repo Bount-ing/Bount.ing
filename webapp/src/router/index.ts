@@ -110,6 +110,16 @@ const router = createRouter({
           name: 'userSetPassword',
           meta: { skipIfLoggedIn: true },
           component: UserSetPassword
+        },
+        {
+          path: '/reset-password',
+          name: 'ResetPassword',
+          component: () => import('@/views/UserResetPassword.vue')
+        },
+        {
+          path: '/reset-password/:code',
+          name: 'ResetPasswordWithCode',
+          component: () => import('@/views/UserResetPassword.vue')
         }
       ]
     }

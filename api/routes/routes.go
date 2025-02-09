@@ -42,6 +42,9 @@ func SetupRouter() *gin.Engine {
 	public.POST("/signup/verif/:code", handlers.ValidateUserCode)
 	public.POST("/signup/password", handlers.CreateUserPassword)
 	public.POST("/signin", handlers.Signin)
+	public.POST("/refresh", handlers.RefreshToken)
+	public.POST("/reset-password-request", handlers.RequestPasswordReset)
+	public.POST("/reset-password", handlers.ResetPassword)
 
 	needAuth.GET("/oauth/:host", handlers.GetOAuthState)
 	public.GET("/oauth/github/callback", handlers.OAuthGithubCallback)

@@ -20,6 +20,8 @@ var (
 	ErrUserAlreadyVerified   = errors.New("this user has already been activated")
 	ErrUserHasNoPasswd       = errors.New("user has no password")
 	ErrUserVerifCodeExpired  = errors.New("verification code is expired")
+	ErrResetCodeExpired      = errors.New("password reset code is expired")
+	ErrInvalidResetCode      = errors.New("invalid reset code")
 )
 
 func CreateUser(user models.User) error {
@@ -36,8 +38,12 @@ func CreateUser(user models.User) error {
 		//check if user is already verified
 		var u models.User
 		err = db.DB.Where("email = ?", user.Email).First(&u).Error
-		if err == nil {
+		if err == nil && u.Verified {
 			return ErrUserEmailAlreadyExist
+		} else if err == nil && !u.Verified {
+			//delete user and create a new one
+			db.DB.Delete(&u)
+
 		}
 	} else if err != nil {
 		return err
@@ -190,4 +196,66 @@ func GetExternalIdentityByUserIDAndHostID(claimerID, hostID uint) (models.Identi
 		return identity, nil
 	}
 	return identity, dbc.Error
+}
+
+func RequestPasswordReset(email string) error {
+	var user models.User
+	if err := db.DB.Where("email = ?", email).First(&user).Error; err != nil {
+		return err
+	}
+
+	// Generate reset code
+	resetCode, err := tools.RandomString(16)
+	if err != nil {
+		return err
+	}
+
+	// Update user with reset code
+	user.VerifCode = resetCode
+	user.VerifCodeExpirationTime = time.Now()
+	if err := db.DB.Save(&user).Error; err != nil {
+		return err
+	}
+
+	// Send reset email
+	resetLink := fmt.Sprintf("%s/reset-password/%s",
+		os.Getenv("APP_BASE_URL"),
+		resetCode,
+	)
+
+	mailContent := fmt.Sprintf(
+		`<h3>Password Reset Request</h3>
+		<p>A password reset was requested for your account. If you didn't make this request, please ignore this email.</p>
+		<br/>
+		<p>Your reset code is: %s</p>
+		<br/>
+		<p>Or click the link below to reset your password:</p>
+		<a href="%s" class="cta-button">Reset Password</a>
+		<br/>
+		<p>This reset code will expire in 1 hour.</p>
+		`,
+		resetCode,
+		resetLink,
+	)
+
+	return tools.SendEmail(user.Email, "Password Reset Request", mailContent)
+}
+
+func ResetPassword(code, newPassword string) error {
+	var user models.User
+	if err := db.DB.Where("verif_code = ?", code).First(&user).Error; err != nil {
+		return ErrInvalidResetCode
+	}
+
+	// Check if code is expired (1 hour validity)
+	if time.Since(user.VerifCodeExpirationTime) > time.Hour {
+		return ErrResetCodeExpired
+	}
+
+	// Update password and clear reset code
+	user.Password = newPassword
+	user.VerifCode = ""
+	user.VerifCodeExpirationTime = time.Time{}
+
+	return db.DB.Save(&user).Error
 }
