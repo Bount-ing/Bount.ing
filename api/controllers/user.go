@@ -12,7 +12,6 @@ import (
 	"github.com/bount-ing/bount.ing/api/db"
 	"github.com/bount-ing/bount.ing/api/models"
 	"github.com/bount-ing/bount.ing/api/tools"
-	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -199,9 +198,7 @@ func GetExternalIdentityByUserIDAndHostID(claimerID, hostID uint) (models.Identi
 	return identity, dbc.Error
 }
 
-func RequestPasswordReset(c *gin.Context) error {
-	email := c.PostForm("email")
-	originIP := c.ClientIP()
+func RequestPasswordReset(email, originIP string) error {
 	timestamp := time.Now().Format(time.RFC3339)
 
 	var user models.User

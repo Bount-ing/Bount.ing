@@ -164,7 +164,7 @@ func RequestPasswordReset(c *gin.Context) {
 		return
 	}
 
-	err := controllers.RequestPasswordReset(req.Email)
+	err := controllers.RequestPasswordReset(req.Email, c.ClientIP())
 	if err != nil {
 		// Don't reveal if email exists for security
 		c.JSON(http.StatusOK, gin.H{
