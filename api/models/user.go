@@ -10,7 +10,7 @@ import (
 
 type User struct {
 	gorm.Model
-	Email                   string    `json:"email"`
+	Email                   string    `gorm:"uniqueIndex" json:"email"`
 	Password                string    `json:"-"` // "-" to never send password in JSON
 	Admin                   bool      `json:"admin"`
 	Verified                bool      `json:"verified"`
