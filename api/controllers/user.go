@@ -12,6 +12,7 @@ import (
 	"github.com/bount-ing/bount.ing/api/db"
 	"github.com/bount-ing/bount.ing/api/models"
 	"github.com/bount-ing/bount.ing/api/tools"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -198,10 +199,28 @@ func GetExternalIdentityByUserIDAndHostID(claimerID, hostID uint) (models.Identi
 	return identity, dbc.Error
 }
 
-func RequestPasswordReset(email string) error {
+func RequestPasswordReset(c *gin.Context) error {
+	email := c.PostForm("email")
+	originIP := c.ClientIP()
+	timestamp := time.Now().Format(time.RFC3339)
+
 	var user models.User
 	if err := db.DB.Where("email = ?", email).First(&user).Error; err != nil {
-		return err
+		// If user not found, send an invitation to create an account
+		inviteLink := fmt.Sprintf("%s/signup", os.Getenv("APP_BASE_URL"))
+		mailContent := fmt.Sprintf(
+			`<h3>Password Reset Request</h3>
+			<p>A password reset was requested for your account.</p>
+			<p><strong>Request Time:</strong> %s</p>
+			<p><strong>Origin IP:</strong> %s</p>
+			<p>If you didn't make this request, please contact <a href="mailto:support@bount.ing">support@bount.ing</a> immediately.</p>
+			<br/>
+			<h3>Account Not Found</h3>
+			<p>We couldn't find an account with this email address.</p>
+			<p>If you want to create an account, click the link below:</p>
+			<a href="%s" class="cta-button">Create an Account</a>`,
+			timestamp, originIP, inviteLink)
+		return tools.SendEmail(email, "Create Your Account", mailContent)
 	}
 
 	// Generate reset code
@@ -212,30 +231,27 @@ func RequestPasswordReset(email string) error {
 
 	// Update user with reset code
 	user.VerifCode = resetCode
-	user.VerifCodeExpirationTime = time.Now()
+	user.VerifCodeExpirationTime = time.Now().Add(time.Hour) // Expires in 1 hour
 	if err := db.DB.Save(&user).Error; err != nil {
 		return err
 	}
 
 	// Send reset email
-	resetLink := fmt.Sprintf("%s/reset-password/%s",
-		os.Getenv("APP_BASE_URL"),
-		resetCode,
-	)
-
+	resetLink := fmt.Sprintf("%s/reset-password/%s", os.Getenv("APP_BASE_URL"), resetCode)
 	mailContent := fmt.Sprintf(
 		`<h3>Password Reset Request</h3>
-		<p>A password reset was requested for your account. If you didn't make this request, please ignore this email.</p>
+		<p>A password reset was requested for your account.</p>
+		<p><strong>Request Time:</strong> %s</p>
+		<p><strong>Origin IP:</strong> %s</p>
+		<p>If you didn't make this request, please contact <a href="mailto:support@bount.ing">support@bount.ing</a> immediately.</p>
 		<br/>
-		<p>Your reset code is: %s</p>
+		<p>Your reset code is: <strong>%s</strong></p>
 		<br/>
 		<p>Or click the link below to reset your password:</p>
 		<a href="%s" class="cta-button">Reset Password</a>
 		<br/>
-		<p>This reset code will expire in 1 hour.</p>
-		`,
-		resetCode,
-		resetLink,
+		<p>This reset code will expire in 1 hour.</p>`,
+		timestamp, originIP, resetCode, resetLink,
 	)
 
 	return tools.SendEmail(user.Email, "Password Reset Request", mailContent)
