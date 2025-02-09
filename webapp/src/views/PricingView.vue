@@ -20,9 +20,9 @@
           <p class="text-lg mb-6">
             Engage with the community, fix issues, and get rewarded with a minimal fee.
           </p>
-          <a href="#" class="bg-success text-white py-2 px-6 rounded-lg text-lg hover:bg-success-light">
+          <router-link to="/signup" class="bg-success text-white py-2 px-6 rounded-lg text-lg hover:bg-success-light">
             Get Started
-          </a>
+          </router-link>
         </div>
       </div>
 
@@ -36,9 +36,9 @@
           <p class="text-info text-lg mb-6">
             Keep your projects private while still benefiting from our bounty platform.
           </p>
-          <a href="#" class="bg-info text-white py-2 px-6 rounded-lg text-lg hover:bg-info-light">
+          <router-link to="/signup" class="bg-info text-white py-2 px-6 rounded-lg text-lg hover:bg-info-light">
             Get Started
-          </a>
+          </router-link>
         </div>
       </div>
     </div>
