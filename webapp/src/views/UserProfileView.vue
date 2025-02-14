@@ -53,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect, onMounted, onUnmounted } from 'vue'
 import UserProfile from '../components/UserProfile.vue'
 import UserBadgesList from '../components/UserProfile/UserBadgesList.vue'
 import UserOrganizationsList from '../components/UserProfile/UserOrganizationsList.vue'
@@ -95,10 +95,30 @@ watchEffect(() => updateTabs())
 const currentTab = ref(tabs.value[0] || { name: '', component: null })
 const selectTab = (tab) => {
   currentTab.value = tab
+  window.location.hash = tab.name.toLowerCase().replace(/\s+/g, '_') // Update URL hash
 }
 
 const isSidebarOpen = ref(false)
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value
 }
+
+const handleHashChange = () => {
+  const hash = window.location.hash.replace('#', '').replace(/_/g, ' ')
+  const matchedTab = tabs.value.find(tab => tab.name.toLowerCase() === hash.toLowerCase())
+  if (matchedTab) {
+    currentTab.value = matchedTab
+  }
+}
+
+// Watch for hash changes
+onMounted(() => {
+  handleHashChange() // Initialize tab based on URL on load
+  window.addEventListener('hashchange', handleHashChange)
+})
+
+// Clean up event listener
+onUnmounted(() => {
+  window.removeEventListener('hashchange', handleHashChange)
+})
 </script>
