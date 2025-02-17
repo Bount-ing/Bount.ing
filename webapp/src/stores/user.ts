@@ -358,6 +358,8 @@ export const useUserStore = defineStore('user', () => {
 
   async function logout(): Promise<void> {
     try {
+      //Clear user data
+      user.value = null
       // Clear tokens from localStorage
       token.value = ''
       localStorage.removeItem('token')
@@ -367,7 +369,8 @@ export const useUserStore = defineStore('user', () => {
       // Reset the token state and loggedIn status
       loggedIn.value = false
 
-      // Redirect to the home page
+      router.push({ path: '/signin' })
+      
     } catch (error) {
       console.error('Logout failed:', error)
       throw new Error('Logout error')
