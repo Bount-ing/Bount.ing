@@ -156,7 +156,7 @@ const submitBounty = async (bountyData) => {
     }
 
     await api.post('/v1/bounties', bountyData)
-    notificationStore.showNotification('Bounty submitted successfully', "success")
+    notificationStore.showNotification('Bounty submitted successfully', 'success')
     closeBountyModal()
   } catch (error) {
     console.log('❌ Caught error in catch block:', error) // Debugging
@@ -191,10 +191,17 @@ const submitBounty = async (bountyData) => {
           )
         }
       } else {
-        notificationStore.showNotification(
-          'A wild error appeared!. Please try again later. Error Code: 0003',
-          'error'
-        )
+        if (errorMessage.includes('Tax ID')) {
+          notificationStore.showNotification(
+            "Missing Tax Informations. Please fill in your Tax ID in your account settings. Dashboard > Invoices. Error Code: 0005",
+            'error'
+          )
+        } else {
+          notificationStore.showNotification(
+            'A wild error appeared!. Please try again later. Error Code: 0003',
+            'error'
+          )
+        }
       }
     } else if (error.message.toLowerCase().includes('stripe')) {
       notificationStore.showNotification(
@@ -202,7 +209,10 @@ const submitBounty = async (bountyData) => {
         'error'
       )
     } else {
-      notificationStore.showNotification('A wild error appeared!. Please try again later. Error Code: 0004', 'error')
+      notificationStore.showNotification(
+        'A wild error appeared!. Please try again later. Error Code: 0004',
+        'error'
+      )
     }
   }
 }

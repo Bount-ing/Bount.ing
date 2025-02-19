@@ -2,115 +2,74 @@
   <div class="p-6 bg-secondary-dark rounded-xl shadow-lg text-white">
     <h2 class="text-2xl font-semibold mb-4">{{ t('profile.legal_data') }}</h2>
 
-    <form @submit.prevent="saveLegalData">
+    <form @submit.prevent="handleSubmit">
       <div class="mb-4">
-        <label class="block text-sm font-medium mb-1" for="businessType">{{
-          t('profile.legal_data_business_type')
-        }}</label>
+        <label class="block text-sm font-medium mb-1" for="isCompany">
+          {{ t('profile.legal_data_business_type') }}
+        </label>
         <select
-          v-model="legalData.businessType"
-          id="businessType"
+          v-model="formData.isCompany"
+          id="isCompany"
           class="w-full p-2 rounded-md bg-gray-800 text-white"
-          @change="updateBusinessTypeFields"
+          @change="updateCompanyFields"
         >
-          <option value="company">{{ t('profile.legal_data_company') }}</option>
-          <option value="individual">{{ t('profile.legal_data_individual') }}</option>
+          <option :value="true">{{ t('profile.legal_data_company') }}</option>
+          <option :value="false">{{ t('profile.legal_data_individual') }}</option>
         </select>
       </div>
 
-      <div class="mb-4" v-if="legalData.businessType === 'company'">
-        <label class="block text-sm font-medium mb-1" for="businessName">{{
-          t('profile.legal_data_business_name')
-        }}</label>
-        <input
-          v-model="legalData.businessName"
-          id="businessName"
-          type="text"
-          class="w-full p-2 rounded-md bg-gray-800 text-white"
-          required
-        />
-      </div>
-
-      <div class="mb-4" v-if="legalData.businessType === 'company'">
-        <label class="block text-sm font-medium mb-1" for="vatNumber">{{
-          t('profile.legal_data_vat_number')
-        }}</label>
-        <input
-          v-model="legalData.vatNumber"
-          id="vatNumber"
-          type="text"
-          class="w-full p-2 rounded-md bg-gray-800 text-white"
-          required
-        />
-      </div>
-
       <div class="mb-4">
-        <label class="block text-sm font-medium mb-1" for="taxIdType">{{
-          t('profile.legal_data_tax_id_type')
-        }}</label>
+        <label class="block text-sm font-medium mb-1" for="documentType">
+          {{ t('profile.legal_data_tax_id_type') }}
+        </label>
         <select
-          v-model="legalData.taxIdType"
-          id="taxIdType"
+          v-model="formData.documentType"
+          id="documentType"
           class="w-full p-2 rounded-md bg-gray-800 text-white"
+          @change="handleDocumentTypeChange"
         >
-          <option value="NIF">NIF</option>
-          <option value="NIE">NIE</option>
-          <option value="DNI">DNI</option>
-          <option value="Passport">{{ t('profile.legal_data_passport') }}</option>
-          <option value="Other">{{ t('profile.legal_data_other') }}</option>
+          <option v-for="type in availableDocumentTypes" :key="type.value" :value="type.value">
+            {{ type.label }}
+          </option>
         </select>
-        <small class="text-gray-400">{{ getTaxIdTypeDescription() }}</small>
+        <small class="text-gray-400">{{ currentDocumentTypeDescription }}</small>
       </div>
 
       <div class="mb-4">
-        <label class="block text-sm font-medium mb-1" for="taxId">{{
-          t('profile.legal_data_tax_id')
-        }}</label>
+        <label class="block text-sm font-medium mb-1" for="documentNumber">
+          {{ t('profile.legal_data_tax_id') }}
+        </label>
         <input
-          v-model="legalData.taxId"
-          id="taxId"
+          v-model="formData.documentNumber"
+          id="documentNumber"
+          type="text"
+          class="w-full p-2 rounded-md bg-gray-800 text-white"
+          required
+          @input="onDocumentNumberInput"
+        />
+        <div v-if="documentError" class="text-red-500 text-sm mt-1">{{ documentError }}</div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1" for="legalName">
+          {{ t('profile.legal_data_business_name') }}
+        </label>
+        <input
+          v-model="formData.legalName"
+          id="legalName"
           type="text"
           class="w-full p-2 rounded-md bg-gray-800 text-white"
           required
         />
-        <div v-if="taxIdError" class="text-red-500 text-sm mt-1">{{ taxIdError }}</div>
       </div>
 
       <div class="mb-4">
-        <label class="block text-sm font-medium mb-1" for="email">{{
-          t('profile.legal_data_email')
-        }}</label>
+        <label class="block text-sm font-medium mb-1" for="legalAddress">
+          {{ t('profile.legal_data_address') }}
+        </label>
         <input
-          v-model="legalData.email"
-          id="email"
-          type="email"
-          class="w-full p-2 rounded-md bg-gray-800 text-white"
-          required
-        />
-      </div>
-
-      <div class="mb-4">
-        <label class="block text-sm font-medium mb-1" for="phone">{{
-          t('profile.legal_data_phone')
-        }}</label>
-        <input
-          v-model="phoneInput"
-          @input="formatPhoneNumber"
-          id="phone"
-          type="tel"
-          class="w-full p-2 rounded-md bg-gray-800 text-white"
-          required
-        />
-        <div v-if="phoneError" class="text-red-500 text-sm mt-1">{{ phoneError }}</div>
-      </div>
-
-      <div class="mb-4">
-        <label class="block text-sm font-medium mb-1" for="address">{{
-          t('profile.legal_data_address')
-        }}</label>
-        <input
-          v-model="legalData.address"
-          id="address"
+          v-model="formData.legalAddress"
+          id="legalAddress"
           type="text"
           class="w-full p-2 rounded-md bg-gray-800 text-white"
           required
@@ -119,25 +78,24 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="mb-4">
-          <label class="block text-sm font-medium mb-1" for="city">{{
-            t('profile.legal_data_city')
-          }}</label>
+          <label class="block text-sm font-medium mb-1" for="legalCity">
+            {{ t('profile.legal_data_city') }}
+          </label>
           <input
-            v-model="legalData.city"
-            id="city"
+            v-model="formData.legalCity"
+            id="legalCity"
             type="text"
             class="w-full p-2 rounded-md bg-gray-800 text-white"
             required
           />
         </div>
-
         <div class="mb-4">
-          <label class="block text-sm font-medium mb-1" for="postalCode">{{
-            t('profile.legal_data_postal_code')
-          }}</label>
+          <label class="block text-sm font-medium mb-1" for="legalZip">
+            {{ t('profile.legal_data_postal_code') }}
+          </label>
           <input
-            v-model="legalData.postalCode"
-            id="postalCode"
+            v-model="formData.legalZip"
+            id="legalZip"
             type="text"
             class="w-full p-2 rounded-md bg-gray-800 text-white"
             required
@@ -146,32 +104,45 @@
       </div>
 
       <div class="mb-4">
-        <label class="block text-sm font-medium mb-1" for="country">{{
-          t('profile.legal_data_country')
-        }}</label>
-        <select
-          v-model="legalData.country"
-          id="country"
+        <label class="block text-sm font-medium mb-1" for="legalState">
+          {{ t('profile.legal_data_state') }}
+        </label>
+        <input
+          v-model="formData.legalState"
+          id="legalState"
+          type="text"
           class="w-full p-2 rounded-md bg-gray-800 text-white"
           required
-          @change="onCountryChange"
+        />        
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1" for="legalCountry">
+          {{ t('profile.legal_data_country') }}
+        </label>
+        <select
+          v-model="formData.legalCountry"
+          id="legalCountry"
+          class="w-full p-2 rounded-md bg-gray-800 text-white"
+          required
         >
-          <option v-for="country in countries" :key="country.code" :value="country.code">
-            {{ country.name }}
+          <option v-for="country in countries" :key="country.value" :value="country.value">
+            {{ country.label }}
           </option>
         </select>
       </div>
 
       <div class="mb-4">
-        <input v-model="legalData.confirmed" id="confirmed" type="checkbox" class="mr-2" required />
-        <label class="text-sm font-medium" for="confirmed">{{
-          t('profile.legal_data_confirm')
-        }}</label>
+        <input v-model="formData.confirmed" id="confirmed" type="checkbox" class="mr-2" required />
+        <label class="text-sm font-medium" for="confirmed">
+          {{ t('profile.legal_data_confirm') }}
+        </label>
       </div>
 
       <button
         type="submit"
         class="bg-primary px-4 py-2 rounded-md shadow-md text-white font-semibold"
+        :disabled="isSubmitting"
       >
         {{ t('profile.save') }}
       </button>
@@ -179,159 +150,185 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useUserStore } from '@/stores/user'
+import { useVuelidate } from '@vuelidate/core'
+import { required, helpers } from '@vuelidate/validators'
+import { useLegalEntityStore } from '@/stores/userLegal'
 import { useI18n } from 'vue-i18n'
-import { parsePhoneNumberFromString, isValidPhoneNumber } from 'libphonenumber-js'
+import { useNotificationStore } from '@/stores/notification'
 
-const phoneInput = ref('');
-const phoneError = ref('');
+const notificationStore = useNotificationStore()
 
+// Types
+interface FormData {
+  isCompany: boolean
+  documentType: string
+  documentCountry: string
+  documentNumber: string
+  legalName: string
+  legalAddress: string
+  legalCity: string
+  legalZip: string
+  legalState: string
+  legalCountry: string
+  confirmed: boolean
+}
+
+// Composables
 const { t } = useI18n()
-const userStore = useUserStore()
+const userLegalStore = useLegalEntityStore()
 
-const countries = ref([
-  { code: 'ES', name: 'Spain' },
-  { code: 'FR', name: 'France' },
-  { code: 'DE', name: 'Germany' }
-  // Add more countries as needed
-])
+// State
+const isSubmitting = ref(false)
+const documentError = ref('')
+const confirmed = ref(false)
 
-const legalData = ref({
-  businessType: userStore.user?.legalData?.businessType || 'individual',
-  businessName: userStore.user?.legalData?.businessName || '',
-  vatNumber: userStore.user?.legalData?.vatNumber || '',
-  taxIdType: userStore.user?.legalData?.taxIdType || 'DNI',
-  taxId: userStore.user?.legalData?.taxId || '',
-  email: userStore.user?.legalData?.email || '',
-  phone: userStore.user?.legalData?.phone || '',
-  address: userStore.user?.legalData?.address || '',
-  city: userStore.user?.legalData?.city || '',
-  postalCode: userStore.user?.legalData?.postalCode || '',
-  country: userStore.user?.legalData?.country || 'ES',
+const formData = ref<FormData>({
+  isCompany: false,
+  documentType: '',
+  documentCountry: 'ES',
+  documentNumber: '',
+  legalName: '',
+  legalAddress: '',
+  legalCity: '',
+  legalZip: '',
+  legalState: '',
+  legalCountry: 'ES',
   confirmed: false
 })
 
-const taxIdError = ref('')
+// Validation rules
+const rules = computed(() => ({
+  documentType: { required: helpers.withMessage(t('validation.required'), required) },
+  documentNumber: { required: helpers.withMessage(t('validation.required'), required) },
+  legalName: { required: helpers.withMessage(t('validation.required'), required) },
+  legalAddress: { required: helpers.withMessage(t('validation.required'), required) },
+  legalCity: { required: helpers.withMessage(t('validation.required'), required) },
+  legalZip: { required: helpers.withMessage(t('validation.required'), required) },
+  legalState: { required: helpers.withMessage(t('validation.required'), required) },
+  legalCountry: { required: helpers.withMessage(t('validation.required'), required) },
+  confirmed: { required: helpers.withMessage(t('validation.must_confirm'), required) }
+}))
 
-const updateBusinessTypeFields = () => {
-  if (legalData.value.businessType === 'individual') {
-    legalData.value.businessName = ''
-    legalData.value.vatNumber = ''
+const v$ = useVuelidate(rules, formData)
+
+// Computed
+const countries = computed(() => [
+  { value: 'ES', label: 'Spain' },
+  { value: 'FR', label: 'France' },
+  { value: 'DE', label: 'Germany' }
+])
+
+const availableDocumentTypes = computed(() => {
+  const types = formData.value.isCompany
+    ? [
+        { value: 'NIF', label: t('profile.document_type.nif') },
+        { value: 'CIF', label: t('profile.document_type.cif') },
+        { value: 'OTHER', label: t('profile.document_type.other') }
+      ]
+    : [
+        { value: 'DNI', label: t('profile.document_type.dni') },
+        { value: 'NIE', label: t('profile.document_type.nie') },
+        { value: 'PASSPORT', label: t('profile.document_type.passport') },
+        { value: 'OTHER', label: t('profile.document_type.other') }
+      ]
+  return types
+})
+
+const currentDocumentTypeDescription = computed(() =>
+  t(`profile.document_type_description.${formData.value.documentType.toLowerCase()}`)
+)
+
+const documentNumberPlaceholder = computed(() =>
+  t(`profile.document_number_placeholder.${formData.value.documentType.toLowerCase()}`)
+)
+
+const isValidDocument = computed(() => {
+  //Check for empty fields
+  if (!formData.value.documentType) {
+    return false
   }
-}
-
-const getTaxIdTypeDescription = () => {
-  switch (legalData.value.taxIdType) {
-    case 'NIF':
-      return t('profile.tax_id_description.nif')
-    case 'NIE':
-      return t('profile.tax_id_description.nie')
-    case 'DNI':
-      return t('profile.tax_id_description.dni')
-    case 'Passport':
-      return t('profile.tax_id_description.passport')
-    default:
-      return ''
+  if (!formData.value.documentNumber || formData.value.documentNumber === '') {
+    return false
   }
-}
-
-const onCountryChange = () => {
-  // Reset tax ID type based on country if needed
-  if (legalData.value.country === 'ES') {
-    legalData.value.taxIdType = legalData.value.businessType === 'company' ? 'NIF' : 'DNI'
-  } else {
-    legalData.value.taxIdType = 'Other'
+  if (!formData.value.legalName || formData.value.legalName === '') {
+    return false
   }
-}
-
-const validateTaxId = () => {
-  taxIdError.value = ''
-
-  if (legalData.value.country === 'ES') {
-    if (legalData.value.taxIdType === 'NIF' || legalData.value.taxIdType === 'DNI') {
-      const dniRegex = /^[0-9]{8}[A-Z]$/
-      if (!dniRegex.test(legalData.value.taxId)) {
-        taxIdError.value = t('profile.error_invalid_dni_format')
-        return false
-      }
-    } else if (legalData.value.taxIdType === 'NIE') {
-      const nieRegex = /^[XYZ][0-9]{7}[A-Z]$/
-      if (!nieRegex.test(legalData.value.taxId)) {
-        taxIdError.value = t('profile.error_invalid_nie_format')
-        return false
-      }
-    }
+  if (!formData.value.legalAddress || formData.value.legalAddress === '') {
+    return false
+  }
+  if (!formData.value.legalCity || formData.value.legalCity === '') {
+    return false
+  }
+  if (!formData.value.legalZip || formData.value.legalZip === '') {
+    return false
+  }
+  if (!formData.value.legalState || formData.value.legalState === '') {
+    return false
+  }
+  if (!formData.value.legalCountry || formData.value.legalCountry === '') {
+    return false
+  }
+  if (!formData.value.confirmed) {
+    return false
   }
   return true
+})
+
+const isFormValid = computed(() => isValidDocument.value)
+
+// Methods
+const updateCompanyFields = () => {
+  formData.value.documentType = formData.value.isCompany
+    ? formData.value.legalCountry === 'ES'
+      ? 'NIF'
+      : 'OTHER'
+    : formData.value.legalCountry === 'ES'
+      ? 'DNI'
+      : 'OTHER'
 }
 
-const validateEmail = () => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(legalData.value.email)
+const validateDocument = () => {
+  return isValidDocument.value
 }
 
-const saveLegalData = async () => {
-  if (!legalData.value.confirmed) {
-    alert(t('profile.legal_data_must_confirm'))
-    return
-  }
+const onCountryChange = (country: string) => {
+  formData.value.documentCountry = country
+  updateCompanyFields()
+}
 
-  if (!validateTaxId()) {
-    return
-  }
+const handleDocumentTypeChange = () => {
+  formData.value.documentNumber = ''
+  documentError.value = ''
+}
 
-  if (!validateEmail()) {
-    alert(t('profile.error_invalid_email'))
-    return
-  }
+const onDocumentNumberInput = () => {
+  validateDocument()
+}
 
+const handleSubmit = async () => {
+  isSubmitting.value = true
   try {
-    // Add timestamp for when data was confirmed
-    const dataToSave = {
-      ...legalData.value,
+    await userLegalStore.setLegalData({
+      ...formData.value,
       confirmedAt: new Date().toISOString()
-    }
-
-    await userStore.updateUserLegalData(dataToSave)
-    alert(t('profile.legal_data_saved'))
+    })
+    notificationStore.showNotification('profile.data_saved', 'success')
   } catch (error) {
-    alert(t('profile.error_saving_data'))
+    notificationStore.showNotification('profile.error_saving_data', 'error')
     console.error(error)
+  } finally {
+    isSubmitting.value = false
   }
 }
 
-const formatPhoneNumber = () => {
-  phoneError.value = '';
-  
-  if (!phoneInput.value) {
-    legalData.value.phone = '';
-    return;
-  }
-  
-  try {
-    const phoneNumber = parsePhoneNumberFromString(phoneInput.value, legalData.value.country);
-    if (phoneNumber) {
-      if (isValidPhoneNumber(phoneInput.value, legalData.value.country)) {
-        legalData.value.phone = phoneNumber.format('E.164');
-      } else {
-        phoneError.value = t('profile.error_invalid_phone');
-      }
-    }
-  } catch (error) {
-    phoneError.value = t('profile.error_invalid_phone');
-  }
-};
-
-onMounted(() => {
-  // Pre-fill email if available from user store
-  if (userStore.user?.email && !legalData.value.email) {
-    legalData.value.email = userStore.user.email
+// Lifecycle
+onMounted(async () => {
+  if (userLegalStore.legalData) {
+    formData.value = { ...formData.value, ...userLegalStore.legalData }
   }
 })
 
-watch(() => legalData.value.country, () => {
-  formatPhoneNumber();
-});
+watch(() => formData.value.legalCountry, onCountryChange)
 </script>

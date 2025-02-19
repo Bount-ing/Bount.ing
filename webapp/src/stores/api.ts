@@ -96,6 +96,7 @@ api.interceptors.response.use(
                     `${ApiBaseURL}/v1/refresh`,
                     {},
                     {
+                        withCredentials: true,
                         headers: {
                             Cookie: `refreshTkn=${refreshToken}`
                         }

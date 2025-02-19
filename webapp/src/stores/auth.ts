@@ -84,8 +84,9 @@ export const useAuthStore = defineStore('auth', () => {
         {},
         {
           headers: {
-            Cookie: `refreshTkn=${currentRefreshToken}`
-          }
+            Authorization: `Bearer ${currentRefreshToken}`
+          },
+          withCredentials: true // Important for cookie handling
         }
       )
 
@@ -95,7 +96,7 @@ export const useAuthStore = defineStore('auth', () => {
         return false
       }
 
-      // Update both tokens
+      // Update tokens
       localStorage.setItem('token', accessToken)
       localStorage.setItem('refreshToken', newRefreshToken)
       token.value = accessToken
@@ -122,25 +123,18 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function logout(): Promise<void> {
     console.log('Logging out...')
+    token.value = ''
+    refreshToken.value = ''
+    loggedIn.value = false
+
+    localStorage.removeItem('token')
+    localStorage.removeItem('refreshToken')
+
+    const userStore = useUserStore()
+    userStore.clearUserData()
+
+    // Reset login status
     router.push({ path: '/signin' })
-    try {
-      const userStore = useUserStore()
-      userStore.clearUserData()
-
-      // Clear tokens
-      token.value = ''
-      refreshToken.value = ''
-      localStorage.removeItem('token')
-      localStorage.removeItem('refreshToken')
-
-      // Reset login status
-      loggedIn.value = false
-      router.push({ path: '/signin' })
-    } catch (error) {
-      router.push({ path: '/signin' })
-      console.error('Logout failed:', error)
-      throw new Error('Logout error')
-    }
   }
 
   return {

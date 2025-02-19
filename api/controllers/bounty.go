@@ -57,6 +57,16 @@ func CreateBounty(bounty *models.Bounty) error {
 		return errors.New("user does not have a stripe account")
 	}
 
+	// Check legal data for the user
+	userLegalData, err := GetLegalEntity(bounty.OwnerID)
+	if err != nil {
+		log.Printf("Error fetching user legal data: %s", err)
+		return errors.New("user does not have a tax ID")
+	} else if userLegalData.DocumentNumber == "" {
+		log.Printf("User does not have a tax ID")
+		return errors.New("user does not have a tax ID")
+	}
+
 	// Step 1: Create a SetupIntent in Stripe
 	setupIntent, err := CreateStripeSetupIntent(bounty, bounty.OwnerID, ownerStripeCustomerID, ownerStripeAccountID)
 	if err != nil {

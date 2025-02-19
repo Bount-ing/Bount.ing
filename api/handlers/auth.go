@@ -79,11 +79,17 @@ func Signin(ctx *gin.Context) {
 }
 
 func RefreshToken(ctx *gin.Context) {
-	// Get refresh token from cookie
+	// Try to get refresh token from cookie first
 	refreshTokenValue, err := ctx.Cookie("refreshTkn")
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"reason": "No refresh token provided"})
-		return
+		// If not in cookie, check Authorization header
+		refreshTokenValue = ctx.GetHeader("Authorization")
+		if refreshTokenValue == "" {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"reason": "No refresh token provided"})
+			return
+		}
+		// Remove "Bearer " prefix if present
+		refreshTokenValue = strings.TrimPrefix(refreshTokenValue, "Bearer ")
 	}
 
 	// Find refresh token in database
@@ -97,7 +103,6 @@ func RefreshToken(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"reason": "Database error"})
 		return
 	}
-
 	// Check if refresh token is expired
 	if time.Now().After(refreshToken.ValidUntil) {
 		// Delete expired token

@@ -37,9 +37,9 @@ type User struct {
 	LastLogin               time.Time
 
 	// Profile Settings
-	Username string        `json:"username"`
-	FullName string        `json:"fullName"`
-	Legal    UserLegalData `gorm:"foreignKey:ID" json:"legal,omitempty"`
+	Username    string      `json:"username"`
+	FullName    string      `json:"fullName"`
+	LegalEntity LegalEntity `gorm:"foreignKey:UserID" json:"legal_entity,omitempty"`
 
 	// Relationships
 	Identities        []Identity     `gorm:"foreignKey:UserID;references:ID" json:"identities,omitempty"`

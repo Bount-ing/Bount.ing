@@ -29,6 +29,13 @@ func CreateBounty(c *gin.Context) {
 
 	// Call the controller to save the bounty
 	if err := controllers.CreateBounty(&bounty); err != nil {
+		if err.Error() == "user does not have a stripe account" {
+			c.JSON(http.StatusPaymentRequired, gin.H{"error": "User does not have a stripe account"})
+			return
+		} else if err.Error() == "user does not have a tax ID" {
+			c.JSON(http.StatusUnavailableForLegalReasons, gin.H{"error": "User has no legal data"})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
