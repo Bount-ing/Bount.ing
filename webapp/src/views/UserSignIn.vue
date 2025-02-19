@@ -1,15 +1,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useUserStore } from '@/stores/user.ts'
+import { useAuthStore } from '@/stores/auth.ts'
 import { api } from '@/stores/api.ts'
 import { sha256 } from 'js-sha256'
 import { useRouter } from 'vue-router'
 import { useNotificationStore } from '@/stores/notification.ts'
 
 const router = useRouter()
-const userStore = useUserStore()
+const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
-
 
 const showPassword = ref(false)
 const mail = ref('')
@@ -22,12 +21,16 @@ const userLogin = async () => {
   }
 
   try {
-    await userStore.login(data)
+    await authStore.login(data)
     router.push('/profile')
   } catch (error) {
-    notificationStore.showNotification("Invalid credentials", "error")
+    notificationStore.showNotification('Invalid credentials', 'error')
   }
 }
+
+onMounted(() => {
+  authStore.logout()
+})
 </script>
 <template>
   <div class="max-w-lg max-h-full mx-auto mt-12">

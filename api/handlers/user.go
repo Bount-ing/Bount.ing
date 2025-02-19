@@ -59,7 +59,7 @@ func GetAllUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
-func GetCurrentUser(ctx *gin.Context) {
+func GetCurrentUserProfileInfo(ctx *gin.Context) {
 	u, err := auth.GetUserFromJwt(ctx)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"reason": err})
@@ -72,16 +72,29 @@ func GetCurrentUser(ctx *gin.Context) {
 		return
 	}
 
-	pl := struct {
-		ID    uint
-		Admin bool
-		Email string
-	}{}
-	pl.ID = user.ID
-	pl.Email = user.Email
-	pl.Admin = user.Admin
+	userProfile := models.UserProfileReadPayload{
+		ID:       user.ID,
+		Username: user.Username,
+		FullName: user.FullName,
+		Email:    user.Email,
+		Admin:    user.Admin,
+	}
 
-	ctx.JSON(http.StatusOK, pl)
+	identities, err := controllers.GetUserIdentities(user.ID)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"reason": err})
+		return
+	}
+
+	for _, identity := range identities {
+		if identity.Host.Address == "https://stripe.com" {
+			userProfile.StripeConnected = true
+		} else if identity.Host.Address == "https://github.com" {
+			userProfile.GithubConnected = true
+		}
+	}
+
+	ctx.JSON(http.StatusOK, userProfile)
 }
 
 func ValidateUserCode(ctx *gin.Context) {
@@ -128,6 +141,28 @@ func CreateUserPassword(ctx *gin.Context) {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"reason": err})
 			log.Println(err)
 		}
+		return
+	}
+
+	ctx.Status(http.StatusOK)
+}
+
+func UpdateCurrentUserProfileInfo(ctx *gin.Context) {
+	var userProfileInfoPayload models.UserProfileUpdatePayload
+
+	u, err := auth.GetUserFromJwt(ctx)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"reason": err})
+		return
+	}
+
+	if err = ctx.ShouldBindJSON(&userProfileInfoPayload); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"reason": err.Error()})
+		return
+	}
+
+	if err = controllers.UpdateUserProfileInfo(u.ID, userProfileInfoPayload); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"reason": err})
 		return
 	}
 

@@ -4,7 +4,7 @@ import LoginLayout from '@/layouts/LoginLayout.vue'
 import UserSignIn from '@/views/UserSignIn.vue'
 import UserSignUp from '@/views/UserSignUp.vue'
 import UserSetPassword from '@/views/UserSetPassword.vue'
-import { useUserStore } from '@/stores/user'
+import { useAuthStore } from '@/stores/auth'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
 const router = createRouter({
@@ -127,14 +127,13 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();
   const defaultTitle = 'Bount.ing';
   document.title = to.name ? to.name.toString() : defaultTitle;
-
-  const userStore = useUserStore();
   
   // Handle routes that require authentication
   if (to.matched.some((record) => record.meta.needsAuth || record.meta.needsAdmin || record.meta.needsModerator)) {
-    if (!userStore.isLoggedIn && to.path !== '/signup' && !to.path.startsWith('/signup/verify')) {
+    if (!authStore.isLoggedIn && to.path !== '/signup' && !to.path.startsWith('/signup/verify')) {
       next({ path: '/signin' });
       return;
     }
@@ -143,7 +142,7 @@ router.beforeEach((to, from, next) => {
   }
 
   // Handle case where user is logged in and trying to access login/signup routes
-  if (to.matched.some((record) => record.meta.skipIfLoggedIn) && userStore.isLoggedIn) {
+  if (to.matched.some((record) => record.meta.skipIfLoggedIn) && authStore.isLoggedIn) {
     next({ path: '/profile' });
     return;
   }
@@ -151,7 +150,7 @@ router.beforeEach((to, from, next) => {
   // Ensure the 'verify' route is treated as a special case
   if (to.path.startsWith('/signup/verify')) {
     // Check if the verification URL should be accessible (e.g., if it's just a password reset)
-    if (!userStore.isLoggedIn) {
+    if (!authStore.isLoggedIn) {
       next(); // Allow access to the verification page even if not logged in
       return;
     }

@@ -173,21 +173,6 @@ func GetUserByEmail(email string) (models.User, error) {
 	return user, dbc.Error
 }
 
-func UpdateUserStripeID(id uint, stripeUserId string) error {
-	var user models.User
-
-	result := db.DB.First(&user, id)
-	if result.Error != nil {
-		return result.Error
-	}
-	user.StipeAccountID = stripeUserId
-	saveResult := db.DB.Save(&user)
-	if saveResult.Error != nil {
-		return saveResult.Error
-	}
-	return nil
-}
-
 func GetExternalIdentityByUserIDAndHostID(claimerID, hostID uint) (models.Identity, error) {
 	var identity models.Identity
 
@@ -269,6 +254,35 @@ func ResetPassword(code, newPassword string) error {
 	user.Password = newPassword
 	user.VerifCode = ""
 	user.VerifCodeExpirationTime = time.Time{}
+
+	return db.DB.Save(&user).Error
+}
+
+func UserLogin(userID uint) error {
+	user := models.User{}
+	if err := db.DB.First(&user, userID).Error; err != nil {
+		return err
+	}
+
+	user.LastLogin = time.Now()
+
+	return db.DB.Save(&user).Error
+}
+
+func UpdateUserProfileInfo(userID uint, payload models.UserProfileUpdatePayload) error {
+	user := models.User{}
+	if err := db.DB.First(&user, userID).Error; err != nil {
+		return err
+	}
+
+	// Check only non null and no empty strings
+	if payload.Username != "" {
+		user.Username = payload.Username
+	}
+
+	if payload.FullName != "" {
+		user.FullName = payload.FullName
+	}
 
 	return db.DB.Save(&user).Error
 }

@@ -85,17 +85,16 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useUserStore } from '../../stores/user';
-import ConnectStripe from '../StripeConnect.vue'
+import { useAuthStore } from '../../stores/auth';
 import LanguageDropdown from '../LanguageDropdown.vue';
 
+const authStore = useAuthStore();
 
-const user = useUserStore();
-const { isLoggedIn } = storeToRefs(user);
+const { isLoggedIn } = storeToRefs(authStore);
 const isOpen = ref(false);
 
 const logout = () => {
-  user.logout();
+  authStore.logout();
 };
 </script>
 

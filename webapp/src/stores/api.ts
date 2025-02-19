@@ -7,6 +7,7 @@ import type {
     InternalAxiosRequestConfig
 } from 'axios';
 import { useUserStore } from '@/stores/user';
+import { useAuthStore } from '@/stores/auth';
 import { useNaviStore } from '@/stores/navigation';
 import { useNotificationStore } from '@/stores/notification';
 import router from '@/router';
@@ -42,9 +43,10 @@ export const api: AxiosInstance = axios.create({
 api.interceptors.request.use(
     (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
         const userStore = useUserStore();
+        const authStore = useAuthStore();
         const navi = useNaviStore();
 
-        if (userStore.isLoggedIn && config.headers) {
+        if (authStore.isLoggedIn && config.headers) {
             const token = localStorage.getItem('token');
             if (token) {
                 config.headers['Authorization'] = `Bearer ${token}`;
@@ -69,6 +71,7 @@ api.interceptors.response.use(
     async (error: AxiosError) => {
         const navi = useNaviStore();
         const userStore = useUserStore();
+        const authStore = useAuthStore();
         const notificationStore = useNotificationStore();
         const originalConfig = error.config as InternalAxiosRequestConfig;
 
@@ -85,7 +88,8 @@ api.interceptors.response.use(
             try {
                 const refreshToken = localStorage.getItem('refreshToken');
                 if (!refreshToken) {
-                    throw new Error('No refresh token available');
+                    await authStore.logout();
+                    router.push('/');
                 }
 
                 const response = await axios.post(
@@ -112,7 +116,7 @@ api.interceptors.response.use(
 
             } catch (refreshError) {
                 processQueue(new Error('Failed to refresh token'));
-                userStore.logout();
+                authStore.logout();
                 router.push('/signin');
                 notificationStore.showNotification('Session expired. Please log in again.', 'warning');
                 return Promise.reject(refreshError);

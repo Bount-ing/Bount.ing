@@ -1,35 +1,44 @@
-// src/types/user.ts
+import type { GithubUser } from './github';
 
-// User-related interfaces
+export interface User {
+  id: number;
+  username?: string | null | undefined;
+  avatar: string;
+  bio?: string;
+  fullName?: string;
+  email?: string;
+  phoneNumber?: string;
+  location?: string;
+  bearerToken?: string;
+  refreshJwt?: string;
+  aboutMe?: string;
+  interests?: string[];
+  recentPosts?: any[];
+  level?: number;
+  achievements?: any[];
+  activities?: any[];
+  bounties?: any[];
+  transactions?: any[];
+  paymentInfo?: any;
+  isLoggedIn?: boolean;
+  authGithubHeader?: string;
+  githubUser?: GithubUser;
+}
+
 export interface EditableUserFields {
-    fullName: string;
-    Email: string;
-    phoneNumber: string;
-    location: string;
-    userBio: string;
-    avatar: string;
-  }
-  
-  // Default values and constants
-  export const DEFAULT_USER_VALUES: EditableUserFields = {
-    fullName: '',
-    Email: '',
-    phoneNumber: '',
-    location: '',
-    userBio: '',
-    avatar: '',
-  };
-  
-  // You can also add other user-related types and constants here
-  export interface UserResponse {
-    // API response type
-    id: number;
-    username: string;
-    // ... other fields
-  }
-  
-  export interface UserUpdatePayload {
-    // API request type
-    id: number;
-    // ... fields that can be updated
-  }
+  username: string | null;
+  fullName: string | null;
+  phoneNumber: string | null;
+  location: string | null;
+  bio: string | null;
+  avatar: string | null;
+}
+
+export const DEFAULT_USER_VALUES: EditableUserFields = {
+  fullName: '',
+  username: '',
+  phoneNumber: '',
+  location: '',
+  bio: '',
+  avatar: 'http://localhost:3000/default-avatar.png',
+};

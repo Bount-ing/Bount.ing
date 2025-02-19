@@ -52,7 +52,10 @@ func SetupRouter() *gin.Engine {
 	public.POST("/register", handlers.CreateUser)
 
 	user := needAuth.Group("/users")
-	user.GET("/me", handlers.GetCurrentUser)
+
+	// Self user routes
+	user.GET("/me", handlers.GetCurrentUserProfileInfo)
+	user.PUT("/me/profile", handlers.UpdateCurrentUserProfileInfo)
 
 	adminBounties := needAdmin.Group("/bounties")
 	adminBounties.GET("/unconfirmed", handlers.GetAllUnconfirmedBounties)

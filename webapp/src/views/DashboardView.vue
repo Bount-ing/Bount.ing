@@ -20,6 +20,7 @@ import { defineComponent, ref, onMounted, computed } from 'vue';
 import IssueListItem from '../components/IssueListItem.vue';
 import axios from 'axios';
 import { useUserStore } from '../stores/user'
+import { useAuthStore } from '../stores/auth'
 import { storeToRefs } from 'pinia'
 
 interface Issue {
@@ -32,6 +33,7 @@ interface Issue {
 }
 
 const userStore = useUserStore();
+const authStore = useAuthStore();
 const user = computed(() => userStore.user);
 
 export default defineComponent({
@@ -45,7 +47,7 @@ export default defineComponent({
     const seenRepos = ref<Set<string>>(new Set());
 
     const initializeData = async () => {
-      if (!userStore.isLoggedIn) return;
+      if (!authStore.isLoggedIn) return;
 
       try {
         fetchUserData();
@@ -147,7 +149,7 @@ export default defineComponent({
 
     const fetchBounties = async () => {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-	  const response = await axios.get(`${apiBaseUrl}/api/v1/bounties/`, { headers: { Authorization: userStore.authHeader } });
+	  const response = await axios.get(`${apiBaseUrl}/api/v1/bounties/`, { headers: { Authorization: authStore.authHeader } });
       const currentDate = new Date();
 
       return response.data.reduce((acc: Record<number, number>, bounty: any) => {

@@ -39,7 +39,7 @@
     <div class="flex-1 pt-8 pl-4 pr-4 transition-all duration-300">
       <div v-if="loading" class="text-center text-2xl font-semibold">Loading...</div>
       <div v-else class="rounded-2xl shadow-xl overflow-hidden p-4 bg-secondary-dark text-white">
-      <UserProfile :user="user" />
+        <UserProfile :user="user" />
 
         <!-- Tab Content -->
         <div class="mt-6">
@@ -55,6 +55,7 @@
 <script setup>
 import { ref, watchEffect, onMounted, onUnmounted } from 'vue'
 import UserProfile from '../components/UserProfile.vue'
+import UserInvoices from '../components/UserProfile/UserInvoices.vue'
 import UserBadgesList from '../components/UserProfile/UserBadgesList.vue'
 import UserOrganizationsList from '../components/UserProfile/UserOrganizationsList.vue'
 import UserHostsList from '../components/UserProfile/UserHostsList.vue'
@@ -76,7 +77,8 @@ const user = userStore.user
 const tabs = ref([])
 const updateTabs = () => {
   tabs.value = [
-  { name: t('profile.personal_info'), component: UserPersonalInfo },
+    { name: t('profile.personal_info'), component: UserPersonalInfo },
+    { name: t('profile.invoices'), component: UserInvoices },
     { name: t('profile.badges'), component: UserBadgesList },
     { name: t('profile.organizations'), component: UserOrganizationsList },
     { name: t('profile.hosts'), component: UserHostsList },
@@ -105,7 +107,7 @@ const toggleSidebar = () => {
 
 const handleHashChange = () => {
   const hash = window.location.hash.replace('#', '').replace(/_/g, ' ')
-  const matchedTab = tabs.value.find(tab => tab.name.toLowerCase() === hash.toLowerCase())
+  const matchedTab = tabs.value.find((tab) => tab.name.toLowerCase() === hash.toLowerCase())
   if (matchedTab) {
     currentTab.value = matchedTab
   }

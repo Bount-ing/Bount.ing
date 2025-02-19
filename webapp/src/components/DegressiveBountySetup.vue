@@ -47,7 +47,7 @@
 
 <script>
 import axios from 'axios';
-import { useUserStore } from '@/stores/user';
+import { useAuthStore } from '@/stores/auth';
 
 
 export default {
@@ -80,9 +80,9 @@ export default {
     async handleSubmit() {
       if (this.validateDates() && this.individualAmount > 0) {
         try {
-          const userStore = useUserStore();
-          if (!userStore.isLoggedIn) {
-            await userStore.login();
+          const authStore = useAuthStore();
+          if (!authStore.isLoggedIn) {
+            await authStore.login();
           }
           await this.submitBounty(this.individualAmount, this.bountyStart, this.bountyEnd, userStore.authHeader);
           this.close();

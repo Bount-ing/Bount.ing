@@ -69,6 +69,8 @@ func Signin(ctx *gin.Context) {
 	}
 	httpOnly := true
 
+	controllers.UserLogin(user.ID)
+
 	ctx.SetCookie(cookieName, refreshTkn.Value, int(maxAge), path, domain, secure, httpOnly)
 	ctx.JSON(http.StatusOK, gin.H{
 		"accessToken":  accessTkn,

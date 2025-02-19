@@ -4,10 +4,10 @@ import { sha256 } from 'js-sha256'
 import { useRoute } from 'vue-router'
 import { api } from '@/stores/api.ts'
 import { useNotificationStore } from '@/stores/notification.ts'
-import { useUserStore } from '@/stores/user.ts'
+import { useAuthStore } from '@/stores/auth.ts'
 import  router  from '@/router'
 
-const userStore = useUserStore()
+const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
 
 const route = useRoute()
@@ -96,7 +96,7 @@ const autoLogin = async (data) => {
 		mail: mail,
 		password: sha256(password.value)
 	}
-	await userStore.login(loginData)
+	await authStore.login(loginData)
 	router.push('/profile')
 	console.log(loginData)
 }

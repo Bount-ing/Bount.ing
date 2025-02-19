@@ -1,106 +1,75 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useUserStore } from '@/stores/user';
-import type { EditableUserFields } from '@/types/user';
+import type { User, EditableUserFields } from '@/types/user';
 import { DEFAULT_USER_VALUES } from '@/types/user';
-import router from '@/router'
+import { useUserStore } from '@/stores/user';
+import router from '@/router';
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 
-const isUpdating = ref(false);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
+const isEditing = ref(false);
+const editedUser = ref<EditableUserFields>(DEFAULT_USER_VALUES);
 
-// Create a computed property to safely access user data with defaults
-const safeUser = computed(() => {
-  if (!user.value) {
-    return DEFAULT_USER_VALUES;
-  }
-
-  return {
-    fullName: user.value.fullName ?? DEFAULT_USER_VALUES.fullName,
-    Email: user.value.Email ?? DEFAULT_USER_VALUES.Email,
-    phoneNumber: user.value.phoneNumber ?? DEFAULT_USER_VALUES.phoneNumber,
-    location: user.value.location ?? DEFAULT_USER_VALUES.location,
-    userBio: user.value.userBio ?? DEFAULT_USER_VALUES.userBio,
-    avatar: user.value.avatar ?? DEFAULT_USER_VALUES.avatar,
+function startEditing() {
+  editedUser.value = {
+    username: user.value?.username || '',
+    fullName: user.value?.fullName || '',
+    phoneNumber: user.value?.phoneNumber || '',
+    location: user.value?.location || '',
+    bio: user.value?.bio || '',
+    avatar: user.value?.avatar || '',
   };
-});
+  isEditing.value = true;
+}
 
-// Initialize editable user with safe values
-const editableUser = ref<EditableUserFields>({ ...safeUser.value });
-
-// Safe reset function
-const resetForm = () => {
-  editableUser.value = { ...safeUser.value };
-  console.log('Form reset:', editableUser.value);
-};
-
-// Safe update function
-const updateUserInfo = async () => {
-  if (!user.value) {
-    console.error('No user data available');
-    return;
-  }
-
+async function saveChanges() {
   try {
-    isUpdating.value = true;
-    console.log('Updating user info:', editableUser.value);
+    if (!user.value) return;
     
-    const updatedData = {
-      ...user.value,
-      ...editableUser.value
-    };
-
-    await userStore.updateUser(updatedData);
-    console.log('User updated successfully');
-  } catch (error) {
-    console.error('Failed to update user:', error);
-  } finally {
-    isUpdating.value = false;
+    // You'll need to implement this method in your user store
+    await userStore.updateProfileInfo(editedUser.value);
+    isEditing.value = false;
+  } catch (err) {
+    error.value = 'Failed to update profile. Please try again.';
   }
-};
+}
 
-// Fetch user data on component mount
+function cancelEditing() {
+  isEditing.value = false;
+}
+
 onMounted(async () => {
   try {
-    console.log('Component mounted, fetching user data...');
     await userStore.getUserInfo();
-    resetForm();
-    isLoading.value = false;
-    console.log('User data loaded:', user.value);
-    if (!user.value) {
-      router.push('/signin');
-    }
   } catch (err) {
-    console.error('Failed to load user data:', err);
-    error.value = 'Unable to load user data. Please try refreshing the page.';
+    error.value = 'Unable to load user data. Please refresh the page.';
+  } finally {
     isLoading.value = false;
   }
+  if (!user.value) router.push('/signin');
 });
-
-// Watch for user changes safely
-watch(() => user.value, (newUser) => {
-  if (newUser) {
-    resetForm();
-    console.log('User data changed:', newUser);
-  }
-}, { deep: true });
 </script>
 
 <template>
   <div class="max-w-4xl mx-auto p-6">
-    <!-- Header -->
     <div class="mb-8">
       <h1 class="text-2xl font-bold">Account Settings</h1>
       <p class="text-gray-400">Manage your account settings and preferences</p>
     </div>
 
-    <!-- Show settings only if we have a valid user ID -->
-    <div v-if="user?.ID" class="space-y-6"> <!-- Update to match the key in the object -->
-      <!-- Rest of your settings form -->
+    <div v-if="isLoading" class="text-center py-8">
+      <p>Loading your profile...</p>
+    </div>
+
+    <div v-else-if="error" class="bg-red-900/50 text-red-200 p-4 rounded-lg">
+      {{ error }}
+    </div>
+
+    <div v-else-if="user?.id" class="space-y-6">
       <section class="bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <div class="p-6 border-b border-gray-700">
           <h2 class="text-xl font-semibold">Profile Information</h2>
@@ -108,93 +77,77 @@ watch(() => user.value, (newUser) => {
         </div>
 
         <div class="p-6">
-          <!-- Avatar and Basic Info -->
           <div class="flex items-start space-x-6 mb-8">
-            <div class="flex-shrink-0">
-              <img 
-                :src="safeUser.avatar || '/default-avatar.png'" 
-                class="w-24 h-24 rounded-full object-cover"
-                alt="Profile avatar"
-              />
-              <button class="mt-2 text-sm text-blue-400 hover:text-blue-300">
-                Change Avatar
-              </button>
-            </div>
-            
-            <!-- Non-editable Information -->
-            <div class="flex-grow">
-              <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-1">
+            <img :src="user?.avatar || '/default-avatar.png'" class="w-24 h-24 rounded-full object-cover" alt="Profile avatar" />
+            <div class="flex-1">
+              <div v-if="!isEditing" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
                   <p class="text-sm text-gray-400">Username</p>
                   <p class="font-medium">{{ user.username || 'Not set' }}</p>
                 </div>
-                <div class="space-y-1">
-                  <p class="text-sm text-gray-400">User ID</p>
-                  <p class="font-medium">{{ user.ID || 'N/A' }}</p> <!-- Update to match the key in the object -->
-                </div>
-                <div class="space-y-1">
+                <div>
                   <p class="text-sm text-gray-400">Email</p>
-                  <p class="font-medium">{{ user.Email || 'Not set' }}</p> <!-- Update to match the key in the object -->
+                  <p class="font-medium">{{ user.email || 'Not set' }}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-400">Full Name</p>
+                  <p class="font-medium">{{ user.fullName || 'Not set' }}</p>
                 </div>
               </div>
+              
+              <form v-else @submit.prevent="saveChanges" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label for="username" class="block text-sm text-gray-400">Username</label>
+                    <input
+                      id="username"
+                      v-model="editedUser.username"
+                      type="text"
+                      class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label for="full_name" class="block text-sm text-gray-400">Full Name</label>
+                    <input
+                      id="full_name"
+                      v-model="editedUser.fullName"
+                      type="text"
+                      class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                
+                <div class="flex space-x-4">
+                  <button
+                    type="submit"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
+                    Save Changes
+                  </button>
+                  
+                  <button
+                    type="button"
+                    @click="cancelEditing"
+                    class="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
 
-          <!-- Editable Information Form -->
-          <form @submit.prevent="updateUserInfo" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Personal Information -->
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium mb-1">Full Name</label>
-                  <input 
-                    v-model="editableUser.fullName" 
-                    type="text" 
-                    class="w-full p-2.5 rounded-md bg-gray-700 border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium mb-1">Email</label>
-                  <input 
-                    v-model="editableUser.Email" 
-                    type="Email" 
-                    class="w-full p-2.5 rounded-md bg-gray-700 border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
-                <!-- ... other fields ... -->
-              </div>
-            </div>
-
-            <!-- Save Button -->
-            <div class="flex justify-end space-x-3">
-              <button 
-                type="button"
-                @click="resetForm"
-                class="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white bg-gray-700 rounded-md"
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit"
-                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-md disabled:opacity-50"
-                :disabled="isUpdating"
-              >
-                {{ isUpdating ? 'Saving...' : 'Save Changes' }}
-              </button>
-            </div>
-          </form>
+          <div v-if="!isEditing" class="flex justify-end">
+            <button
+              @click="startEditing"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              Edit Profile
+            </button>
+          </div>
         </div>
       </section>
-    </div>
-
-    <!-- Loading State -->
-    <div v-else-if="isLoading" class="text-center py-8">
-      <p>Loading user data...</p>
-    </div>
-
-    <!-- Error State -->
-    <div v-else class="text-center py-8 text-red-400">
-      <p>{{ error }}</p>
     </div>
   </div>
 </template>
