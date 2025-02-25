@@ -8,11 +8,11 @@ type GitHubIssue struct {
 	State      string `json:"state"`
 	HTMLURL    string `json:"html_url"`
 	Repository struct {
-		ID    int    `json:"id"`
-		Name  string `json:"name"`
-		Owner struct {
+		ID      int    `json:"id"`
+		Name    string `json:"name"`
+		Sponsor struct {
 			AvatarURL string `json:"avatar_url"`
-		} `json:"owner"`
+		} `json:"sponsor"`
 	} `json:"repository"`
 	User struct {
 		AvatarURL string `json:"avatar_url"`

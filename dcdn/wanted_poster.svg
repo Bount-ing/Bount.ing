@@ -12,7 +12,7 @@
         <!-- Title with rounded corners -->
         <text x="400" y="70" font-family="Helvetica, Arial, sans-serif" font-size="48" fill="#00ADB5" text-anchor="middle" filter="url(#neon)">WANTED</text>
 
-        <!-- Repo Owner/Name -->
+        <!-- Repo Sponsor/Name -->
         <text x="400" y="130" font-family="Helvetica, Arial, sans-serif" font-size="20" fill="#EEEEEE" text-anchor="middle">example/repo</text>
 
         <!-- Issue Title -->

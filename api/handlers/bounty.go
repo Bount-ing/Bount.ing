@@ -20,7 +20,7 @@ func CreateBounty(c *gin.Context) {
 		return
 	}
 
-	bounty.OwnerID = user.ID
+	bounty.SponsorID = user.ID
 	// Manually bind the JSON to the Bounty model
 	if err := bounty.Bind(c); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"fmt"
-
 	"github.com/bount-ing/bount.ing/api/db"
 	"github.com/bount-ing/bount.ing/api/models"
 )
@@ -44,11 +42,11 @@ func SaveStripeConnectedAccountID(stateUserID uint, stripeUserAccountID, stripeU
 	// Check 1: stateUserID doesn't already have a github identity
 	userIdentities, err := GetUserIdentities(stateUserID)
 	if err != nil {
-		return fmt.Errorf("failed to get user identities: %w", err)
+		return models.ErrUserIdentitiesNotFound
 	}
 	for _, identity := range userIdentities {
 		if identity.Host.Address == "https://stripe.com" && identity.UserExternalID != stripeUserAccountID {
-			return fmt.Errorf("user already has another Stripe identity associated")
+			return models.ErrUserIdentitiesStripeAccountMismatch
 		} else if identity.Host.Address == "https://stripe.com" && identity.UserExternalID == stripeUserAccountID {
 			// return ok
 			return nil
@@ -61,11 +59,11 @@ func SaveStripeConnectedAccountID(stateUserID uint, stripeUserAccountID, stripeU
 	// Check 2: stripeUser.ID doesn't already have an identity
 	hostIdentities, err := GetHostIdentitiesFromAddress("https://stripe.com")
 	if err != nil {
-		return fmt.Errorf("failed to get host identities: %w", err)
+		return models.ErrHostIdentitiesNotFound
 	}
 	for _, identity := range hostIdentities {
 		if identity.UserExternalID == stripeUserAccountID && identity.UserID != stateUserID {
-			return fmt.Errorf("Stripe identity already has another user associated")
+			return models.ErrStripeAccountAlreadyInUse
 		}
 	}
 
@@ -79,7 +77,7 @@ func SaveStripeConnectedAccountID(stateUserID uint, stripeUserAccountID, stripeU
 
 	err = CreateIdentity(newIdentity)
 	if err != nil {
-		return fmt.Errorf("failed to create identity: %w", err)
+		return err
 	}
 
 	return nil

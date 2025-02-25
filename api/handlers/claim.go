@@ -98,7 +98,13 @@ func ClaimBounty(ctx *gin.Context) {
 		request.ClaimCheck,
 	)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if errors.Is(err, models.ErrClaimWithoutLegalEntity) {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else if errors.Is(err, models.ErrInvoiceWithoutLegalEntity) {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 
@@ -116,6 +122,7 @@ func ApproveClaim(ctx *gin.Context) {
 	var request struct {
 		Status             string            `json:"status"`
 		BountyClaimerCheck models.ClaimCheck `json:"bountyClaimerCheck"`
+		InvoiceRequested   bool              `json:"invoiceRequested"`
 	}
 
 	claimID, err := strconv.Atoi(ctx.Param("id"))
@@ -137,9 +144,10 @@ func ApproveClaim(ctx *gin.Context) {
 		request.BountyClaimerCheck.CheckerID,
 		uintClaimID,
 		request.BountyClaimerCheck,
+		request.InvoiceRequested,
 	)
 	if err != nil {
-		if errors.Is(err, errors.New("unauthorized: not bounty owner")) {
+		if errors.Is(err, errors.New("unauthorized: not bounty sponsor")) {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		} else {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

@@ -5,8 +5,9 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
-	"fmt"
 	"io"
+
+	"github.com/bount-ing/bount.ing/api/models"
 )
 
 // EncryptAES encrypts data using AES-GCM and returns base64 encoded string
@@ -45,7 +46,7 @@ func DecryptAES(encryptedStr string, key []byte) ([]byte, error) {
 	}
 
 	if len(encryptedData) < 12 { // 12 is nonce size
-		return nil, fmt.Errorf("ciphertext too short")
+		return nil, models.ErrCipherTextTooShort
 	}
 
 	nonce := encryptedData[:12]

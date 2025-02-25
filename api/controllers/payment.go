@@ -52,20 +52,20 @@ func ProcessPayment(claimerID uint, bountyID uint) error {
 		return errors.New("user does not have a stripe account")
 	}
 
-	bountyOwnerIdentities, err := GetUserIdentities(bounty.OwnerID)
-	stripeBountyOwnerAccountID := ""
-	stripeBountyOwnerCustomerID := ""
-	stripeBountyOwnerIDFound := false
-	for _, identity := range bountyOwnerIdentities {
+	sponsorIdentities, err := GetUserIdentities(bounty.SponsorID)
+	stripeBountySponsorAccountID := ""
+	stripeBountySponsorCustomerID := ""
+	stripeBountySponsorIDFound := false
+	for _, identity := range sponsorIdentities {
 		if identity.Host.Address == "https://stripe.com" {
-			stripeBountyOwnerAccountID = identity.UserExternalID
-			stripeBountyOwnerCustomerID = identity.UserExternalSecondaryID
-			stripeBountyOwnerIDFound = true
-			log.Printf("Found stripe account for bounty owner %d\n- Account ID: %s\n- Customer ID: %s", bounty.OwnerID, stripeBountyOwnerAccountID, stripeBountyOwnerCustomerID)
+			stripeBountySponsorAccountID = identity.UserExternalID
+			stripeBountySponsorCustomerID = identity.UserExternalSecondaryID
+			stripeBountySponsorIDFound = true
+			log.Printf("Found stripe account for bounty sponsor %d\n- Account ID: %s\n- Customer ID: %s", bounty.SponsorID, stripeBountySponsorAccountID, stripeBountySponsorCustomerID)
 		}
 	}
 
-	if !stripeBountyOwnerIDFound {
+	if !stripeBountySponsorIDFound {
 		bounty.Status = "payment_pending"
 		err = UpdateBounty(bounty)
 		if err != nil {
@@ -76,9 +76,9 @@ func ProcessPayment(claimerID uint, bountyID uint) error {
 
 	//func PayoutBounty(bounty *models.Bounty, payerStripeCustomerID, stripeConnectedAccountID string) error
 
-	PayoutBounty(bounty, stripeBountyOwnerCustomerID, stripeBountyHunterCustomerID, stripeBountyHunterAccountID)
+	PayoutBounty(bounty, stripeBountySponsorCustomerID, stripeBountyHunterCustomerID, stripeBountyHunterAccountID)
 
-	paymentMsg := fmt.Sprintf("You have been paid %.2f for Bounty %d", bounty.ClaimedAmount*(1-0.042), bountyID)
+	paymentMsg := fmt.Sprintf("You have been paid %.2f for Bounty %d", bounty.ClaimedAmount, bountyID)
 
 	tools.SendEmail(claimerEmail, "Payment Confirmation", paymentMsg)
 

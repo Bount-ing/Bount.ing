@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Claim represents the claim with two PRVerification objects, one for the owner and one for the author
+// Claim represents the claim with two PRVerification objects, one for the sponsor and one for the author
 type Claim struct {
 	gorm.Model
 	ClaimerID      uint    `json:"claimerId"`
@@ -19,12 +19,12 @@ type Claim struct {
 	// Relationships
 	Bounty             Bounty     `gorm:"foreignKey:BountyID"`
 	BountyClaimerCheck ClaimCheck `gorm:"foreignKey:BountyClaimerCheckID"`
-	BountyOwnerCheck   ClaimCheck `gorm:"foreignKey:BountyOwnerCheckID"`
+	BountySponsorCheck ClaimCheck `gorm:"foreignKey:BountySponsorCheckID"`
 	BountySystemCheck  ClaimCheck `gorm:"foreignKey:BountySystemCheckID"`
 
 	// Foreign keys for ClaimChecks
 	BountyClaimerCheckID uint `json:"bountyClaimerCheckID"`
-	BountyOwnerCheckID   uint `json:"bountyOwnerCheckID"`
+	BountySponsorCheckID uint `json:"sponsorCheckID"`
 	BountySystemCheckID  uint `json:"bountySystemCheckID"`
 }
 

@@ -12,6 +12,7 @@ import (
 	"github.com/bount-ing/bount.ing/api/controllers"
 	"github.com/bount-ing/bount.ing/api/db"
 	"github.com/bount-ing/bount.ing/api/models"
+	"github.com/bount-ing/bount.ing/api/processor"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -76,6 +77,18 @@ func Signin(ctx *gin.Context) {
 		"accessToken":  accessTkn,
 		"refreshToken": refreshTkn.Value,
 	})
+
+	message := map[string]interface{}{
+		"event": "user_login",
+		"user":  user.ID,
+		"ip":    ctx.ClientIP(),
+	}
+
+	// Publish the message
+	err = processor.PublishEvent("events", message)
+	if err != nil {
+		log.Fatalf("Error publishing JSON message: %s", err)
+	}
 }
 
 func RefreshToken(ctx *gin.Context) {

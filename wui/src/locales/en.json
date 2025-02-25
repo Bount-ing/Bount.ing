@@ -1,0 +1,107 @@
+{
+  "greeting": "Hello",
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "pricing": "Pricing",
+    "about": "About Us",
+    "faq": "F.A.Q.",
+    "contact": "Contact Us"
+  },
+  "account": {
+    "signin": "Sign In",
+    "signup": "Sign Up",
+    "logout": "Log Out",
+    "userCredentials": {
+      "welcome": "Welcome back!",
+      "enterCredentials": "Please enter your credentials",
+      "email": "Email Address",
+      "password": "Password",
+      "rememberMe": "Remember Me",
+      "forgotPassword": "Forgot Password?",
+      "enter": "Enter",
+      "noAccount": "Don't have an account? Sign up"
+    }
+  },
+  "bounties": {
+    "no_bounties_found": "No bounties found.",
+    "select_bounty_type": "Select bounty type",
+    "create_increasing_bounty": "Create an increasing bounty",
+    "create_single_bounty": "Create a single bounty",
+    "create_decreasing_bounty": "Create a decreasing bounty",
+    "claim": "Claim the bounty",
+    "raise": "Increase the bounty",
+    "bounty_amount": "Bounty amount",
+    "start_date": "Start date",
+    "end_date": "End date"
+  },
+  "status": {
+    "status": "Status",
+    "type": "Type",
+    "date": "Date"
+  },
+  "transactions": {
+    "no_transactions_found": "No transactions found.",
+    "amount": "Amount"
+  },
+  "issues": {
+    "available_issues": "Available issues",
+    "private_issue": "Private issue",
+    "details_are_confidential": "Details are confidential.",
+    "need_to_be_logged_in": "You need to be logged in and authorized to view this."
+  },
+  "profile": {
+    "personal_information": "Personal Information",
+    "full_name": "Full Name",
+    "email_address": "Email Address",
+    "phone_number": "Phone Number",
+    "location": "Location",
+    "about_me": "About Me",
+    "repositories": "Repositories",
+    "issues": "Issues",
+    "bounties": "Bounties",
+    "badges": "Badges",
+    "hosts": "Hosts",
+    "payments": "Payments",
+    "organizations": "Organizations",
+    "settings": "Settings",
+    "import_issue": "Import Issues from GitHub URL",
+    "payment_setup": "Payment Methods"
+  },
+  "payment": {
+    "finalize": "Finalize",
+    "card_information": "Card Information",
+    "card_number": "Card Number",
+    "expiry_date": "Expiry Date",
+    "card_holder_name": "Card Holder's Name"
+  },
+  "legal": {
+    "tos": "Terms of Service",
+    "privacy_policy": "Privacy Policy",
+    "all_rights_reserved": "All rights reserved"
+  },
+  "language": {
+    "english": "English",
+    "spanish": "Spanish",
+    "french": "French",
+    "catalan": "Catalan",
+    "portuguese": "Portuguese",
+    "euskera": "Basque"
+  },
+  "activity": {
+    "action_in_repo": "acted in the repository",
+    "repo_link": "Click here to view"
+  },
+  "contact": {
+    "linkedin": "LinkedIn",
+    "discord": "Discord",
+    "github": "GitHub"
+  },
+  "signup": {
+    "register": "Sign Up",
+    "email_label": "Email"
+  },
+  "faq": {
+    "support": "Support"
+  }
+}

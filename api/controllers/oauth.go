@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"sync"
 	"time"
 
+	"github.com/bount-ing/bount.ing/api/models"
 	"github.com/bount-ing/bount.ing/api/tools"
 )
 
@@ -80,7 +80,7 @@ func DecryptAndReadOAuthState(encryptedState string, oAuthHost string) (*OAuthSt
 
 	// Validate expiration
 	if time.Now().After(state.ExpiresAt) {
-		return nil, fmt.Errorf("oauth state has expired")
+		return nil, models.ErrOAuthStateExpired
 	}
 
 	return &state, nil

@@ -106,7 +106,7 @@ func VerifyGitHubToken(token string, stateUserID uint) error {
 	// Create a new request to the GitHub API to fetch user data
 	req, err := http.NewRequest("GET", githubUserAPIURL, nil)
 	if err != nil {
-		return fmt.Errorf("failed to create request: %w", err)
+		return models.ErrHTTPRequestCreationFailed
 	}
 
 	// Add the OAuth token in the Authorization header
@@ -116,18 +116,18 @@ func VerifyGitHubToken(token string, stateUserID uint) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to send request to GitHub: %w", err)
+		return models.ErrHTTPRequestSendFailed
 	}
 	defer resp.Body.Close()
 
 	// Read and parse the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("failed to read response body: %w", err)
+		return models.ErrIOReadFailed
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("GitHub API returned non-OK status: %s", resp.Status)
+		return models.ErrGitHubTokenVerificationFailed
 	}
 
 	// Parse the JSON response into a struct
@@ -137,14 +137,14 @@ func VerifyGitHubToken(token string, stateUserID uint) error {
 		Email string `json:"email"`
 	}
 	if err := json.Unmarshal(body, &githubUser); err != nil {
-		return fmt.Errorf("failed to unmarshal response body: %w", err)
+		return models.ErrJSONUnmarshalFailed
 	}
 
 	// If email is null, fetch the user's email addresses
 	if githubUser.Email == "" {
 		req, err := http.NewRequest("GET", githubEmailsAPIURL, nil)
 		if err != nil {
-			return fmt.Errorf("failed to create request: %w", err)
+			return models.ErrHTTPRequestCreationFailed
 		}
 
 		// Add the OAuth token in the Authorization header
@@ -152,18 +152,18 @@ func VerifyGitHubToken(token string, stateUserID uint) error {
 
 		resp, err := client.Do(req)
 		if err != nil {
-			return fmt.Errorf("failed to send request to GitHub: %w", err)
+			return models.ErrHTTPRequestSendFailed
 		}
 		defer resp.Body.Close()
 
 		// Read and parse the response body
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return fmt.Errorf("failed to read response body: %w", err)
+			return models.ErrIOReadFailed
 		}
 
 		if resp.StatusCode != http.StatusOK {
-			return fmt.Errorf("GitHub API returned non-OK status: %s", resp.Status)
+			return models.ErrGitHubTokenVerificationFailed
 		}
 
 		// Parse the JSON response into a slice of structs
@@ -173,7 +173,7 @@ func VerifyGitHubToken(token string, stateUserID uint) error {
 			Verified bool   `json:"verified"`
 		}
 		if err := json.Unmarshal(body, &emails); err != nil {
-			return fmt.Errorf("failed to unmarshal email response body: %w", err)
+			return models.ErrJSONUnmarshalFailed
 		}
 
 		// Find the primary and verified email address
@@ -191,11 +191,11 @@ func VerifyGitHubToken(token string, stateUserID uint) error {
 	// Check 1: stateUserID doesn't already have a github identity
 	userIdentities, err := controllers.GetUserIdentities(stateUserID)
 	if err != nil {
-		return fmt.Errorf("failed to get user identities: %w", err)
+		return models.ErrUserIdentitiesNotFound
 	}
 	for _, identity := range userIdentities {
 		if identity.Host.Address == "https://github.com" && identity.UserExternalID != githubUserID {
-			return fmt.Errorf("user already has another GitHub identity associated")
+			return models.ErrGitHubDuplicateIdentity
 		} else if identity.Host.Address == "https://github.com" && identity.UserExternalID == githubUserID {
 			// return ok
 			return nil
@@ -205,11 +205,11 @@ func VerifyGitHubToken(token string, stateUserID uint) error {
 	// Check 2: githubUser.ID doesn't already have an identity
 	hostIdentities, err := controllers.GetHostIdentitiesFromAddress("https://github.com")
 	if err != nil {
-		return fmt.Errorf("failed to get host identities: %w", err)
+		return models.ErrHostIdentitiesNotFound
 	}
 	for _, identity := range hostIdentities {
 		if identity.UserExternalID == githubUserID && identity.UserID != stateUserID {
-			return fmt.Errorf("GitHub identity already has another user associated")
+			return models.ErrGitHubAlreadyInUse
 		}
 	}
 
@@ -224,7 +224,7 @@ func VerifyGitHubToken(token string, stateUserID uint) error {
 
 	err = controllers.CreateIdentity(newIdentity)
 	if err != nil {
-		return fmt.Errorf("failed to create identity: %w", err)
+		return models.ErrIdentityCreationFailed
 	}
 
 	return nil

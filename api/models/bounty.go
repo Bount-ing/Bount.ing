@@ -37,7 +37,7 @@ type Bounty struct {
 	IssueImageURL   string           `json:"issue_image_url"`
 	StartAt         time.Time        `json:"startAt" binding:"required"`
 	EndAt           time.Time        `json:"endAt" binding:"required"`
-	OwnerID         uint             `json:"owner_id"`
+	SponsorID       uint             `json:"sponsor_id"`
 	FinalizedAt     time.Time        `json:"finalized_at"`
 	IssueID         uint             `json:"issue_id"`
 	StripeInvoiceID string           `json:"stripe_invoice_id"`
@@ -48,14 +48,14 @@ type Bounty struct {
 	// Claimer Status Timestamps
 	ClaimerPRFound     time.Time `json:"claimerPRFound"`     // Timestamp when PR is found by the claimer
 	ClaimerPRLinked    time.Time `json:"claimerPRLinked"`    // Timestamp when PR is linked to the issue by the claimer
-	ClaimerPRAccepted  time.Time `json:"claimerPRAccepted"`  // Timestamp when the PR is accepted by the owner
+	ClaimerPRAccepted  time.Time `json:"claimerPRAccepted"`  // Timestamp when the PR is accepted by the sponsor
 	ClaimerIssueClosed time.Time `json:"claimerIssueClosed"` // Timestamp when the issue is closed by the claimer
 
-	// Owner Status Timestamps
-	OwnerPRFound     time.Time `json:"ownerPRFound"`     // Timestamp when PR is found by the owner
-	OwnerPRLinked    time.Time `json:"ownerPRLinked"`    // Timestamp when PR is linked to the issue by the owner
-	OwnerPRAccepted  time.Time `json:"ownerPRAccepted"`  // Timestamp when the PR is accepted by the owner
-	OwnerIssueClosed time.Time `json:"ownerIssueClosed"` // Timestamp when the issue is closed by the owner
+	// Sponsor Status Timestamps
+	SponsorPRFound     time.Time `json:"sponsorPRFound"`     // Timestamp when PR is found by the sponsor
+	SponsorPRLinked    time.Time `json:"sponsorPRLinked"`    // Timestamp when PR is linked to the issue by the sponsor
+	SponsorPRAccepted  time.Time `json:"sponsorPRAccepted"`  // Timestamp when the PR is accepted by the sponsor
+	SponsorIssueClosed time.Time `json:"sponsorIssueClosed"` // Timestamp when the issue is closed by the sponsor
 }
 
 func ValidateBountyType(bt string) error {

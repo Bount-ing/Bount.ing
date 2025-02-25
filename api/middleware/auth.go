@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -36,7 +35,7 @@ func AuthorizeJWT() gin.HandlerFunc {
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			// Verify signing algorithm
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Method.Alg())
+				return nil, models.ErrInvalidSigningMethod
 			}
 			return []byte(os.Getenv("JWT_SECRET_KEY")), nil
 		})

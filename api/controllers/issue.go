@@ -82,7 +82,7 @@ func GetMyIssues(userID uint) ([]models.Issue, error) {
 	err := db.DB.Preload("Bounties").
 		Preload("Bounties.Variables").
 		Preload("Bounties.Claims", "status = ?", "pending"). // Only pending claims
-		Preload("Bounties.Claims.BountyOwnerCheck").         // Owner PR verification
+		Preload("Bounties.Claims.BountySponsorCheck").       // Sponsor PR verification
 		Preload("Bounties.Claims.BountyClaimerCheck").       // Author PR verification
 		Find(&issues).Error
 
@@ -91,12 +91,12 @@ func GetMyIssues(userID uint) ([]models.Issue, error) {
 		return nil, err
 	}
 
-	// Filter issues based on user's ownership of bounties
+	// Filter issues based on user's sponsorship of bounties
 	var myIssues []models.Issue
 	for _, issue := range issues {
 		var myBounties []models.Bounty
 		for _, bounty := range issue.Bounties {
-			if bounty.OwnerID == userID {
+			if bounty.SponsorID == userID {
 				// Filter and organize claims directly
 				bounty.Claims = filterAndOrganizeClaims(bounty.Claims)
 				myBounties = append(myBounties, bounty)
@@ -119,7 +119,7 @@ func GetIssueBounties(issueID string) (models.Issue, error) {
 		Preload("Bounties.Variables").
 		Preload("Bounties.Claims", "status = ?", "pending").
 		Preload("Bounties.Claims.BountyClaimerCheck"). // Changed from PRVerification
-		Preload("Bounties.Claims.BountyOwnerCheck").   // Add other checks if needed
+		Preload("Bounties.Claims.BountySponsorCheck"). // Add other checks if needed
 		Preload("Bounties.Claims.BountySystemCheck").  // Add other checks if needed
 		First(&issue, issueID)
 
@@ -162,12 +162,12 @@ func GetIssueByID(issueID uint) (models.Issue, error) {
 	return issue, nil
 }
 
-// First, let's add a method to extract owner and repo from the URL
-func ParseGitHubURL(url string) (owner, repo string, err error) {
-	// GitHub issue URLs are in the format: https://github.com/owner/repo/issues/number
+// First, let's add a method to extract sponsor and repo from the URL
+func ParseGitHubURL(url string) (sponsor, repo string, err error) {
+	// GitHub issue URLs are in the format: https://github.com/sponsor/repo/issues/number
 	parts := strings.Split(url, "/")
 	if len(parts) < 5 {
-		return "", "", fmt.Errorf("invalid GitHub URL format")
+		return "", "", models.ErrGitHubInvalidURL
 	}
 	return parts[3], parts[4], nil
 }
@@ -186,7 +186,7 @@ func GetGitHubAvatarURL(username string) (string, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("GitHub API returned status: %d", resp.StatusCode)
+		return "", models.ErrGitHubAvatarNotFound
 	}
 
 	var user GitHubUser
@@ -203,15 +203,15 @@ func CreateIssueFromGitHub(url string) (*models.Issue, error) {
 	// Fetch issue from GitHub
 	githubIssue, err := githubCtrl.FetchGitHubIssue(url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch GitHub issue: %v", err)
+		return nil, err
 	}
 
 	//extract login from githubIssueurl
-	ownerLogin := strings.Split(url, "/")[3]
+	sponsorLogin := strings.Split(url, "/")[3]
 
-	avatarURL, err := GetGitHubAvatarURL(ownerLogin)
+	avatarURL, err := GetGitHubAvatarURL(sponsorLogin)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch GitHub avatar URL: %v", err)
+		return nil, err
 	}
 
 	// Convert GitHub issue to our Issue model
@@ -231,7 +231,7 @@ func CreateIssueFromGitHub(url string) (*models.Issue, error) {
 
 	// If the error is anything other than "record not found", return the error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, fmt.Errorf("failed to query existing issue: %v", err)
+		return nil, err
 	}
 
 	// If we found an existing issue, return it
@@ -242,7 +242,7 @@ func CreateIssueFromGitHub(url string) (*models.Issue, error) {
 	// Create the issue
 	createdIssue, err := CreateIssue(*issue)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create issue: %v", err)
+		return nil, err
 	}
 
 	return &createdIssue, nil

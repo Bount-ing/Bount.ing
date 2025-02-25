@@ -4,13 +4,30 @@ services:
     env_file:
       - .env
     ports:
-      - 6500:${POSTGRES_PORT}
+      - 6500:${DB_PORT}
     volumes:
       - db:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U $POSTGRES_USER'"]
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U $DB_USER'"]
       interval: 3s
       retries: 10
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:${RABBITMQ_PORT}"  # AMQP protocol port
+      - "15672:${RABBITMQ_MANAGEMENT_PORT}" # Management UI
+    env_file:
+      - .env
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/mnesia  # Ensure persistence
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      retries: 5
+      start_period: 20s
 
   api:
     restart: always
@@ -20,11 +37,12 @@ services:
     ports:
       - "8080:8080"
     depends_on:
+      - rabbitmq
       - db
 
-  webapp:
+  wui:
     restart: always
-    build: ./webapp
+    build: ./wui
     env_file:
       - .env
     ports:
@@ -32,8 +50,8 @@ services:
     depends_on:
       - api
     volumes:
-      - ./webapp/src:/app/src:Z
-      - ./webapp/public:/app/public:Z
+      - ./wui/src:/app/src:Z
+      - ./wui/public:/app/public:Z
 
   dcdn:
     restart: always
@@ -42,10 +60,9 @@ services:
       - "3001:3001"
     depends_on:
       - db
-    environment:
-      POSTGRES_DB: bountydb
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      - api
+    env_file:
+      - .env
 
   redis:
     image: redis:6.0.9
@@ -61,3 +78,4 @@ services:
 
 volumes:
   db:
+  rabbitmq_data:

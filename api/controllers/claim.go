@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -74,21 +73,31 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 	claimer, err := GetUserByID(claimerID)
 	if err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to find claimer %d: %v", claimerID, err)
+		return models.ErrUserNotFound
+	}
+
+	// Check legal data for the claimer
+	userLegalData, err := GetLegalEntity(claimer.ID)
+	if err != nil {
+		log.Printf("Error fetching user legal data: %s", err)
+		return models.ErrClaimWithoutLegalEntity
+	} else if userLegalData.DocumentNumber == "" {
+		log.Printf("User does not have a tax ID")
+		return models.ErrClaimWithoutLegalEntity
 	}
 
 	// Get issue and host details
 	issue, err := GetIssueByID(issueID)
 	if err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to find issue %d: %v", issue.ID, err)
+		return models.ErrIssueNotFound
 	}
 
 	// Find all bounties for the issue
 	var bounties []models.Bounty
 	if err := tx.Where("issue_id = ?", issueID).Find(&bounties).Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to find bounties for issue %d: %v", issueID, err)
+		return models.ErrBountyNotFound
 	}
 
 	// Save the provided claim check
@@ -96,7 +105,7 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 	claimCheck.CheckerType = "CLAIMER"
 	if err := tx.Create(&claimCheck).Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to create claim check: %v", err)
+		return models.ErrClaimCheckCreationFailed
 	}
 
 	var bountyDetails string
@@ -107,17 +116,17 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 		claimedAmount, err := GetCurrentBountyAmount(bounty.ID)
 		if err != nil {
 			tx.Rollback()
-			return fmt.Errorf("failed to calculate claimed amount for bounty %d: %v", bounty.ID, err)
+			return models.ErrBountyAmountCalculationFailed
 		}
 
-		// Save the owner claim check
-		ownerClaimCheck := models.ClaimCheck{
-			CheckerID:   bounty.OwnerID, // Assuming Bounty has an OwnerID field
+		// Save the sponsor claim check
+		sponsorClaimCheck := models.ClaimCheck{
+			CheckerID:   bounty.SponsorID, // Assuming Bounty has an SponsorID field
 			CheckerType: "OWNER",
 		}
-		if err := tx.Create(&ownerClaimCheck).Error; err != nil {
+		if err := tx.Create(&sponsorClaimCheck).Error; err != nil {
 			tx.Rollback()
-			return fmt.Errorf("failed to create owner claim check: %v", err)
+			return models.ErrSponsorClaimCheckCreationFailed
 		}
 
 		// Save the system claim check
@@ -127,7 +136,7 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 		}
 		if err := tx.Create(&systemClaimCheck).Error; err != nil {
 			tx.Rollback()
-			return fmt.Errorf("failed to create system claim check: %v", err)
+			return models.ErrSystemClaimCheckCreationFailed
 		}
 
 		// Create the claim for the bounty
@@ -140,26 +149,26 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 			ClaimDetails:         claimDetails,
 			Status:               "pending",
 			BountyClaimerCheckID: claimCheck.ID,
-			BountyOwnerCheckID:   ownerClaimCheck.ID,
+			BountySponsorCheckID: sponsorClaimCheck.ID,
 			BountySystemCheckID:  systemClaimCheck.ID,
 		}
 
 		if err := tx.Create(claim).Error; err != nil {
 			tx.Rollback()
-			return fmt.Errorf("failed to create claim for bounty %d: %v", bounty.ID, err)
+			return models.ErrClaimCreationFailed
 		}
 
 		// Update claimed amount in bounty
 		bounty.ClaimedAmount = claimedAmount
 		if err := tx.Save(&bounty).Error; err != nil {
 			tx.Rollback()
-			return fmt.Errorf("failed to update bounty %d: %v", bounty.ID, err)
+			return models.ErrBountyUpdateFailed
 		}
 
 		// Accumulate bounty details for email
-		bountyDetails += fmt.Sprintf("<li><strong>Bounty ID:</strong> %d - <strong>Claimed Amount:</strong> %.2f</li>", bounty.ID, claimedAmount*(1-0.042))
+		bountyDetails += fmt.Sprintf("<li><strong>Bounty ID:</strong> %d - <strong>Claimed Amount:</strong> %.2f</li>", bounty.ID, claimedAmount)
 
-		// Send email (non-blocking) to bounty owner
+		// Send email (non-blocking) to bounty sponsor
 		go func() {
 			mailContent := fmt.Sprintf(
 				`<p>Hi there,</p>
@@ -175,21 +184,21 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 				bounty.ID, issueID, pullRequestURL,
 			)
 
-			owner, err := GetUserByID(bounty.OwnerID)
+			sponsor, err := GetUserByID(bounty.SponsorID)
 			if err != nil {
-				log.Printf("Failed to find bounty owner %d: %v", bounty.OwnerID, err)
+				log.Printf("Failed to find bounty sponsor %d: %v", bounty.SponsorID, err)
 				return
 			}
 
-			if err := tools.SendEmail(owner.Email, "Bount.ing - New Bounty Claim", mailContent); err != nil {
-				log.Printf("Failed to send email to bounty owner %s: %v", owner.Email, err)
+			if err := tools.SendEmail(sponsor.Email, "Bount.ing - New Bounty Claim", mailContent); err != nil {
+				log.Printf("Failed to send email to bounty sponsor %s: %v", sponsor.Email, err)
 			}
 		}()
 	}
 
 	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
-		return fmt.Errorf("failed to commit transaction: %v", err)
+		return models.ErrClaimCreationFailed
 	}
 
 	// Send email (non-blocking)
@@ -223,9 +232,27 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 	return nil
 }
 
-func ApproveClaim(userID, bountyOwnerID uint, claimID uint, ownerCheck models.ClaimCheck) error {
-	log.Printf("Approving claim %d by bounty owner %d", claimID, bountyOwnerID)
-	log.Printf("Owner check: %+v", ownerCheck)
+func ApproveClaim(userID, sponsorID uint, claimID uint, sponsorCheck models.ClaimCheck, invoice bool) error {
+	log.Printf("Approving claim %d by bounty sponsor %d", claimID, sponsorID)
+	log.Printf("Sponsor check: %+v", sponsorCheck)
+
+	sponsor, err := GetUserByID(sponsorID)
+	if err != nil {
+		return models.ErrUserNotFound
+	}
+
+	// Check legal Tax ID for the sponsor
+	sponsorLegalData, err := GetLegalEntity(sponsor.ID)
+	if invoice {
+		if err != nil {
+			log.Printf("Error fetching user legal data: %s", err)
+			return models.ErrInvoiceWithoutLegalEntity
+		} else if sponsorLegalData.DocumentNumber == "" {
+			log.Printf("User does not have a tax ID")
+			return models.ErrInvoiceWithoutLegalEntity
+		}
+	}
+
 	// Begin transaction
 	tx := db.DB.Begin()
 	defer func() {
@@ -238,57 +265,57 @@ func ApproveClaim(userID, bountyOwnerID uint, claimID uint, ownerCheck models.Cl
 	var claim models.Claim
 	if err := tx.First(&claim, claimID).Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("claim not found: %v", err)
+		return models.ErrClaimNotFound
 	}
 
-	// Verify the bounty owner is associated with the claim
+	// Verify the bounty sponsor is associated with the claim
 	bounty, err := GetBountyByID(claim.BountyID)
-	if err != nil || bounty.OwnerID != bountyOwnerID || bounty.OwnerID != userID {
+	if err != nil || bounty.SponsorID != sponsorID || bounty.SponsorID != userID {
 		tx.Rollback()
-		return errors.New("unauthorized: not bounty owner")
+		return models.ErrApproveClaimNotOwned
 	}
 
 	// Fetch the original claimer check
 	var claimerCheck models.ClaimCheck
 	if err := tx.First(&claimerCheck, claim.BountyClaimerCheckID).Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("claimer check not found: %v", err)
+		return models.ErrClaimCheckNotFound
 	}
 
-	// Validate owner check against claimer check
-	if !validateOwnerCheck(&claimerCheck, &ownerCheck) {
+	// Validate sponsor check against claimer check
+	if !validateSponsorCheck(&claimerCheck, &sponsorCheck) {
 		tx.Rollback()
-		return errors.New("owner check validation failed")
+		return models.ErrSponsorRejectedClaimCheck
 	}
 
-	//retrive preexisting owner check
-	var preexistingOwnerCheck models.ClaimCheck
-	if err := tx.First(&preexistingOwnerCheck, claim.BountyOwnerCheckID).Error; err != nil {
+	//retrive preexisting sponsor check
+	var preexistingSponsorCheck models.ClaimCheck
+	if err := tx.First(&preexistingSponsorCheck, claim.BountySponsorCheckID).Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("preexisting owner check not found: %v", err)
+		return models.ErrClaimCheckNotFound
 	}
 
-	// Set owner check details
-	ownerCheck.CheckerID = bountyOwnerID
-	ownerCheck.CheckerType = "OWNER"
+	// Set sponsor check details
+	sponsorCheck.CheckerID = sponsorID
+	sponsorCheck.CheckerType = "OWNER"
 
-	// Save owner check
-	if err := tx.Save(&ownerCheck).Error; err != nil {
+	// Save sponsor check
+	if err := tx.Save(&sponsorCheck).Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to save owner check: %v", err)
+		return models.ErrClaimCheckCreationFailed
 	}
 
-	// Update claim with owner check and status
-	claim.BountyOwnerCheckID = ownerCheck.ID
+	// Update claim with sponsor check and status
+	claim.BountySponsorCheckID = sponsorCheck.ID
 	claim.Status = "approved"
 	if err := tx.Save(&claim).Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to update claim: %v", err)
+		return models.ErrClaimCheckUpdateFailed
 	}
 
 	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
-		return fmt.Errorf("failed to commit transaction: %v", err)
+		return models.ErrClaimCheckUpdateFailed
 	}
 
 	//Retrieve bounty & update status
@@ -301,20 +328,56 @@ func ApproveClaim(userID, bountyOwnerID uint, claimID uint, ownerCheck models.Cl
 		log.Print(err)
 	}
 
-	// Send email (non-blocking)
+	// Send email (non-blocking) to claimer
 	go func() {
-		mailContent := fmt.Sprintf(
-			`<p>Hi there,</p>
-			<p>Your claim for bounty %d has been approved by the bounty owner.</p>
-			<p>Details:</p>
+
+		mailContent := ""
+		if invoice {
+			mailContent = fmt.Sprintf(
+				`<p>Hi there,</p>
+				<p>Your claim for bounty %d has been approved by the bounty sponsor.</p>
+				<p>Please note that the sponsor has requested an invoice for the payment.</p>
+				<p>Mission Details:</p>
+				<ul>
+					<li>Issue: %d</li>
+					<li>Pull Request: %s</li>
+					<li>Claim Date: %s</li>
+					<li>Claim Reward: %.2f</li>
+				</ul>
+				<p>Sponsor Details:</p>
+				<ul>
+					<li>Legal Name / Company: %s</li>
+					<li>Address: %s</li>
+					<li>City: %s</li>
+					<li>Zip: %s</li>
+					<li>State: %s</li>
+					<li>Country: %s</li>
+				</ul>
+				<ul>
+					<li>Document Type: %s</li>
+					<li>Document Country: %s</li>
+					<li>Document Number: %s</li>
+				</ul>
+				<p>Thank you for your contribution!</p>`,
+				claim.BountyID, claim.IssueID, claim.PullRequestURL, claim.CreatedAt.Format("2006-01-02 15:04:05"), claim.ClaimedAmount,
+				sponsorLegalData.LegalName, sponsorLegalData.LegalAddress, sponsorLegalData.LegalCity, sponsorLegalData.LegalZip, sponsorLegalData.LegalState, sponsorLegalData.LegalCountry,
+				sponsorLegalData.DocumentType, sponsorLegalData.DocumentCountry, sponsorLegalData.DocumentNumber,
+			)
+		} else {
+			mailContent = fmt.Sprintf(
+				`<p>Hi there,</p>
+			<p>Your claim for bounty %d has been approved by the bounty sponsor.</p>
+			<p>Mission Details:</p>
 			<ul>
 				<li>Issue: %d</li>
 				<li>Pull Request: %s</li>
+				<li>Claim Date: %s</li>
+				<li>Claim Reward: %.2f</li>
 			</ul>
 			<p>Thank you for your contribution!</p>`,
-			bounty.ID, claim.IssueID, claim.PullRequestURL,
-		)
-
+				claim.BountyID, claim.IssueID, claim.PullRequestURL, claim.CreatedAt.Format("2006-01-02 15:04:05"), claim.ClaimedAmount,
+			)
+		}
 		//get claimer
 		claimer, err := GetUserByID(claim.ClaimerID)
 		if err != nil {
@@ -332,18 +395,28 @@ func ApproveClaim(userID, bountyOwnerID uint, claimID uint, ownerCheck models.Cl
 		// Process payment
 		if err := ProcessPayment(claimerCheck.CheckerID, bounty.ID); err != nil {
 			log.Printf("Failed to process payment for claimer %d: %v", claimerCheck.CheckerID, err)
+			return
 		}
-	}()
+		claim.Status = "paid"
+		if err := db.DB.Save(&claim).Error; err != nil {
+			log.Print(err)
+		}
 
+		// Generate PDF invoice for the platform fees
+		if err := tools.GenerateInvoice(bounty.ID, claim.ID); err != nil {
+			log.Printf("Failed to generate invoice for claimer %d: %v", claimerCheck.CheckerID, err)
+		}
+
+	}()
 	return nil
 }
 
-func validateOwnerCheck(claimerCheck, ownerCheck *models.ClaimCheck) bool {
+func validateSponsorCheck(claimerCheck, sponsorCheck *models.ClaimCheck) bool {
 	// Implement validation logic
-	// Compare relevant fields between claimer and owner checks
-	return ownerCheck.PRNumber == claimerCheck.PRNumber &&
-		ownerCheck.RepoName == claimerCheck.RepoName &&
-		ownerCheck.RepoOwner == claimerCheck.RepoOwner
+	// Compare relevant fields between claimer and sponsor checks
+	return sponsorCheck.PRNumber == claimerCheck.PRNumber &&
+		sponsorCheck.RepoName == claimerCheck.RepoName &&
+		sponsorCheck.RepoSponsor == claimerCheck.RepoSponsor
 }
 
 func GetClaimByCaimCheck(claimerCheckID uint) (models.Claim, error) {

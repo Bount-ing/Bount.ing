@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"time"
 
@@ -12,8 +11,8 @@ import (
 
 func CreateBounty(bounty *models.Bounty) error {
 	bounty.Status = "open"
-	ownerStripeAccountID := ""
-	ownerStripeCustomerID := ""
+	sponsorStripeAccountID := ""
+	sponsorStripeCustomerID := ""
 	stripeAccountFound := false
 
 	// Check if the bounty issue url is empty
@@ -35,9 +34,9 @@ func CreateBounty(bounty *models.Bounty) error {
 		bounty.IssueID = issue.ID
 	}
 
-	log.Printf("Creating Bounty - Owner ID: %d", bounty.OwnerID)
+	log.Printf("Creating Bounty - Sponsor ID: %d", bounty.SponsorID)
 	// Fetch users identities where the host is stripe
-	identities, err := GetUserIdentities(bounty.OwnerID)
+	identities, err := GetUserIdentities(bounty.SponsorID)
 	if err != nil {
 		log.Printf("Error fetching user identities: %s", err)
 		return err
@@ -46,8 +45,8 @@ func CreateBounty(bounty *models.Bounty) error {
 	for _, identity := range identities {
 		log.Printf("Identity: %+v", identity)
 		if identity.Host.Address == "https://stripe.com" {
-			ownerStripeAccountID = identity.UserExternalID
-			ownerStripeCustomerID = identity.UserExternalSecondaryID
+			sponsorStripeAccountID = identity.UserExternalID
+			sponsorStripeCustomerID = identity.UserExternalSecondaryID
 			stripeAccountFound = true
 		}
 	}
@@ -57,18 +56,8 @@ func CreateBounty(bounty *models.Bounty) error {
 		return errors.New("user does not have a stripe account")
 	}
 
-	// Check legal data for the user
-	userLegalData, err := GetLegalEntity(bounty.OwnerID)
-	if err != nil {
-		log.Printf("Error fetching user legal data: %s", err)
-		return errors.New("user does not have a tax ID")
-	} else if userLegalData.DocumentNumber == "" {
-		log.Printf("User does not have a tax ID")
-		return errors.New("user does not have a tax ID")
-	}
-
 	// Step 1: Create a SetupIntent in Stripe
-	setupIntent, err := CreateStripeSetupIntent(bounty, bounty.OwnerID, ownerStripeCustomerID, ownerStripeAccountID)
+	setupIntent, err := CreateStripeSetupIntent(bounty, bounty.SponsorID, sponsorStripeCustomerID, sponsorStripeAccountID)
 	if err != nil {
 		log.Printf("Error creating Stripe SetupIntent: %s", err)
 		return err
@@ -133,7 +122,7 @@ func DeleteBounty(bountyID, userID uint) error {
 		return err.Error
 	}
 
-	if bounty.OwnerID != userID {
+	if bounty.SponsorID != userID {
 		return errors.New("user does not own bounty")
 	}
 
@@ -196,7 +185,7 @@ func ValidateBountyData(bounty models.Bounty, variables []models.BountyVariable)
 
 		// Compare start and end dates for each variable directly without parsing
 		if variable.StartAt.After(variable.EndAt) {
-			return fmt.Errorf("variable start date %s cannot be after end date %s", variable.StartAt, variable.EndAt)
+			return models.ErrDateRangeStartAfterEnd
 		}
 	}
 

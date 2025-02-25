@@ -43,7 +43,7 @@ type User struct {
 
 	// Relationships
 	Identities        []Identity     `gorm:"foreignKey:UserID;references:ID" json:"identities,omitempty"`
-	PublishedBounties []Bounty       `gorm:"foreignKey:OwnerID" json:"published_bounties,omitempty"`
+	PublishedBounties []Bounty       `gorm:"foreignKey:SponsorID" json:"published_bounties,omitempty"`
 	Claims            []Claim        `gorm:"foreignKey:ClaimerID" json:"claims,omitempty"`
 	RefreshTokens     []RefreshToken `gorm:"foreignKey:UserID" json:"refresh_tokens,omitempty"`
 }

@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -17,11 +18,11 @@ var DB *gorm.DB
 
 func init() {
 	// Explicit extraction of environment variables
-	dbName := strings.Trim(os.Getenv("POSTGRES_DB"), "\"")
-	dbUser := strings.Trim(os.Getenv("POSTGRES_USER"), "\"")
-	dbHost := strings.Trim(os.Getenv("POSTGRES_HOST"), "\"")
-	dbPassword := strings.Trim(os.Getenv("POSTGRES_PASSWORD"), "\"")
-	dbPort := strings.Trim(os.Getenv("POSTGRES_PORT"), "\"")
+	dbHost := strings.Trim(os.Getenv("DB_HOST"), "\"")
+	dbPort := strings.Trim(os.Getenv("DB_PORT"), "\"")
+	dbUser := strings.Trim(os.Getenv("DB_USER"), "\"")
+	dbPassword := strings.Trim(os.Getenv("DB_PWD"), "\"")
+	dbName := strings.Trim(os.Getenv("DB_NAME"), "\"")
 
 	// First connection string (to default postgres database)
 	dsn := fmt.Sprintf(
@@ -69,7 +70,7 @@ func init() {
 func createDatabaseIfNotExists(dbName string, dsn string) error {
 	conn, err := pgx.Connect(context.Background(), dsn)
 	if err != nil {
-		return fmt.Errorf("unable to connect to the database: %v", err)
+		return errors.New("failed to connect to PostgreSQL")
 	}
 	defer conn.Close(context.Background())
 
@@ -77,7 +78,7 @@ func createDatabaseIfNotExists(dbName string, dsn string) error {
 	var exists bool
 	err = conn.QueryRow(context.Background(), "SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = $1)", dbName).Scan(&exists)
 	if err != nil {
-		return fmt.Errorf("failed to check if database exists: %v", err)
+		return errors.New("failed to check if database exists")
 	}
 
 	// If it doesn't exist, create it
@@ -85,7 +86,7 @@ func createDatabaseIfNotExists(dbName string, dsn string) error {
 		// Use a parameterized query to safely create the database
 		_, err := conn.Exec(context.Background(), fmt.Sprintf("CREATE DATABASE %s", pq.QuoteIdentifier(dbName)))
 		if err != nil {
-			return fmt.Errorf("failed to create database: %v", err)
+			return errors.New("failed to create database")
 		}
 	}
 	return nil

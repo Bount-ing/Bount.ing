@@ -14,7 +14,7 @@ type ClaimCheck struct {
 	Closed           bool   `json:"closed"`
 	AuthorUsername   string `json:"authorUsername"`
 	AuthorExternalID uint   `json:"authorExternalId"`
-	RepoOwner        string `json:"repoOwner"`
+	RepoSponsor      string `json:"repoSponsor"`
 	RepoName         string `json:"repoName"`
 	PRNumber         string `json:"prNumber"`
 

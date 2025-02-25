@@ -19,11 +19,11 @@ app = Flask(__name__)
 
 # Database configuration
 DATABASE = {
-    'dbname': os.environ.get('POSTGRES_DB', 'postgres'),
-    'user': os.environ.get('POSTGRES_USER', 'postgres'),
-    'password': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
-    'host': os.environ.get('POSTGRES_HOST', 'db'),
-    'port': os.environ.get('POSTGRES_PORT', '5432')
+    'host': os.environ.get('DB_HOST', 'db'),
+    'port': os.environ.get('DB_PORT', '5432'),
+    'user': os.environ.get('DB_USER', 'postgres'),
+    'password': os.environ.get('DB_PWD', 'postgres'),
+    'dbname': os.environ.get('DB_NAME', 'postgres')
 }
 
 base_url = os.environ.get('BASE_URL', 'http://0.0.0.0:3000')
@@ -73,8 +73,8 @@ def get_issue_image_url(issue_id):
     return result[0] if result else None
 
 def create_issue_card(issue, total_bounty, issue_image_url, local_image_path):
-    owner, repo = issue['url'].split('/')[-4], issue['url'].split('/')[-3]
-    repo_url = f"https://github.com/{owner}/{repo}"
+    sponsor, repo = issue['url'].split('/')[-4], issue['url'].split('/')[-3]
+    repo_url = f"https://github.com/{sponsor}/{repo}"
     issue_title = issue['title']
     
     # Convert images to base64
@@ -109,9 +109,9 @@ def create_issue_card(issue, total_bounty, issue_image_url, local_image_path):
             <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6s" repeatCount="indefinite" />
         </text>
 
-        <!-- Repo and Owner -->
+        <!-- Repo and Sponsor -->
         <text x="50%" y="70" font-family="Nimbus Mono L" font-size="10" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)">
-            {owner}/{repo}
+            {sponsor}/{repo}
         </text>
 
         <!-- Issue Title -->
@@ -184,8 +184,8 @@ def get_issue_card(issue_id):
     return jsonify({'error': 'Issue not found'}), 404
 
 def create_bounty_card(bounty, issue, local_image_path, options):
-    owner, repo = issue['url'].split('/')[-4], issue['url'].split('/')[-3]
-    repo_url = f"https://github.com/{owner}/{repo}"
+    sponsor, repo = issue['url'].split('/')[-4], issue['url'].split('/')[-3]
+    repo_url = f"https://github.com/{sponsor}/{repo}"
     external_image_base64 = image_to_base64(issue["image_url"])
     local_image_base64 = local_image_to_base64(local_image_path)
     opacity_logo_value = (float(options["opacity_1"]) + float(options["opacity_2"]))
@@ -220,9 +220,9 @@ def create_bounty_card(bounty, issue, local_image_path, options):
             <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6s" repeatCount="indefinite" />
         </text>
 
-        <!-- Repo and Owner -->
+        <!-- Repo and Sponsor -->
         <text x="50%" y="70" font-family="Nimbus Mono L" font-size="10" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)" style="opacity: {opacity_logos}">
-            {owner}
+            {sponsor}
         </text>
         <text x="50%" y="85" font-family="Nimbus Mono L" font-size="10" fill="#1abc9c" text-anchor="middle" filter="url(#softGlow)" style="opacity: {opacity_logos}">
             {repo}
