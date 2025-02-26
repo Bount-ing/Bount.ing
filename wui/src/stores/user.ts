@@ -86,9 +86,9 @@ export const useUserStore = defineStore('user', () => {
       }
 
       // Create a function to fetch issues for a given repository
-      const fetchIssues = async (sponsor: string, repo: string): Promise<Issue[]> => {
+      const fetchIssues = async (owner: string, repo: string): Promise<Issue[]> => {
         const issuesResponse = await axios.get<Issue[]>(
-          `https://api.github.com/repos/${sponsor}/${repo}/issues`,
+          `https://api.github.com/repos/${owner}/${repo}/issues`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -114,7 +114,7 @@ export const useUserStore = defineStore('user', () => {
           const fetchedIssues = await fetchIssues(login, repo.name)
 
           for (const issue of fetchedIssues) {
-            issue.repo_avatar = repo.sponsor.avatar_url
+            issue.repo_avatar = repo.owner.avatar_url
           }
 
           allIssues.push(...fetchedIssues)

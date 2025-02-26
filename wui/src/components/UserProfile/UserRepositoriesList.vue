@@ -14,9 +14,9 @@
         :key="repo.id" 
         class="bg-secondary p-4 rounded-lg flex items-start space-x-4"
       >
-        <!-- Repository sponsor avatar -->
+        <!-- Repository owner avatar -->
         <img 
-          :src="repo.sponsor.avatar_url" 
+          :src="repo.owner.avatar_url" 
           alt="Organization Logo" 
           class="w-16 h-16 rounded-full"
         />
