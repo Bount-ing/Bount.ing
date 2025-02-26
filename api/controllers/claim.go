@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -61,6 +62,8 @@ func DeleteClaim(claimID string) error {
 }
 
 func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetails string, claimCheck models.ClaimCheck) error {
+	stripeAccountFound := false
+
 	// Start transaction
 	tx := db.DB.Begin()
 	defer func() {
@@ -74,6 +77,25 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 	if err != nil {
 		tx.Rollback()
 		return models.ErrUserNotFound
+	}
+
+	// Fetch users identities where the host is stripe
+	identities, err := GetUserIdentities(claimer.ID)
+	if err != nil {
+		log.Printf("Error fetching user identities: %s", err)
+		return err
+	}
+
+	for _, identity := range identities {
+		log.Printf("Identity: %+v", identity)
+		if identity.Host.Address == "https://stripe.com" {
+			stripeAccountFound = true
+		}
+	}
+
+	if !stripeAccountFound {
+		log.Printf("User does not have a stripe account")
+		return errors.New("user does not have a stripe account")
 	}
 
 	// Check legal data for the claimer
@@ -232,17 +254,17 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 	return nil
 }
 
-func ApproveClaim(userID, sponsorID uint, claimID uint, sponsorCheck models.ClaimCheck, invoice bool) error {
-	log.Printf("Approving claim %d by bounty sponsor %d", claimID, sponsorID)
+func ApproveClaim(userID, checkerID uint, claimID uint, sponsorCheck models.ClaimCheck, invoice bool) error {
+	log.Printf("Approving claim %d, bounty Sponsor-Checker %d by user %d", claimID, checkerID, userID)
 	log.Printf("Sponsor check: %+v", sponsorCheck)
 
-	sponsor, err := GetUserByID(sponsorID)
+	user, err := GetUserByID(userID)
 	if err != nil {
 		return models.ErrUserNotFound
 	}
 
 	// Check legal Tax ID for the sponsor
-	sponsorLegalData, err := GetLegalEntity(sponsor.ID)
+	sponsorLegalData, err := GetLegalEntity(user.ID)
 	if invoice {
 		if err != nil {
 			log.Printf("Error fetching user legal data: %s", err)
@@ -270,7 +292,8 @@ func ApproveClaim(userID, sponsorID uint, claimID uint, sponsorCheck models.Clai
 
 	// Verify the bounty sponsor is associated with the claim
 	bounty, err := GetBountyByID(claim.BountyID)
-	if err != nil || bounty.SponsorID != sponsorID || bounty.SponsorID != userID {
+	if err != nil || bounty.SponsorID != userID || bounty.SponsorID != checkerID {
+		log.Printf("Error Approving Bounty | Checker ID (pl): %d | User ID (tok): %d | Sponsor ID (db): %d", checkerID, userID, bounty.SponsorID)
 		tx.Rollback()
 		return models.ErrApproveClaimNotOwned
 	}
@@ -296,7 +319,7 @@ func ApproveClaim(userID, sponsorID uint, claimID uint, sponsorCheck models.Clai
 	}
 
 	// Set sponsor check details
-	sponsorCheck.CheckerID = sponsorID
+	sponsorCheck.CheckerID = checkerID
 	sponsorCheck.CheckerType = "OWNER"
 
 	// Save sponsor check

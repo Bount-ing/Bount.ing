@@ -1,6 +1,7 @@
 package processor
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -81,5 +82,17 @@ func ProcessEvents() error {
 func processor(msg []byte) error {
 	fmt.Println("Processing message:", string(msg))
 
+	//Unmarshal the message
+	message := map[string]interface{}{}
+	err := json.Unmarshal(msg, &message)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal message: %w", err)
+	}
+
+	if message["event"] == "user_creation" {
+		if err := processUserCreation(message); err != nil {
+			return err
+		}
+	}
 	return nil
 }

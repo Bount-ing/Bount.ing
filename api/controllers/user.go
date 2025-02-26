@@ -11,6 +11,7 @@ import (
 
 	"github.com/bount-ing/bount.ing/api/db"
 	"github.com/bount-ing/bount.ing/api/models"
+	"github.com/bount-ing/bount.ing/api/processor"
 	"github.com/bount-ing/bount.ing/api/tools"
 	"gorm.io/gorm"
 )
@@ -49,6 +50,7 @@ func CreateUser(user models.User) error {
 		return err
 	}
 
+	// This parts should be move through the event processor
 	nGens := 0
 	for {
 		var n int64
@@ -99,6 +101,17 @@ func CreateUser(user models.User) error {
 	if err != nil {
 		db.DB.Delete(&user)
 		return err
+	}
+	////////////////
+
+	// Push Event
+	message := map[string]interface{}{
+		"event": "user_creation",
+	}
+
+	err = processor.PublishEvent("events", message)
+	if err != nil {
+		log.Fatalf("Error publishing JSON message: %s", err)
 	}
 
 	return nil

@@ -300,7 +300,7 @@ const approveClaim = async (claimId) => {
         repoName: String(repoName),
         prNumber: String(prNumber),
         checkerType: 'OWNER',
-        checkerId: userStore.user.ID
+        checkerId: userStore.user.id
       }
     }
 

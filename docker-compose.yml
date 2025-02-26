@@ -3,6 +3,9 @@ services:
     image: postgres
     env_file:
       - .env
+    environment:
+      - POSTGRES_PASSWORD=${DB_PWD}
+      - POSTGRES_USER=${DB_USER}
     ports:
       - 6500:${DB_PORT}
     volumes:

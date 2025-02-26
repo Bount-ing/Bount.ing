@@ -506,6 +506,8 @@ const submitClaim = async () => {
       // if contains tax_id, show the error message
       if (err.response.data.error.includes('tax')) {
         notificationStore.showNotification("Please fill in your tax information before submitting a claim. Dashboard -> Settings -> Tax Information", 'error')
+      } else if (err.response.data.error.includes('stripe account')) {
+        notificationStore.showNotification("Please connect your stripe account before submitting a claim. Dashboard -> Hosts -> Stripe Connect", 'error')
       } else {
         notificationStore.showNotification(err.response.data.error, 'error')
       }
