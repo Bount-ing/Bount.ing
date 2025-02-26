@@ -105,10 +105,17 @@ func checkEnv() {
 
 	// Optional environment variables
 	// Discord
-	if os.Getenv("DISCORD_WEBHOOK_URL_BOUNTIES") == "" {
-		log.Println("DISCORD_WEBHOOK_URL_BOUNTIES is not set")
+	if os.Getenv("DISCORD_BOUNTIES_WEBHOOK_URL") == "" {
+		log.Println("DISCORD_BOUNTIES_WEBHOOK_URL is not set")
 	}
 
+	if os.Getenv("DISCORD_ERRORS_WEBHOOK_URL") == "" {
+		log.Println("DISCORD_ERRORS_WEBHOOK_URL is not set")
+	}
+
+	if os.Getenv("DISCORD_EVENTS_WEBHOOK_URL") == "" {
+		log.Println("DISCORD_EVENTS_WEBHOOK_URL is not set")
+	}
 }
 
 func main() {
