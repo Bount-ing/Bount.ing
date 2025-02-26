@@ -197,6 +197,9 @@ import { ref, computed, onMounted } from 'vue'
 import { api } from '@/stores/api'
 import axios from 'axios' // Ensure axios is available
 import { useUserStore } from '../../stores/user'
+import { useNotificationStore } from '../../stores/notification'
+
+const notificationStore = useNotificationStore()
 
 const userStore = useUserStore()
 
@@ -310,9 +313,24 @@ const approveClaim = async (claimId) => {
 
     console.log('Claim approval response:', response)
     await fetchBounties() // Refresh data
-  } catch (error) {
+  } catch (err) {
     console.error('Error approving claim:', error)
-    error.value = error.response?.data?.message || 'Failed to approve claim. Please try again.'
+    if (err.response) {
+      // if contains tax_id, show the error message
+      if (err.response.data.error.includes('tax')) {
+        notificationStore.showNotification(
+          'Please fill in your tax information before approving a claim. Dashboard -> Settings -> Tax Information',
+          'error'
+        )
+      } else {
+        notificationStore.showNotification(err.response.data.error, 'error')
+      }
+    } else {
+      notificationStore.showNotification(
+        'Failed to approve claim. Please try again later.',
+        'error'
+      )
+    }
   }
 }
 const rejectClaim = async (claimId) => {
@@ -343,14 +361,12 @@ const confirmDeleteBounty = async (bountyId) => {
 
       // After successful deletion, re-fetch the bounties to update the view
       await fetchBounties()
-
     } catch (deleteError) {
       console.error('Error deleting bounty:', deleteError)
       error.value = 'Failed to delete bounty. Please try again.'
     }
   }
 }
-
 
 const formatDate = (date) => {
   if (!date) return 'N/A'

@@ -136,7 +136,9 @@
                             <span v-else class="text-red-500">❌</span>
                           </td>
                           <td class="px-4 py-2 text-center">
-                            <span v-if="bounty.sponsor?.issueClosed" class="text-green-500">✔</span>
+                            <span v-if="bounty.sponsor?.issueClosed" class="text-green-500"
+                              >✔</span
+                            >
                             <span v-else class="text-red-500">❌</span>
                           </td>
                         </tr>
@@ -294,14 +296,13 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useUserStore } from '../stores/user';
+import { useUserStore } from '../stores/user'
 import { api } from '@/stores/api'
 import { useNotificationStore } from '@/stores/notification'
 import axios from 'axios' // Ensure axios is available
 
-
-const userStore = useUserStore();
-const notificationStore = useNotificationStore();
+const userStore = useUserStore()
+const notificationStore = useNotificationStore()
 
 const route = useRoute()
 
@@ -461,7 +462,7 @@ const submitClaim = async () => {
     const repoSponsor = prParts[1]
     const repoName = prParts[2]
     const prNumber = prParts[4]
- 
+
     console.log('Submitting user: ', userStore.user)
 
     const claimData = {
@@ -479,7 +480,7 @@ const submitClaim = async () => {
         repoSponsor: String(repoSponsor),
         repoName: String(repoName),
         prNumber: String(prNumber),
-        checkerType: "CLAIMER",
+        checkerType: 'CLAIMER',
         checkerId: userStore.user.id
       }
     }
@@ -505,15 +506,21 @@ const submitClaim = async () => {
     if (err.response) {
       // if contains tax_id, show the error message
       if (err.response.data.error.includes('tax')) {
-        notificationStore.showNotification("Please fill in your tax information before submitting a claim. Dashboard -> Settings -> Tax Information", 'error')
+        notificationStore.showNotification(
+          'Please fill in your tax information before submitting a claim. Dashboard -> Settings -> Tax Information',
+          'error'
+        )
       } else if (err.response.data.error.includes('stripe account')) {
-        notificationStore.showNotification("Please connect your stripe account before submitting a claim. Dashboard -> Hosts -> Stripe Connect", 'error')
+        notificationStore.showNotification(
+          'Please connect your stripe account before submitting a claim. Dashboard -> Hosts -> Stripe Connect',
+          'error'
+        )
       } else {
         notificationStore.showNotification(err.response.data.error, 'error')
       }
     } else {
       notificationStore.showNotification('Failed to submit claim. Please try again later.', 'error')
-        }
+    }
   } finally {
     submitting.value = false
   }

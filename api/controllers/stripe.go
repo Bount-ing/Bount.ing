@@ -117,6 +117,9 @@ func PayoutBounty(bounty models.Bounty, sponsorStripeCustomerID, bountyHunterStr
 
 	paymentMethodID := customer.InvoiceSettings.DefaultPaymentMethod.ID
 
+	appFee := bounty.ClaimedAmount * 0.042
+	appFeeWithVAT := appFee * 1.21
+
 	// Create PaymentIntent
 	params := &stripe.PaymentIntentParams{
 		Amount:               stripe.Int64(int64(bounty.ClaimedAmount * 100)),
@@ -124,7 +127,7 @@ func PayoutBounty(bounty models.Bounty, sponsorStripeCustomerID, bountyHunterStr
 		Customer:             stripe.String(sponsorStripeCustomerID),
 		PaymentMethod:        stripe.String(paymentMethodID),
 		Confirm:              stripe.Bool(true),
-		ApplicationFeeAmount: stripe.Int64(int64(bounty.ClaimedAmount * 100)),
+		ApplicationFeeAmount: stripe.Int64(int64(appFeeWithVAT * 100)),
 		TransferData: &stripe.PaymentIntentTransferDataParams{
 			Destination: stripe.String(bountyHunterStripeAccountID),
 		},

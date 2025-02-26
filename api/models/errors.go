@@ -44,6 +44,8 @@ var (
 	ErrBountyAmountCalculationFailed = errors.New("api_error_15: failed to calculate bounty amount")
 	ErrSponsorRejectedClaimCheck     = errors.New("api_error_16: claim check was rejected by sponsor")
 
+	ErrBountyAlreadyClosed = errors.New("api_error_43: bounty is already closed")
+
 	// Permissions
 	ErrOAuthStateExpired    = errors.New("api_error_17: oauth state expired")
 	ErrApproveClaimNotOwned = errors.New("api_error_18: cannot approve a claim that is not owned by the user")

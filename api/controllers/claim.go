@@ -201,7 +201,7 @@ func ClaimBounty(claimerID uint, issueID uint, pullRequestURL string, claimDetai
 					<li>Pull Request: %s</li>
 				</ul>
 				<p> Please review the claim and approve or reject it.</p>
-				<p> Dashboard: <a href="https://bount.ing/profile">Review your Bounties</a></p>
+				<p> Dashboard: <a href="https://bount.ing/profile#bounties">Review your Bounties</a></p>
 				<p>Thank you for your contribution!</p>`,
 				bounty.ID, issueID, pullRequestURL,
 			)
@@ -265,7 +265,7 @@ func ApproveClaim(userID, checkerID uint, claimID uint, sponsorCheck models.Clai
 
 	// Check legal Tax ID for the sponsor
 	sponsorLegalData, err := GetLegalEntity(user.ID)
-	if invoice {
+	if invoice || true {
 		if err != nil {
 			log.Printf("Error fetching user legal data: %s", err)
 			return models.ErrInvoiceWithoutLegalEntity
@@ -290,8 +290,18 @@ func ApproveClaim(userID, checkerID uint, claimID uint, sponsorCheck models.Clai
 		return models.ErrClaimNotFound
 	}
 
+	if claim.Status == "approved" || claim.Status == "paid" {
+		tx.Rollback()
+		return errors.New("claim already approved")
+	}
+
 	// Verify the bounty sponsor is associated with the claim
 	bounty, err := GetBountyByID(claim.BountyID)
+	if bounty.Status == "closed" {
+		tx.Rollback()
+		return models.ErrBountyAlreadyClosed
+	}
+
 	if err != nil || bounty.SponsorID != userID || bounty.SponsorID != checkerID {
 		log.Printf("Error Approving Bounty | Checker ID (pl): %d | User ID (tok): %d | Sponsor ID (db): %d", checkerID, userID, bounty.SponsorID)
 		tx.Rollback()
@@ -425,9 +435,86 @@ func ApproveClaim(userID, checkerID uint, claimID uint, sponsorCheck models.Clai
 			log.Print(err)
 		}
 
-		// Generate PDF invoice for the platform fees
-		if err := tools.GenerateInvoice(bounty.ID, claim.ID); err != nil {
-			log.Printf("Failed to generate invoice for claimer %d: %v", claimerCheck.CheckerID, err)
+		/*
+
+			// Generate PDF invoice for the platform fees
+			if err := tools.GenerateInvoice(bounty.ID, claim.ID); err != nil {
+				log.Printf("Failed to generate invoice for claimer %d: %v", claimerCheck.CheckerID, err)
+			}
+		*/
+
+		claimer, err := GetUserByID(claimerCheck.CheckerID)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+
+		sponsor, err := GetUserByID(checkerID)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+
+		claimerLegalData, err := GetLegalEntity(claimer.ID)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+
+		sponsorLegalData, err := GetLegalEntity(sponsor.ID)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+
+		// Send email to support@bount.ing for manual invoice generation
+		mailContent := fmt.Sprintf(
+			`<p>Hi Support,</p>
+			<p>A new claim has been approved and processed for bounty %d.</p>
+			<p>Claim Details:</p>
+			<ul>
+				<li>Issue: %d</li>
+				<li>Pull Request: %s</li>
+				<li>Claim Date: %s</li>
+				<li>Claim Reward: %.2f</li>
+			</ul>
+
+			<p>Claimer Details:</p>
+			<ul>
+				<li>User ID: %d</li>
+				<li>Legal Name / Company: %s</li>
+				<li>Document Type: %s</li>
+				<li>Document Country: %s</li>
+				<li>Document Number: %s</li>
+				<li>Address: %s</li>
+				<li>City: %s</li>
+				<li>Zip: %s</li>
+				<li>State: %s</li>
+				<li>Country: %s</li>
+			</ul>
+
+			<p>Sponsor Details:</p>
+			<ul>
+				<li>User ID: %d</li>
+				<li>Legal Name / Company: %s</li>
+				<li>Document Type: %s</li>
+				<li>Document Country: %s</li>
+				<li>Document Number: %s</li>
+				<li>Address: %s</li>
+				<li>City: %s</li>
+				<li>Zip: %s</li>
+				<li>State: %s</li>
+				<li>Country: %s</li>
+			</ul>
+
+			<p>Thank you for your support!</p>`,
+			bounty.ID, claim.IssueID, claim.PullRequestURL, claim.CreatedAt.Format("2006-01-02 15:04:05"), claim.ClaimedAmount,
+			claimer.ID, claimerLegalData.LegalName, claimerLegalData.DocumentType, claimerLegalData.DocumentCountry, claimerLegalData.DocumentNumber, claimerLegalData.LegalAddress, claimerLegalData.LegalCity, claimerLegalData.LegalZip, claimerLegalData.LegalState, claimerLegalData.LegalCountry,
+			sponsor.ID, sponsorLegalData.LegalName, sponsorLegalData.DocumentType, sponsorLegalData.DocumentCountry, sponsorLegalData.DocumentNumber, sponsorLegalData.LegalAddress, sponsorLegalData.LegalCity, sponsorLegalData.LegalZip, sponsorLegalData.LegalState, sponsorLegalData.LegalCountry,
+		)
+
+		if err := tools.SendEmail("support@bount.ing", "Bount.ing - Invoice Request", mailContent); err != nil {
+			log.Print("Failed to send email to support")
 		}
 
 	}()
