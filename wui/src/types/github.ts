@@ -28,7 +28,7 @@ export interface GithubUser {
     id: number;
     name: string;
     full_name: string;
-    sponsor: {
+    owner: {
       login: string;
       avatar_url: string;
     };
