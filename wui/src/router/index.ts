@@ -6,10 +6,51 @@ import UserSignUp from '@/views/UserSignUp.vue'
 import UserSetPassword from '@/views/UserSetPassword.vue'
 import { useAuthStore } from '@/stores/auth'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import LandingView from '@/views/LandingView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/',
+      component: LoginLayout,
+      children: [
+        {
+          path: '',
+          name: 'landing',
+          meta: { skipIfLoggedIn: true },
+          component: LandingView
+        },
+        {
+          path: 'signin',
+          name: 'userSignIn',
+          meta: { skipIfLoggedIn: true },
+          component: UserSignIn
+        },
+        {
+          path: 'signup',
+          name: 'userSignUp',
+          meta: { skipIfLoggedIn: true },
+          component: UserSignUp
+        },
+        {
+          path: 'signup/verify/:mailb64/:code',
+          name: 'userSetPassword',
+          meta: { skipIfLoggedIn: true },
+          component: UserSetPassword
+        },
+        {
+          path: '/reset-password',
+          name: 'ResetPassword',
+          component: () => import('@/views/UserResetPassword.vue')
+        },
+        {
+          path: '/reset-password/:code',
+          name: 'ResetPasswordWithCode',
+          component: () => import('@/views/UserResetPassword.vue')
+        }
+      ]
+    },
     {
       path: '/',
       name: 'Bount.ing',
@@ -86,40 +127,6 @@ const router = createRouter({
           path: '/connect/stripe',
           name: 'ConnectStripe',
           component: () => import('../views/ConnectStripeView.vue')
-        }
-      ]
-    },
-    {
-      path: '/',
-      component: LoginLayout,
-      children: [
-        {
-          path: 'signin',
-          name: 'userSignIn',
-          meta: { skipIfLoggedIn: true },
-          component: UserSignIn
-        },
-        {
-          path: 'signup',
-          name: 'userSignUp',
-          meta: { skipIfLoggedIn: true },
-          component: UserSignUp
-        },
-        {
-          path: 'signup/verify/:mailb64/:code',
-          name: 'userSetPassword',
-          meta: { skipIfLoggedIn: true },
-          component: UserSetPassword
-        },
-        {
-          path: '/reset-password',
-          name: 'ResetPassword',
-          component: () => import('@/views/UserResetPassword.vue')
-        },
-        {
-          path: '/reset-password/:code',
-          name: 'ResetPasswordWithCode',
-          component: () => import('@/views/UserResetPassword.vue')
         }
       ]
     }
