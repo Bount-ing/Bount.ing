@@ -20,6 +20,10 @@
           <font-awesome-icon icon="chart-bar" class="text-primary-light text-2xl p-1" />
           <span>{{ $t('navigation.dashboard') }}</span>
         </router-link>
+        <router-link v-if="isLoggedIn" to="/bounties" class="flex flex-col items-center px-3 py-1 rounded-md text-sm font-medium hover:bg-secondary-dark">
+          <font-awesome-icon icon="list-check" class="text-primary-light text-2xl p-1" />
+          <span>{{ $t('navigation.bounties') }}</span>
+        </router-link>
         <router-link to="/pricing" class="flex flex-col items-center px-3 py-1 rounded-md text-sm font-medium hover:bg-secondary-dark">
           <font-awesome-icon icon="dollar-sign" class="text-primary-light text-2xl p-1" />
           <span>{{ $t('navigation.pricing') }}</span>

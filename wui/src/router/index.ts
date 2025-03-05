@@ -57,8 +57,8 @@ const router = createRouter({
       component: DefaultLayout,
       children: [
         {
-          path: '',
-          name: 'Home',
+          path: '/bounties',
+          name: 'Bounties',
           component: HomeView
         },
         {
