@@ -2,7 +2,8 @@
     "greeting": "Hola",
     "navigation": {
         "home": "Hogar",
-        "dashboard": "Tablero de instrumentos",
+        "dashboard": "Tablero de control",
+        "bounties": "Recompensas",
         "pricing": "Precios",
         "about": "Sobre nosotros",
         "faq": "PREGUNTAS FRECUENTES.",
@@ -27,8 +28,8 @@
         "no_bounties_found": "No se encontraron recompensas.",
         "select_bounty_type": "Seleccionar tipo de recompensa",
         "create_increasing_bounty": "Crea una recompensa creciente.",
-        "create_single_bounty": "Crear una sola recompensa.",
-        "create_decreasing_bounty": "Crea una recompensa decreciente.",
+        "create_single_bounty": "Crear un solo bounty.",
+        "create_decreasing_bounty": "Crear una recompensa decreciente",
         "claim": "Reclama la recompensa.",
         "raise": "Aumenta la recompensa.",
         "bounty_amount": "Monto de la recompensa",
@@ -66,7 +67,7 @@
         "organizations": "Organizaciones",
         "settings": "Configuraciones",
         "import_issue": "Problemas de importación desde la URL de GitHub",
-        "payment_setup": "Configuración de Pago"
+        "payment_setup": "Métodos de pago"
     },
     "payment": {
         "finalize": "Finalizar",
@@ -83,10 +84,10 @@
     "language": {
         "english": "Inglés",
         "spanish": "español",
-        "french": "francés",
+        "french": "Francés",
         "catalan": "catalán",
-        "portuguese": "portugués",
-        "euskera": "euskera"
+        "portuguese": "Portugués",
+        "euskera": "Euskera"
     },
     "activity": {
         "action_in_repo": "actuó en el repositorio",

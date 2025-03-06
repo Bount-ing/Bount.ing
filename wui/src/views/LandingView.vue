@@ -13,18 +13,18 @@
 
         <!-- CTA Buttons -->
         <div class="flex flex-col sm:flex-row gap-4 mb-8">
-          <button
-            class="bg-primary text-white py-2 px-6 rounded-lg text-lg hover:bg-primary-light transition"
+          <router-link
+          class="bg-primary text-white py-2 px-6 rounded-lg text-lg hover:bg-primary-light transition"
             to="/signup"
           >
             Sign In
-          </button>
-          <button
-            class="bg-success text-white py-2 px-6 rounded-lg text-lg hover:bg-success-light transition"
+          </router-link>
+          <router-link
+          class="bg-success text-white py-2 px-6 rounded-lg text-lg hover:bg-success-light transition"
             to="/signup"
           >
             Sign Up
-          </button>
+          </router-link>
         </div>
 
         <!-- Secondary Actions -->

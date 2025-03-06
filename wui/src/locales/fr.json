@@ -3,6 +3,7 @@
     "navigation": {
         "home": "Accueil",
         "dashboard": "Tableau de bord",
+        "bounties": "Récompenses",
         "pricing": "Tarification",
         "about": "À propos de nous",
         "faq": "F.A.Q.",
@@ -11,16 +12,16 @@
     "account": {
         "signin": "Se connecter",
         "signup": "Inscription",
-        "logout": "Déconnexion",
+        "logout": "Se déconnecter",
         "userCredentials": {
-            "welcome": "Bienvenue de nouveau !",
+            "welcome": "Bienvenue de retour !",
             "enterCredentials": "Veuillez entrer vos identifiants.",
             "email": "Adresse e-mail",
             "password": "Mot de passe",
             "rememberMe": "Souviens-toi de moi",
             "forgotPassword": "Mot de passe oublié ?",
             "enter": "Entrer",
-            "noAccount": "Pas de compte ? Inscrivez-vous."
+            "noAccount": "Vous n'avez pas de compte ? Inscrivez-vous."
         }
     },
     "bounties": {
@@ -28,9 +29,9 @@
         "select_bounty_type": "Sélectionnez le type de prime",
         "create_increasing_bounty": "Créer une prime croissante",
         "create_single_bounty": "Créer une seule prime",
-        "create_decreasing_bounty": "Créer une prime décroissante",
+        "create_decreasing_bounty": "Créez une prime décroissante.",
         "claim": "Revendiquer la prime",
-        "raise": "Augmentez la récompense.",
+        "raise": "Augmentez la prime.",
         "bounty_amount": "Montant de la récompense",
         "start_date": "Date de début",
         "end_date": "Date de fin"
@@ -46,7 +47,7 @@
     },
     "issues": {
         "available_issues": "Problèmes disponibles",
-        "private_issue": "Problème personnel",
+        "private_issue": "Problème privé",
         "details_are_confidential": "Les détails sont confidentiels.",
         "need_to_be_logged_in": "Vous devez être connecté et autorisé pour voir cela."
     },
@@ -66,7 +67,7 @@
         "organizations": "Organisations",
         "settings": "Paramètres",
         "import_issue": "Problèmes d'importation à partir de l'URL GitHub",
-        "payment_setup": "Configuration de paiement"
+        "payment_setup": "Méthodes de paiement"
     },
     "payment": {
         "finalize": "Finaliser",

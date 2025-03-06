@@ -2,38 +2,39 @@
     "greeting": "Kaixo",
     "navigation": {
         "home": "Etxea",
-        "dashboard": "Kontrol-paneledia",
+        "dashboard": "Kontrola-panel",
+        "bounties": "Sariak",
         "pricing": "Prezioak",
         "about": "Guri buruz",
         "faq": "F.A.Q.",
-        "contact": "Harremanetan jarri gurekin"
+        "contact": "Jarri harremanetan"
     },
     "account": {
         "signin": "Saioa hasi",
-        "signup": "Iraitu",
+        "signup": "Izena eman",
         "logout": "Saioa itxi",
         "userCredentials": {
             "welcome": "Ongi etorri berriro!",
-            "enterCredentials": "Mesedez sartu zure akreditazioak.",
-            "email": "Posta elektronikoa",
+            "enterCredentials": "Mesedez sartu zure acreditazioak.",
+            "email": "Posta helbidea",
             "password": "Pasahitza",
-            "rememberMe": "Gogoratu Nahi Naiz",
-            "forgotPassword": "Pasahitzarik ahaztu al duzu?",
+            "rememberMe": "Gogoratu niri",
+            "forgotPassword": "Pasahitza ahaztu al duzu?",
             "enter": "Sartu",
             "noAccount": "Ez duzu konturik? Izena eman."
         }
     },
     "bounties": {
         "no_bounties_found": "Ez da sariik aurkitu.",
-        "select_bounty_type": "Aukera mota aukeratu",
-        "create_increasing_bounty": "Sortu sari handi bat.",
+        "select_bounty_type": "Hautatu irabazi mota",
+        "create_increasing_bounty": "Sormena bat sortu.",
         "create_single_bounty": "Sortu irabazi bat.",
-        "create_decreasing_bounty": "Sortu bounty murriztuz.",
-        "claim": "Eskaintza eskuratu.",
-        "raise": "Handiaztu irabazia.",
+        "create_decreasing_bounty": "Sormena bat sortu.",
+        "claim": "Sartu irabaziena",
+        "raise": "Handia igo.",
         "bounty_amount": "Saria kopurua",
-        "start_date": "Hasiera data",
-        "end_date": "Amaiera data"
+        "start_date": "Haste data",
+        "end_date": "Buka data"
     },
     "status": {
         "status": "Egoera",
@@ -42,54 +43,54 @@
     },
     "transactions": {
         "no_transactions_found": "Ez da transakziorik aurkitu.",
-        "amount": "Kantitate"
+        "amount": "Kantitatea"
     },
     "issues": {
-        "available_issues": "Araubideak eskuragarri",
-        "private_issue": "Gai pribatu",
+        "available_issues": "Araupeneko arazoak",
+        "private_issue": "Pribatu arazoa",
         "details_are_confidential": "Xehetasunak konfidentzialak dira.",
-        "need_to_be_logged_in": "Sartu eta baimenduta egon behar duzu hau ikusteko."
+        "need_to_be_logged_in": "Saioa hasi eta baimenduta egon behar duzu hau ikusteko."
     },
     "profile": {
         "personal_information": "Informazio Pertsonala",
         "full_name": "Izena osoa",
         "email_address": "Posta helbidea",
         "phone_number": "Telefono zenbakia",
-        "location": "Kokaleku",
+        "location": "Kokapena",
         "about_me": "Niri buruz",
         "repositories": "Erakundeak",
         "issues": "Arazoak",
-        "bounties": "Sariak",
-        "badges": "Iragazkiak",
-        "hosts": "Hosteak",
+        "bounties": "Sariau",
+        "badges": "Banda",
+        "hosts": "Hizkuntzak",
         "payments": "Ordainak",
         "organizations": "Antolakuntzak",
         "settings": "Ezarpenak",
-        "import_issue": "GitHub URL-tik Arazoak Inportatu",
-        "payment_setup": "Ordainketa Ezarpena"
+        "import_issue": "GitHub URL-tik Inportatze Arazoak",
+        "payment_setup": "Ordainketa Moduak"
     },
     "payment": {
         "finalize": "Amaitu",
         "card_information": "Txartelaren Informazioa",
         "card_number": "Txartel Zenbakia",
-        "expiry_date": "Iraungarbiako Data",
+        "expiry_date": "Iraungarritasun Data",
         "card_holder_name": "Txartelaren Jabea"
     },
     "legal": {
         "tos": "Zerbitzu Baldintzak",
         "privacy_policy": "Pribatutasun Politika",
-        "all_rights_reserved": "Eskubide guztiak erreserbatuta"
+        "all_rights_reserved": "Dituen eskubide guztiak erreserbatuta."
     },
     "language": {
-        "english": "Ingelesa",
+        "english": "Euskara",
         "spanish": "euskara",
-        "french": "frantses",
+        "french": "Frantses.",
         "catalan": "Katalaniera",
         "portuguese": "Euskara",
         "euskera": "Euskara"
     },
     "activity": {
-        "action_in_repo": "jokatzaileak biltegian",
+        "action_in_repo": "biltegian jokatu",
         "repo_link": "Hemen klikatu ikusteko"
     },
     "contact": {
@@ -98,10 +99,10 @@
         "github": "GitHub"
     },
     "signup": {
-        "register": "Iraitu",
-        "email_label": "Email"
+        "register": "Izena eman",
+        "email_label": "Emaila"
     },
     "faq": {
-        "support": "Eraman."
+        "support": "Eskuera"
     }
 }

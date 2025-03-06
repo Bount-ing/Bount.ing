@@ -1,105 +1,108 @@
 {
     "greeting": "Olá",
     "navigation": {
-      "home": "Início",
-      "dashboard": "Painel de controle",
-      "pricing": "Preços",
-      "about": "Sobre nós",
-      "faq": "Perguntas frequentes",
-      "contact": "Contato"
+        "home": "Casa",
+        "dashboard": "Painel de controle",
+        "bounties": "Recompensas",
+        "pricing": "Preços",
+        "about": "Sobre Nós",
+        "faq": "Perguntas Frequentes (F.A.Q.)",
+        "contact": "Fale Conosco"
     },
     "account": {
-      "signin": "Entrar",
-      "signup": "Cadastrar",
-      "logout": "Sair",
-      "userCredentials": {
-        "welcome": "Bem-vindo de volta!",
-        "enterCredentials": "Por favor, insira suas credenciais",
-        "email": "Endereço de e-mail",
-        "password": "Senha",
-        "rememberMe": "Lembrar de mim",
-        "forgotPassword": "Esqueceu a senha?",
-        "enter": "Entrar",
-        "noAccount": "Não tem uma conta? Cadastre-se"
-      }
+        "signin": "Entrar",
+        "signup": "Inscrever-se",
+        "logout": "Sair",
+        "userCredentials": {
+            "welcome": "Bem-vindo de volta!",
+            "enterCredentials": "Por favor, insira suas credenciais.",
+            "email": "Endereço de E-mail",
+            "password": "Senha",
+            "rememberMe": "Lembre-se de Mim",
+            "forgotPassword": "Esqueceu a senha?",
+            "enter": "Entrar",
+            "noAccount": "Não tem uma conta? Inscreva-se."
+        }
     },
     "bounties": {
-      "no_bounties_found": "Nenhuma recompensa encontrada.",
-      "select_bounty_type": "Selecione o tipo de recompensa",
-      "create_increasing_bounty": "Criar uma recompensa crescente",
-      "create_single_bounty": "Criar uma recompensa única",
-      "create_decreasing_bounty": "Criar uma recompensa decrescente",
-      "claim": "Reivindicar a recompensa",
-      "raise": "Aumentar a recompensa",
-      "bounty_amount": "Valor da recompensa",
-      "start_date": "Data de início",
-      "end_date": "Data de término"
+        "no_bounties_found": "Nenhuma recompensa encontrada.",
+        "select_bounty_type": "Selecione o tipo de recompensa",
+        "create_increasing_bounty": "Crie uma recompensa crescente.",
+        "create_single_bounty": "Crie uma única recompensa.",
+        "create_decreasing_bounty": "Crie uma recompensa decrescente.",
+        "claim": "Reivindique a recompensa",
+        "raise": "Aumente a recompensa",
+        "bounty_amount": "Valor da recompensa",
+        "start_date": "Data de início",
+        "end_date": "Data de término"
     },
     "status": {
-      "status": "Status",
-      "type": "Tipo",
-      "date": "Data"
+        "status": "Status",
+        "type": "Tipo",
+        "date": "Data"
     },
     "transactions": {
-      "no_transactions_found": "Nenhuma transação encontrada.",
-      "amount": "Valor"
+        "no_transactions_found": "Nenhuma transação encontrada.",
+        "amount": "Quantidade"
     },
     "issues": {
-      "available_issues": "Problemas disponíveis",
-      "private_issue": "Problema privado",
-      "details_are_confidential": "Os detalhes são confidenciais.",
-      "need_to_be_logged_in": "Você precisa estar logado e autorizado para ver isso."
+        "available_issues": "Problemas disponíveis",
+        "private_issue": "Questão privada",
+        "details_are_confidential": "Os detalhes são confidenciais.",
+        "need_to_be_logged_in": "Você precisa estar logado e autorizado para visualizar isso."
     },
     "profile": {
-      "personal_information": "Informações pessoais",
-      "full_name": "Nome completo",
-      "email_address": "Endereço de e-mail",
-      "phone_number": "Número de telefone",
-      "location": "Localização",
-      "about_me": "Sobre mim",
-      "repositories": "Repositórios",
-      "issues": "Problemas",
-      "bounties": "Recompensas",
-      "badges": "Emblemas",
-      "hosts": "Hospedeiros",
-      "payments": "Pagamentos",
-      "organizations": "Organizações"
+        "personal_information": "Informações Pessoais",
+        "full_name": "Nome Completo",
+        "email_address": "Endereço de E-mail",
+        "phone_number": "Número de telefone",
+        "location": "Localização",
+        "about_me": "Sobre Mim",
+        "repositories": "Repositórios",
+        "issues": "Questões",
+        "bounties": "Recompensas",
+        "badges": "Distintivos",
+        "hosts": "Anfitriões",
+        "payments": "Pagamentos",
+        "organizations": "Organizações",
+        "settings": "Configurações",
+        "import_issue": "Importar problemas do URL do GitHub",
+        "payment_setup": "Métodos de Pagamento"
     },
     "payment": {
-      "finalize": "Finalizar",
-      "card_information": "Informações do cartão",
-      "card_number": "Número do cartão",
-      "expiry_date": "Data de validade",
-      "card_holder_name": "Nome do titular do cartão"
+        "finalize": "Finalizar",
+        "card_information": "Informações do Cartão",
+        "card_number": "Número do Cartão",
+        "expiry_date": "Data de Validade",
+        "card_holder_name": "Nome do Titular do Cartão"
     },
     "legal": {
-      "tos": "Termos de uso",
-      "privacy_policy": "Política de privacidade",
-      "all_rights_reserved": "Todos os direitos reservados"
+        "tos": "Termos de Serviço",
+        "privacy_policy": "Política de Privacidade",
+        "all_rights_reserved": "Todos os direitos reservados"
     },
     "language": {
-      "english": "Inglês",
-      "spanish": "Espanhol",
-      "french": "Francês",
-      "catalan": "Catalão",
-      "portuguese": "Português",
-      "euskera": "Basco"
+        "english": "Inglês",
+        "spanish": "Espanhol",
+        "french": "francês",
+        "catalan": "catalão",
+        "portuguese": "Português",
+        "euskera": "Basco"
     },
     "activity": {
-      "action_in_repo": "agiu no repositório",
-      "repo_link": "Clique aqui para ver"
+        "action_in_repo": "atuou no repositório",
+        "repo_link": "Clique aqui para ver"
     },
     "contact": {
-      "linkedin": "LinkedIn",
-      "discord": "Discord",
-      "github": "Github"
+        "linkedin": "LinkedIn",
+        "discord": "Discord",
+        "github": "GitHub"
     },
     "signup": {
-      "register": "Cadastrar",
-      "email_label": "E-mail"
+        "register": "Inscrever-se",
+        "email_label": "Email"
     },
     "faq": {
-      "support": "Suporte"
+        "support": "Apoio"
     }
-  }
-  
+}
