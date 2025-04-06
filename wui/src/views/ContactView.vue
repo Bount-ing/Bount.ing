@@ -8,7 +8,7 @@
    
     <!-- Contact Links Section -->
     <div class="mt-12 text-center">
-      <h2 class="text-2xl font-semibold mb-4">Other Ways to Reach Us</h2>
+      <h2 class="text-2xl font-semibold mb-4">How to Reach Us</h2>
       <div class="flex justify-center space-x-6">
         <!-- LinkedIn -->
         <a href="https://www.linkedin.com/company/bount-ing" target="_blank"
