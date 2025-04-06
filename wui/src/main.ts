@@ -43,9 +43,9 @@ app.use(createGtag, gtagOptions);
 // Font Awesome Icons
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faHome, faChartBar, faDollarSign, faInfoCircle, faQuestionCircle, faEnvelope, faListCheck } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faChartBar, faDollarSign, faInfoCircle, faQuestionCircle, faEnvelope, faListCheck, faFlag } from '@fortawesome/free-solid-svg-icons';
 
-library.add(faHome, faChartBar, faDollarSign, faInfoCircle, faQuestionCircle, faEnvelope, faListCheck);
+library.add(faHome, faChartBar, faDollarSign, faInfoCircle, faQuestionCircle, faEnvelope, faListCheck, faFlag);
 
 app.component('font-awesome-icon', FontAwesomeIcon);
 

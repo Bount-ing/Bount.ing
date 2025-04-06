@@ -12,6 +12,10 @@
 
       <!-- Center Section: Navigation Icons -->
       <div class="hidden lg:flex justify-center space-x-4 text-sm">
+        <router-link to="/bounties" class="flex flex-col items-center px-3 py-1 rounded-md text-sm font-medium hover:bg-secondary-dark">
+          <font-awesome-icon icon="flag" class="text-primary-light text-2xl p-1" />
+          <span>{{ $t('navigation.bounties') }}</span>
+        </router-link>
         <router-link to="/pricing" class="flex flex-col items-center px-3 py-1 rounded-md text-sm font-medium hover:bg-secondary-dark">
           <font-awesome-icon icon="dollar-sign" class="text-primary-light text-2xl p-1" />
           <span>{{ $t('navigation.pricing') }}</span>
@@ -57,6 +61,10 @@
     <div v-if="isOpen" class="lg:hidden absolute top-16 left-0 w-full bg-secondary z-40 border-primary-dark border-b-2">
       <div class="flex flex-col space-y-4 px-6 py-4">
   <div class="flex flex-col space-y-4 px-6 py-4">
+    <router-link to="/bounties" class="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-secondary-dark">
+      <font-awesome-icon icon="flag" class="text-primary-light text-2xl py-1 px-3" />
+      <span class="text-xl">{{ $t('Bounties') }}</span>
+    </router-link>
     <router-link to="/pricing" class="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-secondary-dark">
       <font-awesome-icon icon="dollar-sign" class="text-primary-light text-2xl py-1 px-3" />
       <span class="text-xl">{{ $t('Pricing') }}</span>

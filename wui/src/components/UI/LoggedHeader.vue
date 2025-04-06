@@ -16,13 +16,13 @@
           <font-awesome-icon icon="home" class="text-primary-light text-2xl p-1" />
           <span>{{ $t('navigation.home') }}</span>
         </router-link>
+        <router-link to="/bounties" class="flex flex-col items-center px-3 py-1 rounded-md text-sm font-medium hover:bg-secondary-dark">
+          <font-awesome-icon icon="flag" class="text-primary-light text-2xl p-1" />
+          <span>{{ $t('navigation.bounties') }}</span>
+        </router-link>
         <router-link v-if="isLoggedIn" to="/profile" class="flex flex-col items-center px-3 py-1 rounded-md text-sm font-medium hover:bg-secondary-dark">
           <font-awesome-icon icon="chart-bar" class="text-primary-light text-2xl p-1" />
           <span>{{ $t('navigation.dashboard') }}</span>
-        </router-link>
-        <router-link v-if="isLoggedIn" to="/bounties" class="flex flex-col items-center px-3 py-1 rounded-md text-sm font-medium hover:bg-secondary-dark">
-          <font-awesome-icon icon="list-check" class="text-primary-light text-2xl p-1" />
-          <span>{{ $t('navigation.bounties') }}</span>
         </router-link>
         <router-link to="/pricing" class="flex flex-col items-center px-3 py-1 rounded-md text-sm font-medium hover:bg-secondary-dark">
           <font-awesome-icon icon="dollar-sign" class="text-primary-light text-2xl p-1" />
@@ -72,6 +72,10 @@
     <router-link v-if="isLoggedIn" to="/" @click="isOpen = !isOpen" class="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-secondary-dark">
       <font-awesome-icon icon="home" class="text-primary-light text-2xl py-1 px-2" />
       <span class="text-xl">{{ $t('Home') }}</span>
+    </router-link>
+    <router-link to="/bounties" class="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-secondary-dark">
+      <font-awesome-icon icon="flag" class="text-primary-light text-2xl py-1 px-3" />
+      <span class="text-xl">{{ $t('Bounties') }}</span>
     </router-link>
     <router-link  v-if="isLoggedIn" to="/profile" class="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-secondary-dark">
       <font-awesome-icon icon="chart-bar" class="text-primary-light text-2xl py-1 px-2" />

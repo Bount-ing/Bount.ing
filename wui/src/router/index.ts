@@ -1,11 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
+
 import HomeView from '../views/HomeView.vue'
-import LoginLayout from '@/layouts/LoginLayout.vue'
 import UserSignIn from '@/views/UserSignIn.vue'
 import UserSignUp from '@/views/UserSignUp.vue'
 import UserSetPassword from '@/views/UserSetPassword.vue'
 import { useAuthStore } from '@/stores/auth'
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
+
 import LandingView from '@/views/LandingView.vue'
 
 const router = createRouter({
@@ -13,12 +14,11 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      component: LoginLayout,
+      component: DefaultLayout,
       children: [
         {
           path: '',
           name: 'landing',
-          meta: { skipIfLoggedIn: true },
           component: LandingView
         },
         {
@@ -48,14 +48,7 @@ const router = createRouter({
           path: '/reset-password/:code',
           name: 'ResetPasswordWithCode',
           component: () => import('@/views/UserResetPassword.vue')
-        }
-      ]
-    },
-    {
-      path: '/',
-      name: 'Bount.ing',
-      component: DefaultLayout,
-      children: [
+        },
         {
           path: '/bounties',
           name: 'Bounties',
@@ -64,25 +57,12 @@ const router = createRouter({
         {
           path: '/about',
           name: 'About Bount.ing',
-          // route level code-splitting
-          // this generates a separate chunk (About.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
           component: () => import('../views/AboutView.vue')
         },
         {
           path: '/contact',
           name: 'Contact Bount.ing',
           component: () => import('../views/ContactView.vue')
-        },
-        {
-          path: '/dashboard',
-          name: 'Dashboard',
-          component: () => import('../views/DashboardView.vue')
-        },
-        {
-          path: '/admin',
-          name: 'AdminDashboard',
-          component: () => import('../views/AdminDashboard.vue')
         },
         {
           path: '/privacy',
@@ -100,6 +80,21 @@ const router = createRouter({
           component: () => import('../views/HelpFAQView.vue')
         },
         {
+          path: '/pricing',
+          name: 'Pricing',
+          component: () => import('../views/PricingView.vue')
+        },
+        {
+          path: '/dashboard',
+          name: 'Dashboard',
+          component: () => import('../views/DashboardView.vue')
+        },
+        {
+          path: '/admin',
+          name: 'AdminDashboard',
+          component: () => import('../views/AdminDashboard.vue')
+        },
+        {
           path: '/profile',
           name: 'Profile',
           component: () => import('../views/UserProfileView.vue'),
@@ -112,12 +107,6 @@ const router = createRouter({
           props: true,
           meta: { needsAuth: true }
         },
-        {
-          path: '/pricing',
-          name: 'Pricing',
-          component: () => import('../views/PricingView.vue')
-        },
-
         {
           path: '/oauth',
           name: 'OAuth',
