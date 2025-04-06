@@ -15,7 +15,7 @@
         <div class="flex flex-col sm:flex-row gap-4 mb-8">
           <router-link
           class="bg-primary text-white py-2 px-6 rounded-lg text-lg hover:bg-primary-light transition"
-            to="/signup"
+            to="/signin"
           >
             Sign In
           </router-link>
