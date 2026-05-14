@@ -36,10 +36,25 @@ Bounty value follows a curve, not a flat number.
 | **Decay** (€ drops over time) | Forces solver urgency. Dutch-auction shape. | Security patches, business-critical bugs, time-sensitive launches |
 | **Appreciation** (€ grows over time) | Solves the neglected-good-issue problem — eventually stale issues become attractive | Long-tail OSS maintenance, refactors, "nice but not urgent" features |
 
+**Three presets** (locked 2026-05-14):
+
+| Preset | Shape | Floor / cap |
+|---|---|---|
+| `urgent` | Linear decay over 30d | Floor = 25% of initial |
+| `standard` | Flat 30d → linear decay 60d to floor | Floor = 25% of initial |
+| `patient` | Linear appreciation | Cap = 3× initial OR T+90d, whichever first |
+
 Design constraints:
-- 3 presets only at creation (`urgent` / `standard` / `patient`). No adversarial custom curves.
-- Appreciation capped at 3× initial or sunsets at T+90d. Unbounded growth = hoarding.
-- Pool-wide clock (not per-contribution). Simpler, prevents micro-gaming.
+- 3 presets only at creation. No custom curves (predatory shapes would game solvers).
+- Floor is a **percentage** of initial, not absolute (scales with bounty size).
+- Appreciation cap is **pool-lifetime**, not reset on new sponsors (else gameable).
+- Pool-wide clock (not per-contribution).
+- Hard expire at T+180d → unresolved pool re-routes per sponsor's pre-set destination policy.
+
+**Implementation against the integrated rail (OC at v2 launch):**
+- **Decay:** decayed portion is *re-routed*, not refunded (refunds = fund-custody = autónomo poison). Sponsor picks destination at creation: bount.ing platform fund / community treasury / other underfunded bounties.
+- **Appreciation:** sponsor pre-funds the curve_max upfront. Solver receives curve-value-at-close. Difference re-routes per sponsor's pre-set destination policy. Sponsor knows max liability at creation.
+- **v2-launch fallback:** if full euro-curves aren't engineering-ready, ship flat + curve-as-ranking-only (curve affects queue position but not euro value). Full euro-curves at v2.5. See OPEN_QUESTIONS.md Q8.
 
 **Solves:** static-bounty staleness. None of the graveyard platforms have this.
 
@@ -81,23 +96,34 @@ Bounty size encodes impact for the funded queue (market-priced). The platform's 
           ▼                                     ▼
     Solver view                          Pooling rails
     (ranked queue)                       ┌─────────────────┐
-                                         │ Drips / OC /    │
-    Sponsor view                         │ Gitcoin Allo /  │
-    (impact ÷ funding)                   │ GH Sponsors     │
+                                         │ OC → GH Sponsors│
+    Sponsor view                         │ → Drips →       │
+    (impact ÷ funding)                   │ Taler (phased)  │
                                          └─────────────────┘
                                                 ▼
                                          Maintainers / Solvers
 ```
 
-Pooling happens on existing fiscal-host rails (Drips Network, Open Collective, Gitcoin Allo, GitHub Sponsors). Compliance is handled by the rails. Bount.ing owns the algorithm and the surface, not the money.
+Pooling happens on existing fiscal-host rails (Open Collective, GitHub Sponsors, Drips Network, GNU Taler). Compliance is handled by the rails. Bount.ing owns the algorithm and the surface, not the money.
+
+**Provider-agnostic by design.** Bount.ing v2 is a federation layer over funding rails — adapter pattern, one per rail. Sponsor picks the rail when funding a bounty. Mirrors Lethe's multi-provider LLM pattern.
+
+**Rail integration sequence** (resolved 2026-05-14, see OPEN_QUESTIONS.md Decisions Log Q1):
+
+1. **Open Collective** — v2 launch. Fiscal-host model matches existing autónomo invoicing flow; zero new tax categories.
+2. **GitHub Sponsors** — v2.1. Admin-trivial; mechanism-poor (single-sponsor only).
+3. **Drips Network** — v2.5, after autónomo books stabilize. Mechanism-fit (streaming = appreciation curve) but adds crypto-as-business-income reporting overhead.
+4. **GNU Taler** — when EU exchange ecosystem matures and/or NLnet grant capture funds protocol-extension engineering.
 
 **Path A (own pooling rails, SL needed)** is deferred to v3 (2027+) — triggered by platform revenue > €1k/mo recurring and strategic need to hold funds.
 
-Revenue model under Path B (all invoiceable as autónomo):
-- **Listing fee** — sponsor pays €5–€20 to surface a bounty on the ranked board
-- **Premium API** — agent fleets that consume the queue programmatically
-- **Featured placement** — high-trust sponsors get priority surface
-- **Cut-on-close** — where integrated rails support kickback (Drips does)
+**Bount.ing as a hosted OC project.** The platform itself is hosted on Open Collective Europe (or equivalent OCE fiscal host). Listing fees + premium API + featured-placement revenue flows into the bount.ing OC project. Mía draws monthly autónomo invoice against project balance. OCE handles VAT + transparency ledger + contributor compensation. Host fee 5–10% — vastly cheaper than €6k SL setup + cuota societaria.
+
+Revenue model under Path B (all invoiceable as autónomo via OCE):
+- **Featured placement** — sponsor pays for top-of-queue visibility within their tag/repo
+- **Premium API** — agent fleets, subscription-based
+- **Rail kickback** — Drips natively; OC via host-fee-share if negotiable
+- **Listing: free** — entry friction breaks the multi-sponsor pooling mechanic (differentiator #1)
 
 ## Phased roadmap
 
@@ -118,7 +144,7 @@ Revenue model under Path B (all invoiceable as autónomo):
 
 ## Risks
 
-- **Maintainer-as-merger conflict of interest.** If a maintainer sponsors their own issue and picks the winning PR, open competition breaks. Mitigation: self-sponsored bounties require third-party validation or are flagged.
+- **Maintainer-as-merger conflict of interest.** If a maintainer sponsors their own issue and picks the winning PR, open competition breaks. Mitigation (locked 2026-05-14): self-sponsored bounties are **flagged** in the UI ("self-sponsored — sponsor is also merge authority") at v1; escalate to third-party validator only if abuse pattern observed.
 - **Wasted effort from open competition.** N solvers attempt, 1 wins. Mitigation: show "active attempt count" per issue; optional staked claim as v1+ safety valve.
 - **Decay-curve adversarial design.** Predatory curves (€100 → €1 in 24h) game solvers. Mitigation: 3 presets, no custom.
 - **GitHub lock-in.** "Merged PR = closed" is GitHub-shaped. Locks out GitLab / Codeberg. Acceptable v1 cost; revisit at v2.
